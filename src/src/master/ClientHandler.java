@@ -35,7 +35,7 @@ public class ClientHandler implements Runnable {
     }
 
     private Request route(Request request) {
-        
+        return new Request();
     }
 
 }
