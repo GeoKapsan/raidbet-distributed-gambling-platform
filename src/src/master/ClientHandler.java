@@ -1,4 +1,41 @@
 package master;
 
-public class ClientHandler {
+import shared.Request;
+import java.util.*;
+import java.io.*;
+import java.net.*;
+
+public class ClientHandler implements Runnable {
+
+    private final Socket  clientSocket;
+    private final Master master;
+
+    public ClientHandler(Socket clientSocket, Master master) {
+        this.clientSocket = clientSocket;
+        this.master = master;
+    }
+
+    @Override
+    public void run() {
+        try (
+                ObjectOutputStream output = new ObjectOutputStream(clientSocket.getOutputStream());
+                ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
+                )
+        {
+            output.flush(); // send header to avoid deadlock
+
+            Request request = (Request) input.readObject();
+
+            Request response = route(request);
+            output.writeObject(response);
+            output.flush();
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("[Master] Client handler error: " + e.getMessage());
+        }
+    }
+
+    private Request route(Request request) {
+        
+    }
+
 }

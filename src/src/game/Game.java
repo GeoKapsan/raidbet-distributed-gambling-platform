@@ -15,7 +15,6 @@ public class Game implements Serializable {
     private String hashKey;
     private boolean active = true;
 
-    // Computed — not in the JSON
     private final String bettingCategory;
     private final double jackpot;
 
