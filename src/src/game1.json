@@ -1,0 +1,11 @@
+{
+  "gameName": "Blackjack",
+  "providerName": "NetEnt",
+  "stars": 4.5,
+  "noOfVotes": 1200,
+  "logoPath": "/logos/blackjack.png",
+  "minBet": 1.0,
+  "maxBet": 500.0,
+  "riskLevel": "HIGH",
+  "hashKey": "abc123"
+}
