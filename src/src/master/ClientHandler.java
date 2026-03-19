@@ -35,7 +35,10 @@ public class ClientHandler implements Runnable {
     }
 
     private Request route(Request request) {
-        return new Request();
+        switch (request.getType()) {
+            case ADD_GAME:
+
+        }
     }
 
 }
