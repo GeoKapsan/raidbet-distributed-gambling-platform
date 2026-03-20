@@ -1,10 +1,15 @@
 package worker;
 
-public class Worker {
+import game.Game;
+import shared.Request;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
-    private final int port;
+public class Worker implements Runnable {
 
 
 
-    
+    public void run();
+
 }
