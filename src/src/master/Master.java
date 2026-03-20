@@ -15,19 +15,32 @@ public class Master {
     }
 
     public void start() {
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+        try (
+                ServerSocket serverSocket = new ServerSocket(port)
+        ) {
             System.out.println("Master server listening on port " + port);
             System.out.println("Workers' addresses: " + workerAddresses);
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("New connection from " + clientSocket.getInetAddress());
+                System.out.println("[Master] New connection from " + clientSocket.getInetAddress());
 
-                //
+                (new Thread(new ClientHandler(clientSocket, this))).start();
             }
         } catch (IOException e) {
 
         }
+    }
+
+    private int getWorkerIndex(String gameName) {
+        return Math.abs(gameName.hashCode() % workerAddresses.size()); // H(GameName) mod #(workers) returns worker that has this game
+    }
+
+    public String getWorkerAddress(String gameName) {
+        /*
+         * Returns address of worker responsible for game 'gameName'
+         */
+        return workerAddresses.get(getWorkerIndex(gameName));
     }
 
 }

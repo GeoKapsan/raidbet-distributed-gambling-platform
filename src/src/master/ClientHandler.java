@@ -24,10 +24,12 @@ public class ClientHandler implements Runnable {
         {
             output.flush(); // send header to avoid deadlock
 
-            Request request = (Request) input.readObject();
+            Request request = (Request) input.readObject(); // receive client's data
 
-            Request response = route(request);
+            Request response = route(request); // route request and send back response to client
+
             output.writeObject(response);
+
             output.flush();
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("[Master] Client handler error: " + e.getMessage());
@@ -37,8 +39,14 @@ public class ClientHandler implements Runnable {
     private Request route(Request request) {
         switch (request.getType()) {
             case ADD_GAME:
-
+                String gameName = (String) request.get("gameName");
+                return forwardToWorkerAndGetResult(request, master.getWorkerAddress(gameName));
+            default:
         }
+    }
+
+    private Request forwardToWorkerAndGetResult(Request request, String gameName) {
+
     }
 
 }
