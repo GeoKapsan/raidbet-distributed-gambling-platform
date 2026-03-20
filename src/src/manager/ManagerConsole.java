@@ -42,8 +42,8 @@ public class ManagerConsole {
             try {
                 switch (choice) {
                     case "1" -> addGame();
-                    case "2" -> removeGame();
-                    case "3" -> changeRiskLevel();
+                    //case "2" -> removeGame();
+                    //case "3" -> changeRiskLevel();
                     case "0" -> {
                         System.out.println("Exiting Manager Console.");
                         return;
@@ -105,7 +105,7 @@ public class ManagerConsole {
  
         // Διαβάζουμε μέχρι το επόμενο , ή }
         int start = afterColon + 1;
-        // Παράλειψη spaces
+        // Παραλειψη spaces
         while (start < json.length() && json.charAt(start) == ' ') start++;
  
         int end = start;
@@ -119,9 +119,37 @@ public class ManagerConsole {
 
     // --- Manager Operations ---
     //ADD_GAME
-   
+        // ADD_GAME
+    private void addGame() throws IOException {
+        System.out.print("Enter path to game JSON file: ");
+        String path = scanner.nextLine().trim();
+       // C:\Users\YOUR-NAME-(dimit)\distributed-gambling-platform\src\src\game1.json . ΑΥΤΟ ΕΙΝΑΙ ΤΟ INPUT ΣΤΟ CMD ΓΙΑ ΝΑ ΔΙΑΒΑΣΕΙ ΤΟ JSON
+
+        Game game;
+        try {
+            game = parseGameFromJson(path);
+        } catch (Exception e) {
+            System.out.println("Failed to parse JSON: " + e.getMessage());
+            return;
+        }
+
+        System.out.println("Game parsed successfully:");
+        System.out.println("  Name     : " + game.getGameName());
+        System.out.println("  Provider : " + game.getProviderName());
+        System.out.println("  Risk     : " + game.getRiskLevel());
+        System.out.println("  Bet Cat  : " + game.getBettingCategory());
+        System.out.println("  Min/Max  : " + game.getMinBet() + " / " + game.getMaxBet());
+
+        // TODO: στειλε το game στον Master οταν ειναι ετοιμη η επικοινωνια
+        System.out.println("[TODO] Sending ADD_GAME to Master...");
+    }
+
+    public static void main(String[] args) {
+    // Βαζουμε dummy host/port γιατι δεν εχουμε Master ακομη
+    ManagerConsole console = new ManagerConsole("localhost", 9999);
+    console.start();
 
 
-
+    }
 
 }
