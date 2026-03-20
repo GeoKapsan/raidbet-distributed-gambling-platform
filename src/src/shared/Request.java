@@ -1,6 +1,7 @@
 package shared;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 public class Request implements Serializable {
 
@@ -11,12 +12,21 @@ public class Request implements Serializable {
     }
 
     private final Type type;
+    private final HashMap<String, Object> payload = new HashMap<>();
 
     public Request(Type type) {
         this.type = type;
     }
 
-    public  Type getType() { return type; }
+    public void put(String key, Object value) {
+        payload.put(key, value);
+    }
+    public Object get(String key) {
+        return payload.get(key);
+    }
+    public Type getType() {
+        return type;
+    }
 
     @Override
     public String toString() {
