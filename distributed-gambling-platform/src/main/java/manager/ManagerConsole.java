@@ -7,11 +7,21 @@ import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Scanner;
+import java.util.ArrayList ;
+import java.util.List ;
+
+
+import org.json.simple.JSONObject ;
+import org.json.simple.parser.JSONParser; // Απαραίτητο για τον parser
+import org.json.simple.parser.ParseException;
 
 public class ManagerConsole {
     private final String masterHost ;
     private final int masterPort; // αποθηκευουμε διευθυνση και Port του MASTER SEVER
     private final Scanner scanner = new Scanner(System.in);
+
+    // λιστα για τα loaded games
+    private List<Game> loadedGames = new ArrayList<>();
 
     public ManagerConsole(String masterHost , int masterPort){
         this.masterHost = masterHost;
@@ -37,109 +47,90 @@ public class ManagerConsole {
             printMenu();
             String choice = scanner.nextLine().trim();
 
-            try {
-                switch (choice) {
-                    case "1" -> addGame();
-                    //case "2" -> removeGame();
-                    //case "3" -> changeRiskLevel();
-                    case "0" -> {
-                        System.out.println("Exiting Manager Console.");
-                        return;
-                    }
-                    default -> System.out.println("Invalid option. Please try again.");
+            switch (choice) {
+                case "1" -> addGame();
+                //case "2" -> removeGame();
+                //case "3" -> changeRiskLevel();
+                case "0" -> {
+                    System.out.println("Exiting Manager Console.");
+                    return;
                 }
-            } catch (IOException e) {
-                System.out.println("Error communicating with Master Server: " + e.getMessage());
+                default -> System.out.println("Invalid option. Please try again.");
             }
         }
     }
 
+    //addgame()
 
-    // ---------------------------------------------------------------
-    // Simple manual JSON parser
-    // ---------------------------------------------------------------
-    static Game parseGameFromJson(String filePath) throws IOException {
-        String content = new String(Files.readAllBytes(Paths.get(filePath)));
+    private void addGame() {
+        System.out.print("Enter path to the folder containing game JSON files: ");
+        String folderPath = scanner.nextLine().trim();
 
-        // Αφαιρούμε whitespace/newlines για ευκολία
-        content = content.replaceAll("\\s+", " ").trim();
-
-        String gameName    = extractString(content, "GameName");
-        String provider    = extractString(content, "ProviderName");
-        double stars       = Double.parseDouble(extractValue(content, "Stars"));
-        int noOfVotes      = Integer.parseInt(extractValue(content, "NoOfVotes"));
-        String logoPath    = extractString(content, "GameLogo");
-        double minBet      = Double.parseDouble(extractValue(content, "MinBet"));
-        double maxBet      = Double.parseDouble(extractValue(content, "MaxBet"));
-        String riskLevel   = extractString(content, "RiskLevel");
-        String hashKey     = extractString(content, "HashKey");
-
-        return new Game(gameName, provider, stars, noOfVotes,
-                logoPath, minBet, maxBet, riskLevel, hashKey);
-    }
-
-    // Εξάγει την τιμή ενός string field: "Key": "value"
-    private static String extractString(String json, String key) {
-        // Ψάχνει το pattern: "Key" : "value"
-        String search = "\"" + key + "\"";
-        int keyIdx = json.indexOf(search);
-        if (keyIdx == -1) throw new IllegalArgumentException("Key not found: " + key);
-
-        // Πάμε μετά το κλειδί και βρίσκουμε την πρώτη " για την τιμή
-        int afterColon = json.indexOf(":", keyIdx + search.length());
-        int openQuote  = json.indexOf("\"", afterColon + 1);
-        int closeQuote = json.indexOf("\"", openQuote + 1);
-
-        return json.substring(openQuote + 1, closeQuote);
-    }
-
-    // Εξάγει την τιμή ενός numeric/boolean field: "Key": 3
-    private static String extractValue(String json, String key) {
-        String search = "\"" + key + "\"";
-        int keyIdx = json.indexOf(search);
-        if (keyIdx == -1) throw new IllegalArgumentException("Key not found: " + key);
-
-        int afterColon = json.indexOf(":", keyIdx + search.length());
-
-        // Διαβάζουμε μέχρι το επόμενο , ή }
-        int start = afterColon + 1;
-        // Παραλειψη spaces
-        while (start < json.length() && json.charAt(start) == ' ') start++;
-
-        int end = start;
-        while (end < json.length()
-                && json.charAt(end) != ','
-                && json.charAt(end) != '}') {
-            end++;
-        }
-        return json.substring(start, end).trim();
-    }
-
-    // --- Manager Operations ---
-    //ADD_GAME
-    // ADD_GAME
-    private void addGame() throws IOException {
-        System.out.print("Enter path to game JSON file: ");
-        String path = scanner.nextLine().trim();
-        // C:\Users\YOUR-NAME-(dimit)\distributed-gambling-platform\src\src\game1.json . ΑΥΤΟ ΕΙΝΑΙ ΤΟ INPUT ΣΤΟ CMD ΓΙΑ ΝΑ ΔΙΑΒΑΣΕΙ ΤΟ JSON
-
-        Game game;
-        try {
-            game = parseGameFromJson(path);
-        } catch (Exception e) {
-            System.out.println("Failed to parse JSON: " + e.getMessage());
+        File folder = new File(folderPath);
+        if (!folder.exists() || !folder.isDirectory()) {
+            System.out.println("Invalid directory path!");
             return;
         }
 
-        System.out.println("Game parsed successfully:");
-        System.out.println("  Name     : " + game.getGameName());
-        System.out.println("  Provider : " + game.getProviderName());
-        System.out.println("  Risk     : " + game.getRiskLevel());
-        System.out.println("  Bet Cat  : " + game.getBettingCategory());
-        System.out.println("  Min/Max  : " + game.getMinBet() + " / " + game.getMaxBet());
+        File[] files = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".json"));
+        if (files == null || files.length == 0) {
+            System.out.println("No JSON files found in: " + folder.getAbsolutePath());
+            return;
+        }
 
-        // TODO: στειλε το game στον Master οταν ειναι ετοιμη η επικοινωνια
-        System.out.println("[TODO] Sending ADD_GAME to Master...");
+        // Φτιάχνουμε τον Parser ΜΙΑ φορά έξω από τη λούπα για καλύτερη απόδοση
+        JSONParser parser = new JSONParser();
+
+        for (File file : files) {
+            // Using try-with-resources to automatically close the FileReader
+            try (FileReader reader = new FileReader(file)) {
+
+                // 1. Parse the file directly into a JSONObject
+                JSONObject jsonObject = (JSONObject) parser.parse(reader);
+
+                // 2. Extract String values
+                String gameName = (String) jsonObject.get("GameName");
+                String providerName = (String) jsonObject.get("ProviderName");
+                String logoPath = (String) jsonObject.get("GameLogo");
+                String riskLevel = (String) jsonObject.get("RiskLevel");
+                String hashKey = (String) jsonObject.get("HashKey");
+
+                // 3. Extract Number values safely
+                double stars = ((Number) jsonObject.get("Stars")).doubleValue();
+                int noOfVotes = ((Number) jsonObject.get("NoOfVotes")).intValue();
+                double minBet = ((Number) jsonObject.get("MinBet")).doubleValue();
+                double maxBet = ((Number) jsonObject.get("MaxBet")).doubleValue();
+
+                // 4. Instantiate your Game object
+                Game parsedGame = new Game(
+                        gameName,
+                        providerName,
+                        stars,
+                        noOfVotes,
+                        logoPath,
+                        minBet,
+                        maxBet,
+                        riskLevel,
+                        hashKey
+                );
+
+                // Προσθήκη στη λίστα του Manager
+                loadedGames.add(parsedGame);
+
+
+                System.out.println("Game parsed successfully:");
+                System.out.println("  Name     : " + parsedGame.getGameName());
+                System.out.println("  Provider : " + parsedGame.getProviderName());
+                System.out.println("  Risk     : " + parsedGame.getRiskLevel());
+                System.out.println("  Bet Cat  : " + parsedGame.getBettingCategory());
+                System.out.println("  Min/Max  : " + parsedGame.getMinBet() + " / " + parsedGame.getMaxBet());
+                System.out.println("-----------------------------------");
+
+            } catch (Exception e) {
+                System.out.println("Failed to parse file " + file.getName() + ": " + e.getMessage());
+            }
+        }
+        System.out.println("Total games currently loaded: " + loadedGames.size());
     }
 
     public static void main(String[] args) {

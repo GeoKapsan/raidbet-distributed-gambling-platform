@@ -5,23 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8912c11c-5c5d-4c3b-89ae-f237e0fc9a97" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/distributed-gambling-platform.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/games/game1.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/src.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/src/game/Game.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/src/manager/ManagerConsole.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/src/master/ClientHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/src/master/Master.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/src/shared/Request.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/src/worker/Worker.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/src/worker/WorkerHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,9 +40,9 @@
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "gamaw-ton-rapth",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/georgioskapsanakis/Documents/Aueb/yearThree/secSem/Κατανεμημένα Συστήματα/distributed-gambling-platform/resources/games",
+    "last_opened_file_path": "C:/Users/dimit/distributed-gambling-platform",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -100,6 +84,8 @@
       <workItem from="1773946355617" duration="90000" />
       <workItem from="1773950702572" duration="422000" />
       <workItem from="1774027254538" duration="18819000" />
+      <workItem from="1774106672777" duration="144000" />
+      <workItem from="1774106838512" duration="16000" />
     </task>
     <servers />
   </component>
