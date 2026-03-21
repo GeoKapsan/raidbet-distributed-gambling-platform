@@ -1,5 +1,10 @@
 package worker;
 
+import game.Game;
+import shared.Request;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class WorkerHandler implements Runnable {
@@ -12,5 +17,40 @@ public class WorkerHandler implements Runnable {
         this.worker = worker;
     }
 
-    public
+    public void run() {
+        try (
+                ObjectOutputStream output = new ObjectOutputStream(clientSocket.getOutputStream());
+                ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
+                ) {
+            output.flush();
+
+            Request request = (Request) input.readObject();
+
+            Request response = handleRequest(request);
+
+            output.writeObject(response);
+
+            output.flush();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Request handleRequest(Request request) {
+        /*
+        Handles...
+         */
+        switch (request.getType()) {
+            case ADD_GAME:
+                Game game = (Game) request.get("game");
+                worker.addGame(game);
+
+                Request response = new Request(Request.Type.RESPONSE);
+                response.put("status", "OK");
+                response.put("message", "Game" + game.getGameName() + " added successfully.");
+                return response;
+            default:
+                return new Request(Request.Type.RESPONSE);
+        }
+    }
 }
