@@ -39,7 +39,7 @@ public class Worker {
 
     public synchronized void removeGame(String gameName) {
         Game game = games.get(gameName);
-        if (game != null) {
+        if (games.get(gameName) != null) {
             game.setActive(false);
             System.out.println("[Worker:" + port + "] Removed game " + game.getGameName());
         }
