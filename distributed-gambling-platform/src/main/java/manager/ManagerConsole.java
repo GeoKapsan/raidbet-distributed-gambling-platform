@@ -1,8 +1,6 @@
 package manager;
 
 import game.Game;
-import shared.Request;
-import shared.Request.Type;
 
 import java.io.*;
 import java.net.*;
@@ -62,10 +60,10 @@ public class ManagerConsole {
     // ---------------------------------------------------------------
     static Game parseGameFromJson(String filePath) throws IOException {
         String content = new String(Files.readAllBytes(Paths.get(filePath)));
- 
+
         // Αφαιρούμε whitespace/newlines για ευκολία
         content = content.replaceAll("\\s+", " ").trim();
- 
+
         String gameName    = extractString(content, "GameName");
         String provider    = extractString(content, "ProviderName");
         double stars       = Double.parseDouble(extractValue(content, "Stars"));
@@ -75,43 +73,43 @@ public class ManagerConsole {
         double maxBet      = Double.parseDouble(extractValue(content, "MaxBet"));
         String riskLevel   = extractString(content, "RiskLevel");
         String hashKey     = extractString(content, "HashKey");
- 
+
         return new Game(gameName, provider, stars, noOfVotes,
-                        logoPath, minBet, maxBet, riskLevel, hashKey);
+                logoPath, minBet, maxBet, riskLevel, hashKey);
     }
- 
+
     // Εξάγει την τιμή ενός string field: "Key": "value"
     private static String extractString(String json, String key) {
         // Ψάχνει το pattern: "Key" : "value"
         String search = "\"" + key + "\"";
         int keyIdx = json.indexOf(search);
         if (keyIdx == -1) throw new IllegalArgumentException("Key not found: " + key);
- 
+
         // Πάμε μετά το κλειδί και βρίσκουμε την πρώτη " για την τιμή
         int afterColon = json.indexOf(":", keyIdx + search.length());
         int openQuote  = json.indexOf("\"", afterColon + 1);
         int closeQuote = json.indexOf("\"", openQuote + 1);
- 
+
         return json.substring(openQuote + 1, closeQuote);
     }
- 
+
     // Εξάγει την τιμή ενός numeric/boolean field: "Key": 3
     private static String extractValue(String json, String key) {
         String search = "\"" + key + "\"";
         int keyIdx = json.indexOf(search);
         if (keyIdx == -1) throw new IllegalArgumentException("Key not found: " + key);
- 
+
         int afterColon = json.indexOf(":", keyIdx + search.length());
- 
+
         // Διαβάζουμε μέχρι το επόμενο , ή }
         int start = afterColon + 1;
         // Παραλειψη spaces
         while (start < json.length() && json.charAt(start) == ' ') start++;
- 
+
         int end = start;
         while (end < json.length()
-               && json.charAt(end) != ','
-               && json.charAt(end) != '}') {
+                && json.charAt(end) != ','
+                && json.charAt(end) != '}') {
             end++;
         }
         return json.substring(start, end).trim();
@@ -119,11 +117,11 @@ public class ManagerConsole {
 
     // --- Manager Operations ---
     //ADD_GAME
-        // ADD_GAME
+    // ADD_GAME
     private void addGame() throws IOException {
         System.out.print("Enter path to game JSON file: ");
         String path = scanner.nextLine().trim();
-       // C:\Users\YOUR-NAME-(dimit)\distributed-gambling-platform\src\src\game1.json . ΑΥΤΟ ΕΙΝΑΙ ΤΟ INPUT ΣΤΟ CMD ΓΙΑ ΝΑ ΔΙΑΒΑΣΕΙ ΤΟ JSON
+        // C:\Users\YOUR-NAME-(dimit)\distributed-gambling-platform\src\src\game1.json . ΑΥΤΟ ΕΙΝΑΙ ΤΟ INPUT ΣΤΟ CMD ΓΙΑ ΝΑ ΔΙΑΒΑΣΕΙ ΤΟ JSON
 
         Game game;
         try {
@@ -145,11 +143,12 @@ public class ManagerConsole {
     }
 
     public static void main(String[] args) {
-    // Βαζουμε dummy host/port γιατι δεν εχουμε Master ακομη
-    ManagerConsole console = new ManagerConsole("localhost", 9999);
-    console.start();
+        // Βαζουμε dummy host/port γιατι δεν εχουμε Master ακομη
+        ManagerConsole console = new ManagerConsole("localhost", 9999);
+        console.start();
 
 
     }
 
 }
+
