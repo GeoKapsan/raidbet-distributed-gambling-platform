@@ -41,14 +41,22 @@ public class WorkerHandler implements Runnable {
         Handles...
          */
         switch (request.getType()) {
-            case ADD_GAME:
+            case ADD_GAME, REMOVE_GAME:
                 Game game = (Game) request.get("game");
-                worker.addGame(game);
-
                 Request response = new Request(Request.Type.RESPONSE);
+
+                switch (request.getType()) {
+                    case ADD_GAME:
+                        worker.addGame(game);
+                        response.put("message", "Game" + game.getGameName() + " added successfully.");
+                    case REMOVE_GAME:
+                        worker.removeGame(game.getGameName());
+                        response.put("message", "Game" + game.getGameName() + " removed successfully.");
+                }
+
                 response.put("status", "OK");
-                response.put("message", "Game" + game.getGameName() + " added successfully.");
                 return response;
+
             default:
                 return new Request(Request.Type.RESPONSE);
         }

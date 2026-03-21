@@ -1,5 +1,6 @@
 package master;
 
+import game.Game;
 import shared.Request;
 import java.util.*;
 import java.io.*;
@@ -38,8 +39,9 @@ public class ClientHandler implements Runnable {
 
     private Request route(Request request) {
         switch (request.getType()) {
-            case ADD_GAME:
-                String gameName = (String) request.get("gameName");
+            case ADD_GAME, REMOVE_GAME:
+                Game game = (Game) request.get("game");
+                String gameName = game.getGameName();
                 return forwardToWorkerAndGetResult(request, master.getWorkerAddress(gameName));
             case REMOVE_GAME:
 
