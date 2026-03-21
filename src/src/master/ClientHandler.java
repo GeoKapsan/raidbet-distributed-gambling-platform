@@ -42,10 +42,32 @@ public class ClientHandler implements Runnable {
                 String gameName = (String) request.get("gameName");
                 return forwardToWorkerAndGetResult(request, master.getWorkerAddress(gameName));
             default:
+                return new Request(Request.Type.RESPONSE);
         }
     }
 
-    private Request forwardToWorkerAndGetResult(Request request, String gameName) {
+    private Request forwardToWorkerAndGetResult(Request request, String workerAddress) {
+        String[] parts = workerAddress.split(":");
+        String host = parts[0];
+        int port = Integer.parseInt(parts[1]);
+
+        System.out.println("[Master] Forwarding to worker: " + host + ":" + port);
+
+        try (
+                Socket worker = new Socket(host, port);
+
+                ObjectOutputStream output = new ObjectOutputStream(worker.getOutputStream());
+                ObjectInputStream input = new ObjectInputStream(worker.getInputStream());
+                ) {
+            output.flush();
+            output.writeObject(request);
+            output.flush();
+            return (Request) input.readObject();
+
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return new Request(Request.Type.RESPONSE);
+        }
 
     }
 
