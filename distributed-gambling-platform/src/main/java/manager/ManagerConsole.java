@@ -1,8 +1,6 @@
 package manager;
 
 import game.Game;
-import shared.Request;
-import shared.Request.Type;
 
 import java.io.*;
 import java.net.*;
@@ -136,11 +134,12 @@ public class ManagerConsole {
     }
 
     public static void main(String[] args) {
-    // Βαζουμε dummy host/port γιατι δεν εχουμε Master ακομη
-    ManagerConsole console = new ManagerConsole("localhost", 9999);
-    console.start();
+        // Βαζουμε dummy host/port γιατι δεν εχουμε Master ακομη
+        ManagerConsole console = new ManagerConsole("localhost", 9999);
+        console.start();
 
 
     }
 
 }
+
