@@ -59,6 +59,7 @@ public class WorkerHandler implements Runnable {
 
             default:
                 return new Request(Request.Type.RESPONSE);
+                
         }
     }
 }
