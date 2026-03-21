@@ -43,7 +43,6 @@ public class ClientHandler implements Runnable {
                 Game game = (Game) request.get("game");
                 String gameName = game.getGameName();
                 return forwardToWorkerAndGetResult(request, master.getWorkerAddress(gameName));
-            case REMOVE_GAME:
 
             default:
                 return new Request(Request.Type.RESPONSE);
