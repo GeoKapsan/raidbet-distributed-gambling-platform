@@ -48,7 +48,7 @@ public class ClientHandler implements Runnable {
                 //Request response = new Request(Request.Type.RESPONSE);
                 //response.put("status", "OK");
                 //response.put("message", "Received by Master (no workers yet)");
-                return response;
+                //return response;
 
             default:
                 return new Request(Request.Type.RESPONSE);
