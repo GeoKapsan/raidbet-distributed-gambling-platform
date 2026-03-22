@@ -39,10 +39,16 @@ public class ClientHandler implements Runnable {
 
     private Request route(Request request) {
         switch (request.getType()) {
-            case ADD_GAME, REMOVE_GAME:
+            case ADD_GAME, REMOVE_GAME, CHANGE_RISK:
                 Game game = (Game) request.get("game");
                 String gameName = game.getGameName();
                 return forwardToWorkerAndGetResult(request, master.getWorkerAddress(gameName));
+
+                // prosorina xwris toys worker gia na mhn peirajw kwdika stoys workers bazw to na moy gyrnaei OK edw na dw an paei kala to managerconsole gamw ton rapth
+                //Request response = new Request(Request.Type.RESPONSE);
+                //response.put("status", "OK");
+                //response.put("message", "Received by Master (no workers yet)");
+                return response;
 
             default:
                 return new Request(Request.Type.RESPONSE);
