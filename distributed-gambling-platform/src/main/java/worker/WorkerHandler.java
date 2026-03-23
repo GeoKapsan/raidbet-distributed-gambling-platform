@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class WorkerHandler implements Runnable {
 
@@ -64,4 +65,39 @@ public class WorkerHandler implements Runnable {
                 
         }
     }
+
+    private Request handleMapTask(Request request) {
+        /*
+        Handles...
+         */
+
+        // Player filters
+        int stars = (Integer) request.get("stars");
+        int noOfVotes = (Integer) request.get("noOfVotes");
+        double minBet = (Double) request.get("minBet");
+        double maxBet = (Double) request.get("maxBet");
+        String riskLevel = (String) request.get("riskLevel");
+
+        ArrayList<Game> results = new ArrayList<>(); // saves results from map here
+
+        for (Game game : worker.getAllGames()) {
+            if (!game.isActive()) continue;
+            if (game.getStars() != stars) continue;
+            if (noOfVotes != game.getNoOfVotes()) continue;
+            if (minBet > maxBet) continue;
+            if (minBet > game.getMinBet()) continue;
+            if (maxBet < game.getMaxBet()) continue;
+            if (riskLevel == null && !riskLevel.equals(game.getRiskLevel())) continue;
+
+            results.add(game); // game satisfies player's filters so add
+        }
+
+        System.out.println("[Worker: " + worker.getPort() + "] map() emitted " + results.size() + " games");
+
+        Request response = new Request(Request.Type.RESPONSE);
+        response.put("status", "OK");
+        response.put("games",  results);
+        return response;
+    }
+
 }
