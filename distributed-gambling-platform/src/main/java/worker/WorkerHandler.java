@@ -49,9 +49,11 @@ public class WorkerHandler implements Runnable {
                     case ADD_GAME:
                         worker.addGame(game);
                         response.put("message", "Game" + game.getGameName() + " added successfully.");
+                        break;
                     case REMOVE_GAME:
                         worker.removeGame(game.getGameName());
                         response.put("message", "Game" + game.getGameName() + " removed successfully.");
+                        break;
                 }
 
                 response.put("status", "OK");
