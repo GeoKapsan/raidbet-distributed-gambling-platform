@@ -42,5 +42,10 @@ public class Master {
          */
         return workerAddresses.get(getWorkerIndex(gameName));
     }
+    //thn main thn evale o mpampas na dei oti ola entajei
+    public static void main(String[] args) {
+        Master master = new Master(5000, 10);
+        master.start();
+    }
 
 }

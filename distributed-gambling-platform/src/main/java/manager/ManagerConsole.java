@@ -1,6 +1,7 @@
 package manager;
 
 import game.Game;
+import shared.Request;
 
 import java.io.*;
 import java.net.*;
@@ -16,8 +17,10 @@ import org.json.simple.parser.JSONParser; // Απαραίτητο για τον 
 import org.json.simple.parser.ParseException;
 
 public class ManagerConsole {
+
     private final String masterHost ;
     private final int masterPort; // αποθηκευουμε διευθυνση και Port του MASTER SEVER
+
     private final Scanner scanner = new Scanner(System.in);
 
     // λιστα για τα loaded games
@@ -34,6 +37,7 @@ public class ManagerConsole {
         System.out.println("1. Add Game");
         System.out.println("2. Remove Game");
         System.out.println("3. Change Game Risk Level");
+        System.out.println("4. List Games");
         System.out.println("0. Exit");
         System.out.print("Select an option: ");
     }
@@ -49,14 +53,55 @@ public class ManagerConsole {
 
             switch (choice) {
                 case "1" -> addGame();
-                //case "2" -> removeGame();
-                //case "3" -> changeRiskLevel();
+                case "2" -> removeGame();
+                case "3" -> changeRiskLevel();
+                case "4" -> listGame();
                 case "0" -> {
                     System.out.println("Exiting Manager Console.");
                     return;
                 }
                 default -> System.out.println("Invalid option. Please try again.");
             }
+        }
+    }
+
+    private void listGame() {
+        if (loadedGames.isEmpty()) {
+            System.out.println("No games currently loaded.");
+            return;
+        }
+
+        System.out.println("\n--- Loaded Games (" + loadedGames.size() + ") ---");
+        for (int i = 0; i < loadedGames.size(); i++) {
+            Game g = loadedGames.get(i);
+            System.out.println((i + 1) + ". " + g.getGameName()
+                    + " | Provider: " + g.getProviderName()
+                    + " | Risk: "     + g.getRiskLevel()
+                    + " | Bet: "      + g.getMinBet() + "-" + g.getMaxBet()
+                    + " | Category: " + g.getBettingCategory()
+                    + " | Active: "   + g.isActive());
+        }
+        System.out.println("-----------------------------------");
+
+    }
+
+    //anoigei sockets gia epikoinonia me masterbaiter(rapth)
+    private Request sentToMaster(Request request) {
+
+        try (
+                Socket socket = new Socket(masterHost, masterPort);
+                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+        ) {
+
+            oos.writeObject(request);
+            oos.flush();
+
+            return (Request) ois.readObject();
+
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("[ERROR] Could not communicate with Master: " + e.getMessage());
+            return null;
         }
     }
 
@@ -114,8 +159,36 @@ public class ManagerConsole {
                         hashKey
                 );
 
-                // Προσθήκη στη λίστα του Manager
-                loadedGames.add(parsedGame);
+
+                //dimiourgia toy request
+                Request request = new Request(Request.Type.ADD_GAME);
+                request.put("game" , parsedGame);
+
+                //apostoli ston grandmasterbaiter(rapth) meso tcp
+                System.out.println("Sending ADD_GAME request for : "+ gameName);
+                Request response = sentToMaster(request);
+
+                if (response == null){
+                    System.out.println("fail"+gameName);
+
+                    continue;
+                }
+
+                String status = (String) response.get("status");
+                String message = (String) response.get("message");
+
+                //prothiki ston master
+                if ("OK".equalsIgnoreCase(status)) {
+                    loadedGames.add(parsedGame);
+                    System.out.println("[SUCCESS] Game added: " + gameName
+                            + (message != null ? " - " + message : ""));
+                } else {
+                    System.out.println("[FAIL] Could not add game: " + gameName
+                            + (message != null ? " - " + message : ""));
+                }
+
+
+
 
 
                 System.out.println("Game parsed successfully:");
@@ -133,9 +206,108 @@ public class ManagerConsole {
         System.out.println("Total games currently loaded: " + loadedGames.size());
     }
 
+    //remove game
+    private void removeGame() {
+        System.out.print("Enter the name of the game to remove: ");
+        String gameName = scanner.nextLine().trim();
+
+        if (gameName.isEmpty()) {
+            System.out.println("Game name cannot be empty.");
+            return;
+        }
+
+        // kanw game object ta ypoloipa paidia dummy
+        Game gameToRemove = new Game(gameName, "", 0, 0, "", 0, 0, "", "");
+
+        // ftiaxno to request to vazw sto payload
+        Request request = new Request(Request.Type.REMOVE_GAME);
+        request.put("game", gameToRemove);
+
+        //stelnw se master
+        System.out.println("Sending REMOVE_GAME request for: " + gameName);
+        Request response = sentToMaster(request);
+
+        //elegxw response
+        if (response == null) {
+            System.out.println("[FAIL] No response from Master.");
+            return;
+        }
+
+        String status  = (String) response.get("status");
+        String message = (String) response.get("message");
+
+        if ("OK".equalsIgnoreCase(status)) {
+
+            loadedGames.removeIf(g -> g.getGameName().equalsIgnoreCase(gameName)); // to vgazw kai apo loaded games
+            System.out.println("[SUCCESS] Game removed: " + gameName
+                    + (message != null ? " - " + message : ""));
+        } else {
+            System.out.println("[FAIL] Could not remove game: " + gameName
+                    + (message != null ? " - " + message : ""));
+        }
+    }
+
+
+
+
+    //change risk level
+    private void changeRiskLevel() {
+        System.out.print("Enter the name of the game: ");
+        String gameName = scanner.nextLine().trim();
+
+        if (gameName.isEmpty()) {
+            System.out.println("Game name cannot be empty.");
+            return;
+        }
+
+        System.out.print("Enter new risk level (Low / Medium / High): ");
+        String newRiskLevel = scanner.nextLine().trim();
+
+        if (newRiskLevel.isEmpty()) {
+            System.out.println("Risk level cannot be empty.");
+            return;
+        }
+
+        // ftiaxnw Game object me to onoma kai to neo risk level
+        Game gameToUpdate = new Game(gameName, "", 0, 0, "", 0, 0, newRiskLevel, "");
+
+        // request
+        Request request = new Request(Request.Type.CHANGE_RISK);
+        request.put("game", gameToUpdate);
+
+        // ston rapth mesw TCP
+        System.out.println("Sending CHANGE_RISK request for: " + gameName + " → " + newRiskLevel);
+        Request response = sentToMaster(request);
+
+        // elegxw response
+        if (response == null) {
+            System.out.println("[FAIL] No response from Master.");
+            return;
+        }
+
+        String status  = (String) response.get("status");
+        String message = (String) response.get("message");
+
+        if ("OK".equalsIgnoreCase(status)) {
+            // Ενημερώνουμε και την τοπική λίστα αν υπάρχει
+            loadedGames.stream()
+                    .filter(g -> g.getGameName().equalsIgnoreCase(gameName))
+                    .findFirst()
+                    .ifPresent(g -> g.setRiskLevel(newRiskLevel));
+
+            System.out.println("[SUCCESS] Risk level changed for: " + gameName
+                    + (message != null ? " - " + message : ""));
+        } else {
+            System.out.println("[FAIL] Could not change risk level for: " + gameName
+                    + (message != null ? " - " + message : ""));
+        }
+    }
+
+
+
     public static void main(String[] args) {
         // Βαζουμε dummy host/port γιατι δεν εχουμε Master ακομη
-        ManagerConsole console = new ManagerConsole("localhost", 9999);
+        ManagerConsole console = new ManagerConsole("localhost", 5000);
         console.start();
 
 
