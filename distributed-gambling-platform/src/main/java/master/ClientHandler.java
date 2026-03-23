@@ -43,10 +43,49 @@ public class ClientHandler implements Runnable {
                 Game game = (Game) request.get("game");
                 String gameName = game.getGameName();
                 return forwardToWorkerAndGetResult(request, master.getWorkerAddress(gameName));
+            case SEARCH:
+                Request response = handleSearch(request);
 
             default:
                 return new Request(Request.Type.RESPONSE);
         }
+    }
+
+    private Request handleSearch(Request request) {
+
+        ArrayList<String> workers = master.getWorkerAddresses();
+        int noOfWorkers = workers.size();
+
+        Request[] mapResults = new Request[noOfWorkers];
+        Thread[] threads = new Thread[noOfWorkers];
+
+        for (int i = 0; i < noOfWorkers; i++) {
+            String workerAddress = workers.get(i);
+            final int idx = i;
+
+            threads[i] = new Thread(() -> {
+                System.out.println("[Master] MAP_TASK to worker[" + idx + "] " + workerAddress);
+                mapResults[idx] = forwardToWorkerAndGetResult(request, workerAddress);
+                System.out.println("[Master] MAP_TASK from worker[" + idx + "] " + workerAddress);
+            });
+        }
+
+        for (Thread thread : threads) {
+            thread.start();
+        }
+
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.out.println("[Master] Thread interrupted while waiting for map results");
+            }
+        }
+
+        System.out.println("[Master] MAP_TASK completed");
+
+        // still things to do...
     }
 
     private Request forwardToWorkerAndGetResult(Request request, String workerAddress) {
@@ -69,7 +108,7 @@ public class ClientHandler implements Runnable {
 
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
-            return new Request(Request.Type.RESPONSE);
+            return null;
         }
 
     }

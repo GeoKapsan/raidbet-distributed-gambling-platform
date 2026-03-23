@@ -28,8 +28,12 @@ public class Master {
                 (new Thread(new ClientHandler(clientSocket, this))).start();
             }
         } catch (IOException e) {
-
+            e.printStackTrace();
         }
+    }
+
+    public ArrayList<String> getWorkerAddresses() {
+        return workerAddresses;
     }
 
     private int getWorkerIndex(String gameName) {

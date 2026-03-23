@@ -32,6 +32,14 @@ public class Worker {
         }
     }
 
+    public int  getPort() {
+        return port;
+    }
+
+    public synchronized ArrayList<Game> getAllGames() {
+        return new ArrayList<>(games.values());
+    }
+
     public synchronized void addGame(Game game) {
         games.put(game.getGameName(), game);
         System.out.println("[Worker:" + port + "] Added game " + game.getGameName());
@@ -48,5 +56,4 @@ public class Worker {
     public synchronized Game getGame(String gameName) {
         return games.get(gameName);
     }
-
 }
