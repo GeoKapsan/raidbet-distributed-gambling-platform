@@ -51,11 +51,14 @@ public class ClientHandler implements Runnable {
                 //response.put("status", "OK");
                 //response.put("message", "Received by Master (no workers yet)");
                 //return response;
+            case SHOW_GAMES:
+                return handleShowGames(request);
 
             default:
                 return new Request(Request.Type.RESPONSE);
         }
     }
+
 
     private Request handleSearch(Request request) {
 
@@ -92,6 +95,47 @@ public class ClientHandler implements Runnable {
         System.out.println("[Master] MAP_TASK completed");
 
         // still things to do...
+    }
+
+
+    private Request handleShowGames(Request request){
+        ArrayList<String> workers = master.getWorkerAddresses();
+        int noOfWorkers = workers.size();
+
+        if(noOfWorkers == 0){
+            Request emptyRes = new Request(Request.Type.RESPONSE);
+            emptyRes.put("status", "FAIL");
+            emptyRes.put("message", "No workers available in the Master.");
+            return emptyRes;
+        }
+
+        Request[] mapResults = new Request[noOfWorkers];
+        Thread[] threads = new Thread[noOfWorkers];
+
+        // MAP PHASE : Broadcast to all workers
+        for (int i=0 ; i < noOfWorkers; i++){
+            String workerAddress = workers.get(i);
+            final int idx = i;
+
+            threads[i] = new Thread(() -> {
+                System.out.println("[Master] MAP_TASK to worker[" + idx + "] " + workerAddress);
+                mapResults[idx] = forwardToWorkerAndGetResult(request, workerAddress);
+                System.out.println("[Master] MAP_TASK from worker[" + idx + "] " + workerAddress);
+            });
+            threads[i].start();
+        }
+
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.out.println("[Master] Thread interrupted while waiting for SHOW_GAMES results");
+            }
+        }
+         // thelei kialla
+
+
     }
 
     private Request forwardToWorkerAndGetResult(Request request, String workerAddress) {

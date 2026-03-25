@@ -65,25 +65,49 @@ public class ManagerConsole {
         }
     }
 
-    private void listGame() {
-        if (loadedGames.isEmpty()) {
-            System.out.println("No games currently loaded.");
-            return;
-        }
+    //listGames()
 
-        System.out.println("\n--- Loaded Games (" + loadedGames.size() + ") ---");
-        for (int i = 0; i < loadedGames.size(); i++) {
-            Game g = loadedGames.get(i);
-            System.out.println((i + 1) + ". " + g.getGameName()
-                    + " | Provider: " + g.getProviderName()
-                    + " | Risk: "     + g.getRiskLevel()
-                    + " | Bet: "      + g.getMinBet() + "-" + g.getMaxBet()
-                    + " | Category: " + g.getBettingCategory()
-                    + " | Active: "   + g.isActive());
+    public void listGame(){
+        System.out.println("fetching the game from  the network");
+        Request request = new Request(Request.Type.SHOW_GAMES);
+        Request response = sentToMaster(request);
+
+        if (response == null){
+            System.out.println("[FAIL] No response from Master");
+            return ;
+
         }
-        System.out.println("-----------------------------------");
+        String status = (String) response.get("status");
+        if ("OK".equalsIgnoreCase(status)){
+            List<Game> networkGames = (List<Game>) response.get("games"); // o Master tha epistrefei lista logika
+
+            if (networkGames == null || networkGames.isEmpty()){
+                System.out.println("no games loaded ");
+                return ;
+
+            }
+
+            System.out.println("\n--- Distributed Games (" + networkGames.size() + ") ---");
+            for (int i = 0; i < networkGames.size(); i++) {
+                Game g = networkGames.get(i);
+                System.out.println((i + 1) + ". " + g.getGameName()
+                        + " | Provider: " + g.getProviderName()
+                        + " | Risk: "     + g.getRiskLevel()
+                        + " | Bet: "      + g.getMinBet() + "-" + g.getMaxBet()
+                        + " | Category: " + g.getBettingCategory()
+                        + " | Active: "   + g.isActive());
+            }
+            System.out.println("-----------------------------------");
+        } else {
+            String message = (String) response.get("message");
+            System.out.println("[FAIL] Could not fetch games: " + (message != null ? message : "Unknown error"));
+        }
 
     }
+
+
+
+
 
     //anoigei sockets gia epikoinonia me masterbaiter(rapth)
     private Request sentToMaster(Request request) {
@@ -136,15 +160,15 @@ public class ManagerConsole {
                 // 2. Extract String values
                 String gameName = (String) jsonObject.get("GameName");
                 String providerName = (String) jsonObject.get("ProviderName");
+                double stars = ((Number) jsonObject.get("Stars")).doubleValue();
+                int noOfVotes = ((Number) jsonObject.get("NoOfVotes")).intValue();
                 String logoPath = (String) jsonObject.get("GameLogo");
+                double minBet = ((Number) jsonObject.get("MinBet")).doubleValue();
+                double maxBet = ((Number) jsonObject.get("MaxBet")).doubleValue();
                 String riskLevel = (String) jsonObject.get("RiskLevel");
                 String hashKey = (String) jsonObject.get("HashKey");
 
-                // 3. Extract Number values safely
-                double stars = ((Number) jsonObject.get("Stars")).doubleValue();
-                int noOfVotes = ((Number) jsonObject.get("NoOfVotes")).intValue();
-                double minBet = ((Number) jsonObject.get("MinBet")).doubleValue();
-                double maxBet = ((Number) jsonObject.get("MaxBet")).doubleValue();
+
 
                 // 4. Instantiate your Game object
                 Game parsedGame = new Game(
@@ -179,12 +203,9 @@ public class ManagerConsole {
 
                 //prothiki ston master
                 if ("OK".equalsIgnoreCase(status)) {
-                    loadedGames.add(parsedGame);
-                    System.out.println("[SUCCESS] Game added: " + gameName
-                            + (message != null ? " - " + message : ""));
+                    System.out.println("[SUCCESS] Game added: " + gameName + (message != null ? " - " + message : ""));
                 } else {
-                    System.out.println("[FAIL] Could not add game: " + gameName
-                            + (message != null ? " - " + message : ""));
+                    System.out.println("[FAIL] Could not add game: " + gameName + (message != null ? " - " + message : ""));
                 }
 
 
@@ -203,7 +224,6 @@ public class ManagerConsole {
                 System.out.println("Failed to parse file " + file.getName() + ": " + e.getMessage());
             }
         }
-        System.out.println("Total games currently loaded: " + loadedGames.size());
     }
 
     //remove game
@@ -237,8 +257,6 @@ public class ManagerConsole {
         String message = (String) response.get("message");
 
         if ("OK".equalsIgnoreCase(status)) {
-
-            loadedGames.removeIf(g -> g.getGameName().equalsIgnoreCase(gameName)); // to vgazw kai apo loaded games
             System.out.println("[SUCCESS] Game removed: " + gameName
                     + (message != null ? " - " + message : ""));
         } else {
@@ -289,11 +307,6 @@ public class ManagerConsole {
         String message = (String) response.get("message");
 
         if ("OK".equalsIgnoreCase(status)) {
-            // Ενημερώνουμε και την τοπική λίστα αν υπάρχει
-            loadedGames.stream()
-                    .filter(g -> g.getGameName().equalsIgnoreCase(gameName))
-                    .findFirst()
-                    .ifPresent(g -> g.setRiskLevel(newRiskLevel));
 
             System.out.println("[SUCCESS] Risk level changed for: " + gameName
                     + (message != null ? " - " + message : ""));
@@ -312,6 +325,6 @@ public class ManagerConsole {
 
 
     }
-
 }
+
 
