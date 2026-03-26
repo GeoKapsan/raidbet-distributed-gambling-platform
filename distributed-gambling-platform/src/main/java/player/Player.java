@@ -1,4 +1,4 @@
-package player;
+package main.java.player;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -50,7 +50,26 @@ public class Player {
 
         
         System.out.println("Type the game name you want to play");
-        String choice = scanner.nextLine().trim();
+        String gameName = scanner.nextLine().trim();
+        System.out.println("Type the amount you want to bet");
+        Double bettingAmount = Double.parseDouble(scanner.nextLine().trim());
+
+        Request request=new Request("PLAY");
+        request.put("gameName", gameName);
+        request.put("bettingAmount",bettingAmount);
+
+        Request response=sendToMaster(request);
+
+        String status=(String)response.get("status");
+        System.out.println(status);
+        if (status!="ERROR(wrong hash)"){
+            double amountWon=(Double) response.get("amountWon");
+            System.out.println("Amount Won: "+ amountWon+"FUN");
+            updateBalance(amountWon-bettingAmount);
+            checkBalance();
+        }else{
+            
+        }
 
     }
 
@@ -61,13 +80,21 @@ public class Player {
     }
 
 
+    private void addBalance(){
+
+        System.out.println("Type the amount you want to add");
+        Double addedAmount = Double.parseDouble(scanner.nextLine().trim());
+        if (addedAmount>0) updateBalance(addedAmount); else System.out.println("The amount must be higher than zero");
+
+    }
+
+
     private void checkBalance(){
         System.out.println("Current Balance: "+balance);
     }
 
-    private void addBalance(){
-        balance+=balance;
-        checkBalance();
+    private void updateBalance(double balance){
+        this.balance+=balance;
     }
 
     private Request sendToMaster(Request request) {

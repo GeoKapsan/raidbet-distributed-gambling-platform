@@ -8,7 +8,7 @@ public class Master {
 
     private final int port;
     private ArrayList<String> workerAddresses;
-    private final int srgHost;
+    private final String srgHost;
     private final int srgPort;
 
     public Master(int port, int noOfWorkers, String srgHost, int srgPort) {

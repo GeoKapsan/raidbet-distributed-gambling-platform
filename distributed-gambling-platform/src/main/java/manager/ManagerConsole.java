@@ -23,9 +23,6 @@ public class ManagerConsole {
 
     private final Scanner scanner = new Scanner(System.in);
 
-    // λιστα για τα loaded games
-    private List<Game> loadedGames = new ArrayList<>();
-
     public ManagerConsole(String masterHost , int masterPort){
         this.masterHost = masterHost;
         this.masterPort = masterPort;
