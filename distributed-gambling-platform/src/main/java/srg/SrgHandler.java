@@ -46,7 +46,7 @@ public class SrgHandler{
         Handles...
          */
 
-        String gameName=request.get(gameName);
+        String gameName=(String) request.get(gameName);
 
         switch (request.getType()) {
 
@@ -66,7 +66,7 @@ public class SrgHandler{
 
                 int number=srg.getNumber(gameName);
                 response.put("number", number);
-                response.put("hashed_number", sha256(number+srg.getHashKey(gameName)));
+                response.put("hashedNumber", sha256(number+srg.getHashKey(gameName)));
                 break;
 
             default:
