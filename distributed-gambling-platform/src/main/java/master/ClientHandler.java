@@ -42,6 +42,7 @@ public class ClientHandler implements Runnable {
             case ADD_GAME, REMOVE_GAME, CHANGE_RISK:
                 Game game = (Game) request.get("game");
                 String gameName = game.getGameName();
+                forwardToSrg(game, request.getType());
                 return forwardToWorkerAndGetResult(request, master.getWorkerAddress(gameName));
             case SEARCH:
                 Request response = handleSearch(request);
@@ -115,6 +116,30 @@ public class ClientHandler implements Runnable {
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
             return null;
+        }
+
+    }
+
+    void forwardToSrg(Game game, Type type){
+
+        try (
+                Socket worker = new Socket(master.getSrgHost(), master.getSrgPort());
+
+                ObjectOutputStream output = new ObjectOutputStream(worker.getOutputStream());
+                ObjectInputStream input = new ObjectInputStream(worker.getInputStream());
+
+            ) {
+            
+            
+            output.flush();
+            Request request=new Request(type);
+            request.put("gameName", game.getGameName());
+            request.put("hashKey", game.getHashKey());
+            output.writeObject(request);
+            output.flush();
+        
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
         }
 
     }
