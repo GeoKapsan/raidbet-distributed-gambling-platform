@@ -8,10 +8,14 @@ public class Master {
 
     private final int port;
     private ArrayList<String> workerAddresses;
+    private final int srgHost;
+    private final int srgPort;
 
-    public Master(int port, int noOfWorkers) {
+    public Master(int port, int noOfWorkers, String srgHost, int srgPort) {
         this.port = port;
         this.workerAddresses = new ArrayList<String>();
+        this.srgHost=srgHost;
+        this.srgPort=srgPort;
     }
 
     public void start() {
@@ -52,4 +56,11 @@ public class Master {
         master.start();
     }
 
+    public String getSrgHost(){
+        return srgHost;
+    }
+
+    public int getSrgPort(){
+        return srgPort;
+    }
 }
