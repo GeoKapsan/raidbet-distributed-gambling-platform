@@ -8,15 +8,19 @@ public class Master {
 
     private final int port;
     private ArrayList<String> workerAddresses;
+    private final String srgHost;
+    private final int srgPort;
 
     private int mapIdCounter = 0;
 
     // Waiting Set/Room: each operation that uses the MapReduce framework registers here & REDUCER_CALLBACK looks up here
     private final HashMap<Integer, SavedMasterState> waitingSet = new HashMap<>();
 
-    public Master(int port, ArrayList<String> workerAddresses) {
+    public Master(int port, ArrayList<String> workerAddresses, String srgHost, int srgPort) {
         this.port = port;
         this.workerAddresses = workerAddresses;
+        this.srgHost = srgHost;
+        this.srgPort = srgPort;
     }
 
     public void start() {
@@ -101,4 +105,11 @@ public class Master {
 
     }
 
+    public String getSrgHost(){
+        return srgHost;
+    }
+
+    public int getSrgPort(){
+        return srgPort;
+    }
 }

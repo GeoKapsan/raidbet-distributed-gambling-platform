@@ -8,20 +8,25 @@ import java.util.*;
 
 public class Worker {
 
+    private final String host;
     private final int port;
     private final String reducerHost;
     private final int reducerPort;
     private final HashMap<String, Game> games = new HashMap<>();
+    private final String srgHost;
+    private final int srgPort;
 
-    public Worker(int port, String reducerHost, int reducerPort) {
+    public Worker(int port, String reducerHost, int reducerPort, String srgHost, int srgPort) {
         this.port = port;
         this.reducerHost = reducerHost;
         this.reducerPort = reducerPort;
+        this.srgHost = srgHost;
+        this.srgPort = srgPort;
     }
 
     public void start() {
         try (
-                ServerSocket serverSocket = new ServerSocket(port);
+                ServerSocket serverSocket = new ServerSocket("",port);
                 ) {
             System.out.println("Worker server listening on port " + port + "...");
 
@@ -71,8 +76,16 @@ public class Worker {
         return reducerHost + ":" + reducerPort;
     }
 
+    public String getSrgHost(){
+        return srgHost;
+    }
+
+    public int getSrgPort(){
+        return srgPort;
+  
 
     // Entry point ----------------------------------------------------------------------------------------------------
+      
     public static void main(String[] args) {
 
 
