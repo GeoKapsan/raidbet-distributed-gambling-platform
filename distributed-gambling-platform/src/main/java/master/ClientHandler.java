@@ -11,6 +11,8 @@ public class ClientHandler implements Runnable {
     private final Socket  clientSocket;
     private final Master master;
 
+    private static final long TIMEOUT_MS = 30_000; // 30 s
+
     public ClientHandler(Socket clientSocket, Master master) {
         this.clientSocket = clientSocket;
         this.master = master;
@@ -26,6 +28,7 @@ public class ClientHandler implements Runnable {
             output.flush(); // send header to avoid deadlock
 
             Request request = (Request) input.readObject(); // receive client's data
+            System.out.println("[Master] Received " + request.getType() + " request from " + clientSocket.getInetAddress());
 
             Request response = route(request); // route request and send back response to client
 
@@ -39,19 +42,21 @@ public class ClientHandler implements Runnable {
 
     private Request route(Request request) {
         switch (request.getType()) {
-            case ADD_GAME, REMOVE_GAME, CHANGE_RISK:
+
+            case ADD_GAME:
+            case REMOVE_GAME:
+            case CHANGE_RISK:
                 Game game = (Game) request.get("game");
                 String gameName = game.getGameName();
                 forwardToSrg(game, request.getType());
                 return forwardToWorkerAndGetResult(request, master.getWorkerAddress(gameName));
-            case SEARCH:
-                Request response = handleSearch(request);
 
-                // prosorina xwris toys worker gia na mhn peirajw kwdika stoys workers bazw to na moy gyrnaei OK edw na dw an paei kala to managerconsole gamw ton rapth
-                //Request response = new Request(Request.Type.RESPONSE);
-                //response.put("status", "OK");
-                //response.put("message", "Received by Master (no workers yet)");
-                //return response;
+            case SEARCH:
+                return handleSearch(request);
+
+            case REDUCER_CALLBACK:
+                return handleReducerCallback(request);
+                
             case SHOW_GAMES:
                 return handleShowGames(request);
 
@@ -60,13 +65,22 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    // MapReduce SEARCH ----------------------------------------------------------------------------------------------------
 
     private Request handleSearch(Request request) {
 
-        ArrayList<String> workers = master.getWorkerAddresses();
+        // generate new mapId
+        int mapId = master.generateMapId();
+        System.out.println("[Master] Initiating SEARCH for mapId=" + mapId);
+
+        // register ClientHandler state in the waiting set before starting map function
+        SavedMasterState state = new SavedMasterState();
+        master.registerMapReduceOperation(mapId, state);
+
+        // creating MAP_TASK to send to Workers
+        ArrayList<String> workers = master.getAllWorkerAddresses();
         int noOfWorkers = workers.size();
 
-        Request[] mapResults = new Request[noOfWorkers];
         Thread[] threads = new Thread[noOfWorkers];
 
         for (int i = 0; i < noOfWorkers; i++) {
@@ -74,31 +88,96 @@ public class ClientHandler implements Runnable {
             final int idx = i;
 
             threads[i] = new Thread(() -> {
-                System.out.println("[Master] MAP_TASK to worker[" + idx + "] " + workerAddress);
-                mapResults[idx] = forwardToWorkerAndGetResult(request, workerAddress);
-                System.out.println("[Master] MAP_TASK from worker[" + idx + "] " + workerAddress);
+                System.out.println("[Master] Assigned SEARCH to worker[" + idx + "] " + workerAddress);
+
+                // put number of workers and mapId for the specific map task so the Reducer knows the number of workers for the map task
+                request.put("mapId", mapId);
+                request.put("noOfWorkers", noOfWorkers);
+
+                Request response = forwardToWorkerAndGetResult(request, workerAddress);
+
+                if (response == null || !"OK".equals(response.get("status"))) {
+                    System.err.println("[Master] Worker[" + idx + "] for map Id= " + mapId + " did not respond");
+                } else {
+                    System.out.println("[Master] Worker[" + idx + "] for mapId=" + mapId + " succeeded");
+                }
             });
         }
 
-        for (Thread thread : threads) {
-            thread.start();
-        }
+        // initiate threads
+        for (Thread thread : threads) thread.start();
 
+        // wait for all threads to finish
         for (Thread thread : threads) {
             try {
                 thread.join();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                System.out.println("[Master] Thread interrupted while waiting for map results");
             }
         }
 
-        System.out.println("[Master] MAP_TASK completed");
+        System.out.println("[Master] All workers responded for mapId=" + mapId);
 
-        // still things to do...
+        // wait for REDUCER_CALLBACK
+        // This ClientThread will suspend waiting for another ClientThread to notify this thread after
+        // it receives the REDUCER_CALLBACK with the result
+        try {
+            ArrayList<String> games = state.waitForResult(TIMEOUT_MS);
+
+            // remove this state from Master, no longer needed
+            master.removeSavedMasterState(mapId);
+
+            if (games == null) {
+                // Timeout — Reducer never replied (setResult was not executed)
+                Request response = new Request(Request.Type.RESPONSE);
+                response.put("status",  "ERROR");
+                response.put("message", "Search timed out (mapId=" + mapId + ")");
+                return response;
+            }
+
+            System.out.println("[Master] Received Reduce result for mapId=" + mapId);
+
+            Request response = new Request(Request.Type.RESPONSE);
+            response.put("status", "OK");
+            response.put("games",  games);
+            return response;
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            master.removeSavedMasterState(mapId);
+            Request response = new Request(Request.Type.RESPONSE);
+            response.put("status",  "ERROR");
+            response.put("message", "Search interrupted");
+            return response;
+        }
+
     }
 
+    /**
+     * Handles the REDUCER_CALLBACK. This will run in a separate
+     * thread (the one spawned when the Reducer's TCP connection arrived).
+     * Finds the waiting SavedMasterState by mapId and wakes the sleeping
+     * SEARCH ClientHandler via notify().
+     */
+    private Request handleReducerCallback(Request request) {
+        int mapId = (int) request.get("mapId");
+        ArrayList<String> games = (ArrayList<String>) request.get("games");
 
+        System.out.println("[Master] Received REDUCER_CALLBACK result for mapId=" + mapId);
+
+        SavedMasterState state = master.getMasterState(mapId);
+        if (state != null) {
+            // setResult will wake up suspended ClientHandler thread for specific mapId
+            state.setResult(games != null ? games : new ArrayList<>());
+        } else
+            System.out.println("[Master] No state found for mapId=" + mapId);
+
+        // respond back to Reducer
+        Request response = new Request(Request.Type.RESPONSE);
+        response.put("status", "OK");
+        return response;
+    }
+  
     private Request handleShowGames(Request request){
         ArrayList<String> workers = master.getWorkerAddresses();
         int noOfWorkers = workers.size();
@@ -139,6 +218,9 @@ public class ClientHandler implements Runnable {
 
     }
 
+  
+    // TCP operation helpers ----------------------------------------------------------------------------------------------------
+  
     private Request forwardToWorkerAndGetResult(Request request, String workerAddress) {
         String[] parts = workerAddress.split(":");
         String host = parts[0];

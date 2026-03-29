@@ -1,0 +1,110 @@
+package reducer;
+
+import shared.Request;
+
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.net.*;
+
+
+public class ReducerHandler implements Runnable {
+
+    private Socket clientSocket;
+    private Reducer reducer;
+
+    public ReducerHandler(Socket clientSocket, Reducer reducer) {
+        this.clientSocket = clientSocket;
+        this.reducer = reducer;
+    }
+
+    @Override
+    public void run() {
+        try (
+                ObjectOutputStream output = new ObjectOutputStream(clientSocket.getOutputStream());
+                ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
+        ) {
+            output.flush();
+
+            Request request = (Request) input.readObject();
+
+            Request response = handle(request);
+
+            output.writeObject(response);
+
+            output.flush();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Request handle(Request request) {
+        switch (request.getType()) {
+
+            case SEARCH: return handleSearch(request);
+
+        default:
+            Request response = new Request(Request.Type.RESPONSE);
+            response.put("status", "error");
+            response.put("message", "Reducer received invalid request");
+            return response;
+        }
+    }
+
+    private Request handleSearch(Request request) {
+        int mapId = (int) request.get("mapId");
+        int noOfWorkers = (int) request.get("noOfWorkers");
+
+        if (!reducer.mapIdRegistered(mapId)) reducer.registerMapReduce(mapId, noOfWorkers);
+
+        ArrayList<String[]> games = (ArrayList<String[]>) request.get("games");
+
+        boolean shouldReduce = reducer.collect(mapId, games);
+
+        if (shouldReduce) initiateReduce(mapId);
+
+        Request response = new Request(Request.Type.RESPONSE);
+        response.put("status", "OK");
+        return response;
+    }
+
+    private void initiateReduce(int mapId) {
+        ArrayList<String> games = reducer.reduce(mapId, reducer.getCollectedGames(mapId));
+
+        Request request = new  Request(Request.Type.REDUCER_CALLBACK);
+        request.put("mapId", mapId);
+        request.put("games", games);
+
+        Request response = forwardToMaster(request);
+
+        // TO-DO handle response by printing something on screen
+
+        reducer.cleanup(mapId);
+    }
+
+    private Request forwardToMaster(Request request) {
+
+        String[] parts = reducer.getMasterHostAndPort().split(":");
+        String host = parts[0];
+        int port = Integer.parseInt(parts[1]);
+
+        System.out.println("[Reducer] Forwarding to master: " + host + ":" + port);
+
+        try (
+                Socket master = new Socket(host, port);
+
+                ObjectOutputStream output = new ObjectOutputStream(master.getOutputStream());
+                ObjectInputStream input = new ObjectInputStream(master.getInputStream());
+        ) {
+            output.flush();
+            output.writeObject(request);
+            output.flush();
+            return (Request) input.readObject();
+
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+}

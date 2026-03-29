@@ -11,19 +11,23 @@ public class Master {
     private final String srgHost;
     private final int srgPort;
 
-    public Master(int port, int noOfWorkers, String srgHost, int srgPort) {
+    private int mapIdCounter = 0;
+
+    // Waiting Set/Room: each operation that uses the MapReduce framework registers here & REDUCER_CALLBACK looks up here
+    private final HashMap<Integer, SavedMasterState> waitingSet = new HashMap<>();
+
+    public Master(int port, ArrayList<String> workerAddresses, String srgHost, int srgPort) {
         this.port = port;
-        this.workerAddresses = new ArrayList<String>();
-        this.srgHost=srgHost;
-        this.srgPort=srgPort;
+        this.workerAddresses = workerAddresses;
+        this.srgHost = srgHost;
+        this.srgPort = srgPort;
     }
 
     public void start() {
         try (
                 ServerSocket serverSocket = new ServerSocket(port)
         ) {
-            System.out.println("Master server listening on port " + port);
-            System.out.println("Workers' addresses: " + workerAddresses);
+            System.out.println("Master server listening on port " + port + "...");
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
@@ -36,7 +40,48 @@ public class Master {
         }
     }
 
-    public ArrayList<String> getWorkerAddresses() {
+
+    // Saving the Master state (ClientHandler thread) operations ----------------------------------------------------------------------------------------------------
+
+    /**
+     * Generate unique map id
+     * @return the new map id
+     */
+    public synchronized int generateMapId() {
+        return mapIdCounter++;
+    }
+
+    /**
+     * Register the state of the current ClientHandler thread so REDUCER_CALLBACK can find it later
+     * @param mapId the map id to register
+     * @param state the current ClientHandler thread that will suspend
+     */
+    public synchronized void registerMapReduceOperation(int mapId, SavedMasterState state) {
+        waitingSet.put(mapId, state);
+    }
+
+    /**
+     * Returns the state of the ClientHandler thread for specific map id
+     * @param mapId the map id
+     * @return the state of the ClientHandler thread
+     */
+    public synchronized SavedMasterState getMasterState(int mapId) {
+        return waitingSet.get(mapId);
+    }
+
+
+    /**
+     * Removes the state for the ClientThread for the specific map id
+     * @param mapId the map id
+     */
+    public synchronized void removeSavedMasterState(int mapId) {
+        waitingSet.remove(mapId);
+    }
+
+
+    // Routing operations ----------------------------------------------------------------------------------------------------
+
+    public ArrayList<String> getAllWorkerAddresses() {
         return workerAddresses;
     }
 
@@ -50,10 +95,14 @@ public class Master {
          */
         return workerAddresses.get(getWorkerIndex(gameName));
     }
-    //thn main thn evale o mpampas na dei oti ola entajei
+
+
+    // Entry point ----------------------------------------------------------------------------------------------------
+
     public static void main(String[] args) {
-        Master master = new Master(5000, 10);
-        master.start();
+
+
+
     }
 
     public String getSrgHost(){
