@@ -9,17 +9,21 @@ import java.util.*;
 public class Worker {
 
     private final int port;
+    private final String reducerHost;
+    private final int reducerPort;
     private final HashMap<String, Game> games = new HashMap<>();
 
-    public Worker(int port) {
+    public Worker(int port, String reducerHost, int reducerPort) {
         this.port = port;
+        this.reducerHost = reducerHost;
+        this.reducerPort = reducerPort;
     }
 
     public void start() {
         try (
                 ServerSocket serverSocket = new ServerSocket(port);
                 ) {
-            System.out.println("Worker server listening on port " + port);
+            System.out.println("Worker server listening on port " + port + "...");
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
@@ -32,13 +36,8 @@ public class Worker {
         }
     }
 
-    public int  getPort() {
-        return port;
-    }
 
-    public synchronized ArrayList<Game> getAllGames() {
-        return new ArrayList<>(games.values());
-    }
+    // Worker's game operations ----------------------------------------------------------------------------------------------------
 
     public synchronized void addGame(Game game) {
         games.put(game.getGameName(), game);
@@ -55,5 +54,28 @@ public class Worker {
 
     public synchronized Game getGame(String gameName) {
         return games.get(gameName);
+    }
+
+    public synchronized ArrayList<Game> getAllGames() {
+        return new ArrayList<>(games.values());
+    }
+
+
+    // WorkerHandler getters ----------------------------------------------------------------------------------------------------
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getReducerHostAndPort() {
+        return reducerHost + ":" + reducerPort;
+    }
+
+
+    // Entry point ----------------------------------------------------------------------------------------------------
+    public static void main(String[] args) {
+
+
+
     }
 }

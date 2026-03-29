@@ -1,5 +1,7 @@
 package game; //test1
 
+import shared.Request;
+
 import java.io.Serializable;
 
 public class Game implements Serializable {
@@ -54,6 +56,24 @@ public class Game implements Serializable {
     public void setRiskLevel(String riskLevel) { this.riskLevel = riskLevel; }
     public void setStars(double stars) { this.stars = stars; }
     public void setNoOfVotes(int noOfVotes) { this.noOfVotes = noOfVotes; }
+
+    public boolean satisfiesFilters(Request request) {
+        int stars = (Integer) request.get("stars");
+        int noOfVotes = (Integer) request.get("noOfVotes");
+        double minBet = (Double) request.get("minBet");
+        double maxBet = (Double) request.get("maxBet");
+        String riskLevel = (String) request.get("riskLevel");
+
+        if (!isActive()) return false;
+        if (stars != this.stars) return false;
+        if (noOfVotes != this.noOfVotes) return false;
+        if (minBet > maxBet) return false;
+        if (minBet > this.minBet) return false;
+        if (maxBet < this.maxBet) return false;
+        if (riskLevel.equals(this.riskLevel)) return false;
+
+        return true;
+    }
 
     /*@Override
     public String toString() {
