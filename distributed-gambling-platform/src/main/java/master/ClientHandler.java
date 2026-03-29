@@ -179,7 +179,7 @@ public class ClientHandler implements Runnable {
     }
   
     private Request handleShowGames(Request request){
-        ArrayList<String> workers = master.getWorkerAddresses();
+        ArrayList<String> workers = master.getAllWorkerAddresses();
         int noOfWorkers = workers.size();
 
         if(noOfWorkers == 0){

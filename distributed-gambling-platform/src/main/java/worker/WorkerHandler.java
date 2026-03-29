@@ -50,62 +50,12 @@ public class WorkerHandler implements Runnable {
             case REMOVE_GAME: return handleRemoveGame(request);
             case CHANGE_RISK: return handleChangeRisk(request);
             case SEARCH: return handleMapTask(request);
-            case PLAY:
+            case PLAY: return handlePlay(request);
 
-                Request srgRequest=new Request("GIVE_NUMBER");
-                srgRequest.put("gameName", request.get("gameName"));
-                Request srgResponse=sendToSrg(srgRequest);
-
-                int number= (Integer) srgResponse.get("number");
-                String hashedNumber= (String) srgResponse.get("hashedNumber");
-                Game playedGame= (Game)request.get("game");
-
-                if (hashedNumber==sha256(number+(String) playedGame.getHashKey())){
-
-                    double jackpot;
-                    double[] A;
-                    switch (playedGame.getRiskLevel()) {
-                        case "low":
-
-                            jackpot=10.0;
-                            A=LOW;
-                            break;
-                        
-                        case "medium":
-
-                            jackpot=20.0;
-                            A=MEDIUM;
-                            break;
-
-                        case "high":
-
-                            jackpot=40.0;
-                            A=HIGH;
-                            break;
-
-                        default:
-                            break;
-                    }
-
-                    double amountWon;
-                    double bettingAmount=(Double) request.get("bettingAmount");
-                    if (number%100==0){
-                        response.put("status", "JACKPOT!!!");
-                        amountWon=bettingAmount*jackpot;
-                    }else{
-                        response.put("status", "NOT JACKPOT");
-                        amountWon=bettingAmount*A[number%10];
-                    }
-
-                    response.put("amountWon", amountWon);
-                }else{
-                    response.put("status", "ERROR(wrong hash)");
-                }
-                
-                return response;
             default:
+                Request response = new Request(Request.Type.RESPONSE);
+                response.put("status", "ERROR");
                 return response;
-                
         }
     }
 
@@ -191,11 +141,67 @@ public class WorkerHandler implements Runnable {
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-      
+    }
+
+    private Request handlePlay(Request request) {
+        Request srgRequest = new Request("GIVE_NUMBER");
+        srgRequest.put("gameName", request.get("gameName"));
+        Request srgResponse=sendToSrg(srgRequest);
+
+        int number= (Integer) srgResponse.get("number");
+        String hashedNumber= (String) srgResponse.get("hashedNumber");
+        Game playedGame= (Game)request.get("game");
+
+        if (hashedNumber==sha256(number+(String) playedGame.getHashKey())){
+
+            double jackpot;
+            double[] A;
+            switch (playedGame.getRiskLevel()) {
+                case "low":
+
+                    jackpot=10.0;
+                    A=LOW;
+                    break;
+
+                case "medium":
+
+                    jackpot=20.0;
+                    A=MEDIUM;
+                    break;
+
+                case "high":
+
+                    jackpot=40.0;
+                    A=HIGH;
+                    break;
+
+                default:
+                    break;
+            }
+
+            double amountWon;
+            double bettingAmount=(Double) request.get("bettingAmount");
+
+            if (number%100==0){
+                response.put("status", "JACKPOT!!!");
+                amountWon=bettingAmount*jackpot;
+            }else{
+                response.put("status", "NOT JACKPOT");
+                amountWon=bettingAmount*A[number%10];
+            }
+
+            response.put("amountWon", amountWon);
+        } else {
+            response.put("status", "ERROR(wrong hash)");
+        }
+
+        return response;
+    }
+
     private Request sendToSrg(Request request) {
 
         try (
-                Socket socket = new Socket(srgHost, srgPort);
+                Socket socket = new Socket(worker.getSrgHost(), worker.getPort());
                 ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
         ) {

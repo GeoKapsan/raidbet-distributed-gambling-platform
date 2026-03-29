@@ -8,7 +8,6 @@ import java.util.*;
 
 public class Worker {
 
-    private final String host;
     private final int port;
     private final String reducerHost;
     private final int reducerPort;
@@ -26,7 +25,7 @@ public class Worker {
 
     public void start() {
         try (
-                ServerSocket serverSocket = new ServerSocket("",port);
+                ServerSocket serverSocket = new ServerSocket(port);
                 ) {
             System.out.println("Worker server listening on port " + port + "...");
 
@@ -80,9 +79,9 @@ public class Worker {
         return srgHost;
     }
 
-    public int getSrgPort(){
+    public int getSrgPort() {
         return srgPort;
-  
+    }
 
     // Entry point ----------------------------------------------------------------------------------------------------
       
