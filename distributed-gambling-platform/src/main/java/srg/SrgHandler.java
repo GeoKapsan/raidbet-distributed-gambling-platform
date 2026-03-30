@@ -15,8 +15,8 @@ public class SrgHandler implements Runnable{
     
     public SrgHandler(Srg srg, Socket clientSocket){
 
-        this.srg=srg;
-        this.clientSocket=clientSocket;
+        this.srg = srg;
+        this.clientSocket = clientSocket;
 
     }
 
@@ -30,7 +30,7 @@ public class SrgHandler implements Runnable{
 
             Request request = (Request) input.readObject(); // receive client's data
 
-            Request response = handleRequest(request); // route request and send back response to client
+            Request response = handle(request); // route request and send back response to client
 
             output.writeObject(response);
 
@@ -40,10 +40,9 @@ public class SrgHandler implements Runnable{
         }
     }
 
-    private Request handleRequest(Request request) throws InterruptedException {
+    private Request handle(Request request) throws InterruptedException {
 
-
-        String gameName=(String) request.get("gameName");
+        String gameName = (String) request.get("gameName");
         Request response = new Request(Request.Type.RESPONSE);
 
         switch (request.getType()) {
@@ -51,12 +50,14 @@ public class SrgHandler implements Runnable{
             case ADD_GAME:
 
                 srg.put(gameName, (String) request.get("hashKey"));
+                response.put("status", "OK");
                 response.put("message", "Game" + gameName + " added successfully.");
                 break;
 
             case REMOVE_GAME:
 
                 srg.remove(gameName);
+                response.put("status", "OK");
                 response.put("message", "Game" + gameName + " removed successfully.");
                 break;
 
@@ -68,8 +69,9 @@ public class SrgHandler implements Runnable{
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
+                response.put("status", "OK");
                 response.put("number", number);
-                response.put("hashedNumber", sha256(number+srg.getHashKey(gameName)));
+                response.put("hashedNumber", sha256(number + srg.getHashKey(gameName)));
                 break;
 
             default:

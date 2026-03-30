@@ -147,24 +147,26 @@ public class WorkerHandler implements Runnable {
 
     private Request handlePlay(Request request) {
         Request srgRequest = new Request(Request.Type.GIVE_NUMBER);
+
         srgRequest.put("gameName", request.get("gameName"));
+
         Request srgResponse = sendToSrg(srgRequest);
 
         int number = (int) srgResponse.get("number");
         String hashedNumber = (String) srgResponse.get("hashedNumber");
+
         Game playedGame = (Game) request.get("game");
 
         Request response = new Request(Request.Type.RESPONSE);
 
-        if (hashedNumber.equals(sha256(number + (String) playedGame.getHashKey()))) {
-
-
+        if (hashedNumber.equals(
+                sha256(number + (String) playedGame.getHashKey()))) {
 
             double amountWon;
             double bettingAmount = (Double) request.get("bettingAmount");
 
-            if (number % 100 == 0){
-                response.put("status", "JACKPOT!!!");
+            if (number % 100 == 0) {
+                response.put("winStatus", "JACKPOT!!!");
                 amountWon = bettingAmount * playedGame.getJackpot();
             } else {
                 double[] A = new double[10];
@@ -187,7 +189,7 @@ public class WorkerHandler implements Runnable {
                     default:
                         break;
                 }
-                response.put("status", "NOT JACKPOT");
+                response.put("winStatus", "NOT JACKPOT");
                 amountWon = bettingAmount * A[number % 10];
             }
 

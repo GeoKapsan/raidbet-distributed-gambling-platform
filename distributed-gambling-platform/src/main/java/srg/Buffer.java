@@ -5,10 +5,10 @@ import java.util.LinkedList;
 public class Buffer {
     
     private final LinkedList<Integer> buffer = new LinkedList<>();
-    private final int max_size=10;
+    private final int MAX_CAPACITY = 10;
 
     public synchronized void produce(int number) throws InterruptedException {
-        while (buffer.size() == max_size) {
+        while (buffer.size() == MAX_CAPACITY) {
             wait();
         }
         buffer.addLast(number);
