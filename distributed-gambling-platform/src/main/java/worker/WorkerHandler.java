@@ -11,8 +11,8 @@ import java.security.MessageDigest;
 
 public class WorkerHandler implements Runnable {
 
-    private Socket clientSocket;
-    private Worker worker;
+    private final Socket clientSocket;
+    private final Worker worker;
 
     private static final double[] LOW    = {0.0, 0.0, 0.0, 0.1, 0.5, 1.0, 1.1, 1.3, 2.0, 2.5};
     private static final double[] MEDIUM = {0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.5, 2.5, 3.5};
@@ -156,40 +156,37 @@ public class WorkerHandler implements Runnable {
 
         Request response = new Request(Request.Type.RESPONSE);
 
-        if (hashedNumber == sha256(number + (String) playedGame.getHashKey())) {
+        if (hashedNumber.equals(sha256(number + (String) playedGame.getHashKey()))) {
 
-            double jackpot = 0.0;
-            double[] A = new double[10];
-            switch (playedGame.getRiskLevel()) {
-                case "low":
 
-                    jackpot = 10.0;
-                    A = LOW;
-                    break;
-
-                case "medium":
-
-                    jackpot = 20.0;
-                    A = MEDIUM;
-                    break;
-
-                case "high":
-
-                    jackpot = 40.0;
-                    A = HIGH;
-                    break;
-
-                default:
-                    break;
-            }
 
             double amountWon;
             double bettingAmount = (Double) request.get("bettingAmount");
 
             if (number % 100 == 0){
                 response.put("status", "JACKPOT!!!");
-                amountWon = bettingAmount * jackpot;
+                amountWon = bettingAmount * playedGame.getJackpot();
             } else {
+                double[] A = new double[10];
+                switch (playedGame.getRiskLevel()) {
+                    case "low":
+
+                        A = LOW;
+                        break;
+
+                    case "medium":
+
+                        A = MEDIUM;
+                        break;
+
+                    case "high":
+
+                        A = HIGH;
+                        break;
+
+                    default:
+                        break;
+                }
                 response.put("status", "NOT JACKPOT");
                 amountWon = bettingAmount * A[number % 10];
             }
