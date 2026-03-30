@@ -78,7 +78,9 @@ public class WorkerHandler implements Runnable {
     }
 
     private Request handleChangeRisk(Request request) {
-
+        Request response = new Request(Request.Type.RESPONSE);
+        response.put("status", "ERROR (CHANGE_RISK not implemented)");
+        return response;
     }
 
     private Request handleMapTask(Request request) {
@@ -144,35 +146,37 @@ public class WorkerHandler implements Runnable {
     }
 
     private Request handlePlay(Request request) {
-        Request srgRequest = new Request("GIVE_NUMBER");
+        Request srgRequest = new Request(Request.Type.GIVE_NUMBER);
         srgRequest.put("gameName", request.get("gameName"));
-        Request srgResponse=sendToSrg(srgRequest);
+        Request srgResponse = sendToSrg(srgRequest);
 
-        int number= (Integer) srgResponse.get("number");
-        String hashedNumber= (String) srgResponse.get("hashedNumber");
-        Game playedGame= (Game)request.get("game");
+        int number = (int) srgResponse.get("number");
+        String hashedNumber = (String) srgResponse.get("hashedNumber");
+        Game playedGame = (Game) request.get("game");
 
-        if (hashedNumber==sha256(number+(String) playedGame.getHashKey())){
+        Request response = new Request(Request.Type.RESPONSE);
 
-            double jackpot;
-            double[] A;
+        if (hashedNumber == sha256(number + (String) playedGame.getHashKey())) {
+
+            double jackpot = 0.0;
+            double[] A = new double[10];
             switch (playedGame.getRiskLevel()) {
                 case "low":
 
-                    jackpot=10.0;
-                    A=LOW;
+                    jackpot = 10.0;
+                    A = LOW;
                     break;
 
                 case "medium":
 
-                    jackpot=20.0;
-                    A=MEDIUM;
+                    jackpot = 20.0;
+                    A = MEDIUM;
                     break;
 
                 case "high":
 
-                    jackpot=40.0;
-                    A=HIGH;
+                    jackpot = 40.0;
+                    A = HIGH;
                     break;
 
                 default:
@@ -180,17 +184,18 @@ public class WorkerHandler implements Runnable {
             }
 
             double amountWon;
-            double bettingAmount=(Double) request.get("bettingAmount");
+            double bettingAmount = (Double) request.get("bettingAmount");
 
-            if (number%100==0){
+            if (number % 100 == 0){
                 response.put("status", "JACKPOT!!!");
-                amountWon=bettingAmount*jackpot;
-            }else{
+                amountWon = bettingAmount * jackpot;
+            } else {
                 response.put("status", "NOT JACKPOT");
-                amountWon=bettingAmount*A[number%10];
+                amountWon = bettingAmount * A[number % 10];
             }
 
             response.put("amountWon", amountWon);
+            response.put("status", "OK");
         } else {
             response.put("status", "ERROR(wrong hash)");
         }
@@ -202,6 +207,7 @@ public class WorkerHandler implements Runnable {
 
         try (
                 Socket socket = new Socket(worker.getSrgHost(), worker.getPort());
+
                 ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
         ) {
@@ -221,6 +227,7 @@ public class WorkerHandler implements Runnable {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(input.getBytes("UTF-8"));
+
             StringBuilder hex = new StringBuilder();
             for (byte b : hash) {
                 hex.append(String.format("%02x", b));

@@ -6,7 +6,6 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.security.MessageDigest;
 
-import game.Game;
 import shared.Request;
 
 public class SrgHandler{

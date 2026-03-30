@@ -1,10 +1,10 @@
-package main.java.srg;
+package srg;
 
 import java.util.LinkedList;
 
 public class Buffer {
     
-    private final LinkedList<Integer> buffer=new LinkedList<>();
+    private final LinkedList<Integer> buffer = new LinkedList<>();
     private final int max_size=10;
 
     public synchronized void produce(int number) throws InterruptedException {
