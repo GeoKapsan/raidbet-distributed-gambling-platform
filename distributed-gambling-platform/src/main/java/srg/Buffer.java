@@ -8,7 +8,7 @@ public class Buffer {
     private final int max_size=10;
 
     public synchronized void produce(int number) throws InterruptedException {
-        while (buffer.size() == MAX_SIZE) {
+        while (buffer.size() == max_size) {
             wait();
         }
         buffer.addLast(number);
