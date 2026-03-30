@@ -7,18 +7,15 @@ import java.util.*;
 import shared.Request;
 
 
-public class Srg{
+public class Srg {
 
-    private final String host;
     private final int port ;
     private final String masterHost;
     private final int masterPort ;
     private HashMap<String, Buffer> generators = new HashMap<>();
     private HashMap<String, String> hashKeys = new HashMap<>();
 
-    public Srg(String host, int port, String masterHost, int masterPort) {
-
-        this.host=host;
+    public Srg(int port, String masterHost, int masterPort) {
         this.port = port;
         this.masterHost=masterHost;
         this.masterPort=masterPort;
@@ -58,18 +55,18 @@ public class Srg{
 
     }
 
-    public void remove(String gameName){
+    public synchronized void remove(String gameName){
 
         generators.remove(gameName);
         hashKeys.remove(gameName);
 
     }
 
-    public int getNumber(String gameName) throws InterruptedException {
+    public synchronized int getNumber(String gameName) throws InterruptedException {
         return generators.get(gameName).consume();
     }
 
-    public String getHashKey(String gameName){
+    public synchronized String getHashKey(String gameName){
         return hashKeys.get(gameName);
     }
 

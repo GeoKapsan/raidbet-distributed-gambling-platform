@@ -5,128 +5,61 @@ import shared.Request;
 
 import java.io.*;
 import java.net.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Scanner;
-import java.util.ArrayList ;
-import java.util.List ;
-
+import java.util.*;
 
 import org.json.simple.JSONObject ;
-import org.json.simple.parser.JSONParser; // Απαραίτητο για τον parser
-import org.json.simple.parser.ParseException;
+import org.json.simple.parser.JSONParser;
+
 
 public class ManagerConsole {
 
+    // save master host and port
     private final String masterHost ;
-    private final int masterPort; // αποθηκευουμε διευθυνση και Port του MASTER SEVER
+    private final int masterPort;
 
     private final Scanner scanner = new Scanner(System.in);
 
-    public ManagerConsole(String masterHost , int masterPort){
+    public ManagerConsole(String masterHost, int masterPort){
         this.masterHost = masterHost;
         this.masterPort = masterPort;
     }
 
+    public void start() {
 
-    private void printMenu(){
+        boolean running = true;
+
+        while (running) {
+            printMenu();
+
+            String choice = scanner.nextLine().trim();
+
+            switch (choice) {
+                case "1": addGame(); break;
+                case "2": removeGame(); break;
+                case "3": changeRiskLevel(); break;
+                // case "4": listGame(); break;
+                case "0": {
+                    System.out.println("Exiting Manager Console.");
+                    return;
+                }
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+        }
+    }
+
+    private void printMenu() {
         System.out.println("\n--- Manager Console ---");
         System.out.println("1. Add Game");
         System.out.println("2. Remove Game");
         System.out.println("3. Change Game Risk Level");
-        System.out.println("4. List Games");
+        // System.out.println("4. List Games");
         System.out.println("0. Exit");
         System.out.print("Select an option: ");
     }
 
 
-    public void start() {
-
-        System.out.println("==Manager Console==");
-        boolean running = true;
-        while (running) {
-            printMenu();
-            String choice = scanner.nextLine().trim();
-
-            switch (choice) {
-                case "1" -> addGame();
-                case "2" -> removeGame();
-                case "3" -> changeRiskLevel();
-                case "4" -> listGame();
-                case "0" -> {
-                    System.out.println("Exiting Manager Console.");
-                    return;
-                }
-                default -> System.out.println("Invalid option. Please try again.");
-            }
-        }
-    }
-
-    //listGames()
-
-    public void listGame(){
-        System.out.println("fetching the game from  the network");
-        Request request = new Request(Request.Type.SHOW_GAMES);
-        Request response = sentToMaster(request);
-
-        if (response == null){
-            System.out.println("[FAIL] No response from Master");
-            return ;
-
-        }
-        String status = (String) response.get("status");
-        if ("OK".equalsIgnoreCase(status)){
-            List<Game> networkGames = (List<Game>) response.get("games"); // o Master tha epistrefei lista logika
-
-            if (networkGames == null || networkGames.isEmpty()){
-                System.out.println("no games loaded ");
-                return ;
-
-            }
-
-            System.out.println("\n--- Distributed Games (" + networkGames.size() + ") ---");
-            for (int i = 0; i < networkGames.size(); i++) {
-                Game g = networkGames.get(i);
-                System.out.println((i + 1) + ". " + g.getGameName()
-                        + " | Provider: " + g.getProviderName()
-                        + " | Risk: "     + g.getRiskLevel()
-                        + " | Bet: "      + g.getMinBet() + "-" + g.getMaxBet()
-                        + " | Category: " + g.getBettingCategory()
-                        + " | Active: "   + g.isActive());
-            }
-            System.out.println("-----------------------------------");
-        } else {
-            String message = (String) response.get("message");
-            System.out.println("[FAIL] Could not fetch games: " + (message != null ? message : "Unknown error"));
-        }
-
-    }
-
-
-
-
-
-    //anoigei sockets gia epikoinonia me masterbaiter(rapth)
-    private Request sentToMaster(Request request) {
-
-        try (
-                Socket socket = new Socket(masterHost, masterPort);
-                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-        ) {
-
-            oos.writeObject(request);
-            oos.flush();
-
-            return (Request) ois.readObject();
-
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("[ERROR] Could not communicate with Master: " + e.getMessage());
-            return null;
-        }
-    }
-
-    //addgame()
+    // Manager operations ----------------------------------------------------------------------------------------------------
 
     private void addGame() {
         System.out.print("Enter path to the folder containing game JSON files: ");
@@ -149,12 +82,14 @@ public class ManagerConsole {
 
         for (File file : files) {
             // Using try-with-resources to automatically close the FileReader
-            try (FileReader reader = new FileReader(file)) {
+            try (
+                    FileReader reader = new FileReader(file)
+            ) {
 
-                // 1. Parse the file directly into a JSONObject
+                // Parse the file directly into a JSONObject
                 JSONObject jsonObject = (JSONObject) parser.parse(reader);
 
-                // 2. Extract String values
+                // Extract String values
                 String gameName = (String) jsonObject.get("GameName");
                 String providerName = (String) jsonObject.get("ProviderName");
                 double stars = ((Number) jsonObject.get("Stars")).doubleValue();
@@ -165,9 +100,7 @@ public class ManagerConsole {
                 String riskLevel = (String) jsonObject.get("RiskLevel");
                 String hashKey = (String) jsonObject.get("HashKey");
 
-
-
-                // 4. Instantiate your Game object
+                // Instantiate your Game object
                 Game parsedGame = new Game(
                         gameName,
                         providerName,
@@ -181,33 +114,25 @@ public class ManagerConsole {
                 );
 
 
-                //dimiourgia toy request
+                // Request build
                 Request request = new Request(Request.Type.ADD_GAME);
                 request.put("game" , parsedGame);
 
-                //apostoli ston grandmasterbaiter(rapth) meso tcp
+                // Send to Master
                 System.out.println("Sending ADD_GAME request for : "+ gameName);
                 Request response = sentToMaster(request);
 
-                if (response == null){
-                    System.out.println("fail"+gameName);
-
-                    continue;
-                }
+                if (response == null) continue;
 
                 String status = (String) response.get("status");
                 String message = (String) response.get("message");
 
                 //prothiki ston master
-                if ("OK".equalsIgnoreCase(status)) {
+                if ("OK".equals(status)) {
                     System.out.println("[SUCCESS] Game added: " + gameName + (message != null ? " - " + message : ""));
                 } else {
                     System.out.println("[FAIL] Could not add game: " + gameName + (message != null ? " - " + message : ""));
                 }
-
-
-
-
 
                 System.out.println("Game parsed successfully:");
                 System.out.println("  Name     : " + parsedGame.getGameName());
@@ -223,7 +148,6 @@ public class ManagerConsole {
         }
     }
 
-    //remove game
     private void removeGame() {
         System.out.print("Enter the name of the game to remove: ");
         String gameName = scanner.nextLine().trim();
@@ -233,18 +157,15 @@ public class ManagerConsole {
             return;
         }
 
-        // kanw game object ta ypoloipa paidia dummy
-        Game gameToRemove = new Game(gameName, "", 0, 0, "", 0, 0, "", "");
-
-        // ftiaxno to request to vazw sto payload
+        // Build REMOVE_GAME Request
         Request request = new Request(Request.Type.REMOVE_GAME);
-        request.put("game", gameToRemove);
+        request.put("gameName", gameName);
 
-        //stelnw se master
+        // Send Request to Master
         System.out.println("Sending REMOVE_GAME request for: " + gameName);
         Request response = sentToMaster(request);
 
-        //elegxw response
+        // Check for response
         if (response == null) {
             System.out.println("[FAIL] No response from Master.");
             return;
@@ -253,7 +174,7 @@ public class ManagerConsole {
         String status  = (String) response.get("status");
         String message = (String) response.get("message");
 
-        if ("OK".equalsIgnoreCase(status)) {
+        if ("OK".equals(status)) {
             System.out.println("[SUCCESS] Game removed: " + gameName
                     + (message != null ? " - " + message : ""));
         } else {
@@ -262,10 +183,6 @@ public class ManagerConsole {
         }
     }
 
-
-
-
-    //change risk level
     private void changeRiskLevel() {
         System.out.print("Enter the name of the game: ");
         String gameName = scanner.nextLine().trim();
@@ -313,6 +230,68 @@ public class ManagerConsole {
         }
     }
 
+
+    // TCP Helper operation ----------------------------------------------------------------------------------------------------
+
+    // Send Request to Master and return Response from Master
+    private Request sentToMaster(Request request) {
+
+        try (
+                Socket socket = new Socket(masterHost, masterPort);
+                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+        ) {
+
+            oos.writeObject(request);
+            oos.flush();
+
+            return (Request) ois.readObject();
+
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("[ERROR] Could not communicate with Master: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     public void listGame() {
+     System.out.println("fetching the game from  the network");
+     Request request = new Request(Request.Type.SHOW_GAMES);
+     Request response = sentToMaster(request);
+
+     if (response == null){
+     System.out.println("[FAIL] No response from Master");
+     return ;
+
+     }
+     String status = (String) response.get("status");
+     if ("OK".equalsIgnoreCase(status)){
+     List<Game> networkGames = (List<Game>) response.get("games"); // o Master tha epistrefei lista logika
+
+     if (networkGames == null || networkGames.isEmpty()){
+     System.out.println("no games loaded ");
+     return ;
+
+     }
+
+     System.out.println("\n--- Distributed Games (" + networkGames.size() + ") ---");
+     for (int i = 0; i < networkGames.size(); i++) {
+     Game g = networkGames.get(i);
+     System.out.println((i + 1) + ". " + g.getGameName()
+     + " | Provider: " + g.getProviderName()
+     + " | Risk: "     + g.getRiskLevel()
+     + " | Bet: "      + g.getMinBet() + "-" + g.getMaxBet()
+     + " | Category: " + g.getBettingCategory()
+     + " | Active: "   + g.isActive());
+     }
+     System.out.println("-----------------------------------");
+     } else {
+     String message = (String) response.get("message");
+     System.out.println("[FAIL] Could not fetch games: " + (message != null ? message : "Unknown error"));
+     }
+
+     }
+     */
 
 
     public static void main(String[] args) {

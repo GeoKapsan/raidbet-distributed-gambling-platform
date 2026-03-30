@@ -49,6 +49,7 @@ public class Reducer {
         return masterHost + ":" + masterPort;
     }
 
+
     // Reducer state operations
 
     public synchronized boolean mapIdRegistered(Integer mapId) {
