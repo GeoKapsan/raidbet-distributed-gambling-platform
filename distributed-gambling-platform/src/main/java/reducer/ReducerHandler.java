@@ -57,7 +57,7 @@ public class ReducerHandler implements Runnable {
 
         if (!reducer.mapIdRegistered(mapId)) reducer.registerMapReduce(mapId, noOfWorkers);
 
-        ArrayList<String[]> games = (ArrayList<String[]>) request.get("games");
+        ArrayList<String[]> games = (ArrayList<String[]>) request.get("map_result");
 
         boolean shouldReduce = reducer.collect(mapId, games);
 
