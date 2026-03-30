@@ -1,4 +1,4 @@
-package main.java.player;
+package player;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -11,8 +11,8 @@ public class Player {
 
     private String username;
     private double balance=0.0;
-    private String masterHost;
-    private int masterPort;
+    private final String masterHost;
+    private final int masterPort;
     private final Scanner scanner = new Scanner(System.in);
 
     public Player (String name, String masterHost, int masterPort){
@@ -54,7 +54,7 @@ public class Player {
         System.out.println("Type the amount you want to bet");
         Double bettingAmount = Double.parseDouble(scanner.nextLine().trim());
 
-        Request request=new Request("PLAY");
+        Request request=new Request(Request.Type.PLAY);
         request.put("gameName", gameName);
         request.put("bettingAmount",bettingAmount);
 
@@ -67,8 +67,6 @@ public class Player {
             System.out.println("Amount Won: "+ amountWon+"FUN");
             updateBalance(amountWon-bettingAmount);
             checkBalance();
-        }else{
-            
         }
 
     }

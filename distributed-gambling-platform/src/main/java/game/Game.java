@@ -34,8 +34,26 @@ public class Game implements Serializable {
         this.hashKey = hashKey;
 
         this.bettingCategory = minBet < 1.0 ? "$" : minBet < 5.0 ? "$$" : "$$$"; // to leei FUN sto pdf dk gt
-        this.jackpot = maxBet * 100; // den eida pou to leei apla vgazei error
-    }
+        switch (riskLevel) {
+            case "low":
+
+                this.jackpot = 10.0;
+                break;
+
+            case "medium":
+
+                this.jackpot = 20.0;
+                break;
+
+            case "high":
+
+                this.jackpot = 40.0;
+                break;
+
+            default:
+                this.jackpot=0.0;
+                break;
+        }    }
 
     // --- Getters ---
     public String getGameName() { return gameName; }
@@ -75,11 +93,4 @@ public class Game implements Serializable {
         return true;
     }
 
-    /*@Override
-    public String toString() {
-        return String.format("[%s | %s | Stars:%.1f | Bet:%s | Risk:%s | Jackpot:%.1f]",
-            gameName, bettingCategory, stars, minBet + "-" + maxBet, riskLevel, jackpot);
-    } */
-
-    // i put it as comments because no use for now
 }

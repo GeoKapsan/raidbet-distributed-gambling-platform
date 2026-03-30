@@ -9,12 +9,19 @@ import shared.Request;
 
 public class Srg{
 
+    private final String host;
     private final int port ;
-    private HashMap<String, RandomBuffer> generators = new HashMap<>();
+    private final String masterHost;
+    private final int masterPort ;
+    private HashMap<String, Buffer> generators = new HashMap<>();
     private HashMap<String, String> hashKeys = new HashMap<>();
 
-    public Master(int port) {
+    public Srg(String host, int port, String masterHost, int masterPort) {
+
+        this.host=host;
         this.port = port;
+        this.masterHost=masterHost;
+        this.masterPort=masterPort;
     }
 
 
@@ -24,8 +31,8 @@ public class Srg{
         ) {
 
             while (true) {
-                Socket workerSocket = serverSocket.accept();
-                (new Thread(new SrgHandler(workerSocket, this))).start();
+                Socket clientSocket = serverSocket.accept();
+                (new Thread(new SrgHandler(this, clientSocket))).start();
             }
         } catch (IOException e) {
 
@@ -34,7 +41,8 @@ public class Srg{
 
     public synchronized void put(String gameName, String key) {
 
-        generators.put(gameName, new Buffer());
+        Buffer buffer = new Buffer();
+        generators.put(gameName, buffer);
         hashKeys.put(gameName, key);
 
         new Thread(() -> {
@@ -57,7 +65,7 @@ public class Srg{
 
     }
 
-    public int getNumber(String gameName){
+    public int getNumber(String gameName) throws InterruptedException {
         return generators.get(gameName).consume();
     }
 
@@ -86,7 +94,6 @@ public class Srg{
 
 
     public static void main(String[] args){
-    Srg srg= new Srg();
-    srg.start();
+
     }
 }

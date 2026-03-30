@@ -246,7 +246,7 @@ public class ClientHandler implements Runnable {
 
     }
 
-    void forwardToSrg(Game game, Type type){
+    void forwardToSrg(Game game, Request.Type type){
 
         try (
                 Socket worker = new Socket(master.getSrgHost(), master.getSrgPort());
@@ -264,7 +264,7 @@ public class ClientHandler implements Runnable {
             output.writeObject(request);
             output.flush();
         
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

@@ -8,15 +8,15 @@ import java.security.MessageDigest;
 
 import shared.Request;
 
-public class SrgHandler{
+public class SrgHandler implements Runnable{
     
     private Srg srg;
-    private Socket workerSocket;
+    private Socket clientSocket;
     
-    public void SrgHandler(Srg srg, Socket workerSocket){
+    public SrgHandler(Srg srg, Socket clientSocket){
 
         this.srg=srg;
-        this.socket=workerSocket;
+        this.clientSocket=clientSocket;
 
     }
 
@@ -30,28 +30,27 @@ public class SrgHandler{
 
             Request request = (Request) input.readObject(); // receive client's data
 
-            Request response = handle(request); // route request and send back response to client
+            Request response = handleRequest(request); // route request and send back response to client
 
             output.writeObject(response);
 
             output.flush();
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException | InterruptedException e) {
             System.err.println("[Srg] Srg handler error: " + e.getMessage());
         }
     }
 
-    private Request handleRequest(Request request) {
-        /*
-        Handles...
-         */
+    private Request handleRequest(Request request) throws InterruptedException {
 
-        String gameName=(String) request.get(gameName);
+
+        String gameName=(String) request.get("gameName");
+        Request response = new Request(Request.Type.RESPONSE);
 
         switch (request.getType()) {
 
             case ADD_GAME:
 
-                srg.put(gameName, request.get("hashKey"));
+                srg.put(gameName, (String) request.get("hashKey"));
                 response.put("message", "Game" + gameName + " added successfully.");
                 break;
 
@@ -63,15 +62,22 @@ public class SrgHandler{
 
             case GIVE_NUMBER:
 
-                int number=srg.getNumber(gameName);
+                int number= 0;
+                try {
+                    number = srg.getNumber(gameName);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 response.put("number", number);
                 response.put("hashedNumber", sha256(number+srg.getHashKey(gameName)));
                 break;
 
             default:
-                return new Request(Request.Type.RESPONSE);
+                break;
                 
         }
+
+        return response;
     }
 
     private String sha256(String input) {
