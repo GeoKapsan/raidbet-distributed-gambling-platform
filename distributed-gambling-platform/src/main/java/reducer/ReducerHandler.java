@@ -72,7 +72,7 @@ public class ReducerHandler implements Runnable {
 
         Request request = new  Request(Request.Type.REDUCER_CALLBACK);
         request.put("mapId", mapId);
-        request.put("games", games);
+        request.put("gameNames", games);
 
         Request response = forwardToMaster(request);
 

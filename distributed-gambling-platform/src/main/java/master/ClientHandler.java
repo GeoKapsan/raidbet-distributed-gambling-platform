@@ -125,7 +125,7 @@ public class ClientHandler implements Runnable {
 
         System.out.println("[Master] All workers responded for mapId=" + mapId);
 
-        // wait for REDUCER_CALLBACK
+        // Wait for REDUCER_CALLBACK
         // This ClientThread will suspend waiting for another ClientThread to notify this thread after
         // it receives the REDUCER_CALLBACK with the result
         try {
@@ -142,11 +142,11 @@ public class ClientHandler implements Runnable {
                 return response;
             }
 
-            System.out.println("[Master] Received Reduce result for mapId = " + mapId);
+            System.out.println("[Master] Received Reduce result for mapId=" + mapId);
 
             Request response = new Request(Request.Type.RESPONSE);
             response.put("status", "OK");
-            response.put("games",  games);
+            response.put("gameNames",  games);
             return response;
 
         } catch (InterruptedException e) {
@@ -168,7 +168,7 @@ public class ClientHandler implements Runnable {
      */
     private Request handleReducerCallback(Request request) {
         int mapId = (int) request.get("mapId");
-        ArrayList<String> games = (ArrayList<String>) request.get("games");
+        ArrayList<String> games = (ArrayList<String>) request.get("gameNames");
 
         System.out.println("[Master] Received REDUCER_CALLBACK result for mapId = " + mapId);
 
