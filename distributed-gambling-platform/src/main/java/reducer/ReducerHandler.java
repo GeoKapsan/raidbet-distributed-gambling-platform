@@ -38,16 +38,13 @@ public class ReducerHandler implements Runnable {
     }
 
     private Request handle(Request request) {
-        switch (request.getType()) {
-
-            case SEARCH: return handleSearch(request);
-
-        default:
-            Request response = new Request(Request.Type.RESPONSE);
-            response.put("status", "error");
-            response.put("message", "Reducer received invalid request");
-            return response;
+        if (Objects.requireNonNull(request.getType()) == Request.Type.SEARCH) {
+            return handleSearch(request);
         }
+        Request response = new Request(Request.Type.RESPONSE);
+        response.put("status", "error");
+        response.put("message", "Reducer received invalid request");
+        return response;
     }
 
     private Request handleSearch(Request request) {
@@ -68,11 +65,11 @@ public class ReducerHandler implements Runnable {
     }
 
     private void initiateReduce(int mapId) {
-        ArrayList<String> games = reducer.reduce(mapId, reducer.getCollectedGames(mapId));
+        ArrayList<String> games = reducer.reduce(mapId, reducer.getCollectedGames());
 
         Request request = new  Request(Request.Type.REDUCER_CALLBACK);
         request.put("mapId", mapId);
-        request.put("games", games);
+        request.put("gameNames", games);
 
         Request response = forwardToMaster(request);
 

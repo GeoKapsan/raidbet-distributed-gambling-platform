@@ -230,7 +230,7 @@ public class ManagerConsole {
         }
     }
 
-    public void listGames() {
+    private void listGames() {
         System.out.println("Fetching the games from  the network...");
 
         Request request = new Request(Request.Type.SHOW_GAMES);
