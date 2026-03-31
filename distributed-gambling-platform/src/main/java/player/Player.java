@@ -32,10 +32,11 @@ public class Player {
             String choice = scanner.nextLine().trim();
 
             switch (choice) {
-                case "1": play(); break;
-                case "2": search(); break;
-                case "3": checkBalance(); break;
+                case "1": listGames(); break;
+                case "2": play(); break;
+                case "3": search(); break;
                 case "4": addBalance(); break;
+                //case "5": checkBalance(); break;
                 case "0": {
                     System.out.println("Exiting Player Console.");
                     return;
@@ -49,37 +50,97 @@ public class Player {
 
     private void printMenu() {
         System.out.println("\n--- Player Application ---");
-        System.out.println("1. Play");
-        System.out.println("2. Search Games");
-        System.out.println("3. Check balance");
+        System.out.println("1. Show Games");
+        System.out.println("2. Play");
+        System.out.println("3. Search Games");
         System.out.println("4. Add balance");
+        //System.out.println("5. Check balance");
         System.out.println("0. Exit");
         System.out.print("Select an option: ");
     }
 
-    private void play() {
+    private void listGames() {
+        System.out.println("Fetching the games from  the network...");
 
-        
-        System.out.println("Type the game name you want to play");
-        String gameName = scanner.nextLine().trim();
-        System.out.println("Type the amount you want to bet");
-        Double bettingAmount = Double.parseDouble(scanner.nextLine().trim());
-
-        Request request=new Request(Request.Type.PLAY);
-        request.put("gameName", gameName);
-        request.put("bettingAmount",bettingAmount);
-
+        Request request = new Request(Request.Type.SHOW_GAMES);
         Request response = sendToMaster(request);
 
-        String status=(String)response.get("status");
-        System.out.println(status);
-        if (status!="ERROR(wrong hash)"){
-            double amountWon=(Double) response.get("amountWon");
-            System.out.println("Amount Won: "+ amountWon+"FUN");
-            updateBalance(amountWon-bettingAmount);
-            checkBalance();
+        if (response == null) {
+            System.out.println("[FAIL] No response from Master");
+            return ;
         }
 
+        String status = (String) response.get("status");
+        if ("OK".equals(status)) {
+            ArrayList<Game> games = (ArrayList<Game>) response.get("games");
+
+            if (games == null || games.isEmpty()){
+                System.out.println("No games loaded ");
+                return ;
+
+            }
+
+            System.out.println("\n--- Available Games (" + games.size() + ") ---");
+            for (int i = 0; i < games.size(); i++) {
+                Game g = games.get(i);
+                System.out.println((i + 1) + ". " + g.getGameName()
+                        + " | Provider: " + g.getProviderName()
+                        + " | Risk: "     + g.getRiskLevel()
+                        + " | Bet: "      + g.getMinBet() + "-" + g.getMaxBet()
+                        + " | Category: " + g.getBettingCategory()
+                        + " | Active: "   + g.isActive());
+            }
+            System.out.println("-----------------------------------");
+        } else {
+            String message = (String) response.get("message");
+            System.out.println("[FAIL] Could not fetch games: " + (message != null ? message : "Unknown error"));
+        }
+
+    }
+
+    private void play() {
+        System.out.print("Game name (ENTER to skip): ");
+        String gameName = scanner.nextLine().trim();
+
+        System.out.print("Betting amount (ENTER to skip): ");
+        Double bettingAmount = Double.parseDouble(scanner.nextLine().trim());
+
+        // Check validity of inserted betting amount
+        String validityMessage = checkBettingAmountValidity(bettingAmount);
+        if (!"OK".equals(validityMessage) || validityMessage.isEmpty()) {
+            System.out.println(validityMessage);
+            return;
+        }
+        
+        // Build Master Request
+        Request request = new Request(Request.Type.PLAY);
+        request.put("gameName", gameName);
+        request.put("bettingAmount", bettingAmount);
+
+
+        // Receive response from Master
+        Request response = sendToMaster(request);
+
+        String status = (String) response.get("status");
+
+        if (!"OK".equals(status)) {
+            System.out.println("[FAIL] Could not play game " + gameName);
+            return;
+        }
+
+        double amountWon = (Double) response.get("amountWon");
+        System.out.println("Amount Won: "+ amountWon + "FUN");
+
+        // Update balance for current player
+        updateBalance(amountWon - bettingAmount);
+
+        // checkBalance();
+    }
+
+    private String checkBettingAmountValidity(double amount) {
+        if (amount <= 0.0) return "[FAIL] Cannot insert negative amount";
+        if (amount > balance) return "[FAIL] Not enough balance";
+        return "OK";
     }
 
     private void search() {
@@ -121,6 +182,11 @@ public class Player {
         System.out.println("────────────────────────────────────────");
     }
 
+    /**
+     * Sends to Master newly built Request for current player
+     * @param request
+     * @return response from Master
+     */
     private Request sendToMaster(Request request) {
         try (
                 Socket socket = new Socket(masterHost, masterPort);
@@ -133,34 +199,38 @@ public class Player {
             oos.flush();
             return (Request) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            System.out.println("[ERROR] Could not communicate with Master: " + e.getMessage());
+            System.out.println("[FAIL] Could not communicate with Master: " + e.getMessage());
             return null;
         }
     }
 
-    private void addBalance(){
-        System.out.println("Type the amount you want to add");
+    private void addBalance() {
+        System.out.print("Amount to add (ENTER to skip): ");
         Double addedAmount = Double.parseDouble(scanner.nextLine().trim());
-        if (addedAmount>0) updateBalance(addedAmount); else System.out.println("The amount must be higher than zero");
+
+        if (addedAmount > 0) updateBalance(addedAmount); else System.out.println("[FAIL] The amount must be higher than zero");
 
     }
 
 
-    private void checkBalance(){
+    private void updateBalance(double balance) {
+        this.balance += balance;
+    }
+
+    /*
+    private void checkBalance() {
         System.out.println("Current Balance: " + balance);
     }
+    */
 
-    private void updateBalance(double balance){
-        this.balance+=balance;
-    }
 
     public static void main(String[] args) {
-        System.out.println("Enter your username: ");
+        System.out.print("Enter your username: ");
+
         Scanner scan = new Scanner(System.in);
+        String playerId = scan.nextLine().trim();
 
-        String name = scan.nextLine().trim();
-
-        Player console = new Player(name, "localhost", 5001);
+        Player console = new Player(playerId, "localhost", 5001);
         console.start();
     }
 }
