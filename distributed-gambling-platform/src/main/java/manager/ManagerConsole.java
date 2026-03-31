@@ -37,7 +37,7 @@ public class ManagerConsole {
                 case "1": addGame(); break;
                 case "2": removeGame(); break;
                 case "3": changeRiskLevel(); break;
-                // case "4": listGame(); break;
+                case "4": listGames(); break;
                 case "0": {
                     System.out.println("Exiting Manager Console.");
                     return;
@@ -53,7 +53,7 @@ public class ManagerConsole {
         System.out.println("1. Add Game");
         System.out.println("2. Remove Game");
         System.out.println("3. Change Game Risk Level");
-        // System.out.println("4. List Games");
+        System.out.println("4. List Games");
         System.out.println("0. Exit");
         System.out.print("Select an option: ");
     }
@@ -230,6 +230,45 @@ public class ManagerConsole {
         }
     }
 
+    public void listGames() {
+        System.out.println("Fetching the games from  the network...");
+
+        Request request = new Request(Request.Type.SHOW_GAMES);
+        Request response = sentToMaster(request);
+
+        if (response == null) {
+            System.out.println("[FAIL] No response from Master");
+            return ;
+        }
+
+        String status = (String) response.get("status");
+        if ("OK".equals(status)) {
+            ArrayList<Game> games = (ArrayList<Game>) response.get("games");
+
+            if (games == null || games.isEmpty()){
+                System.out.println("No games loaded ");
+                return ;
+
+            }
+
+            System.out.println("\n--- Available Games (" + games.size() + ") ---");
+            for (int i = 0; i < games.size(); i++) {
+                Game g = games.get(i);
+                System.out.println((i + 1) + ". " + g.getGameName()
+                        + " | Provider: " + g.getProviderName()
+                        + " | Risk: "     + g.getRiskLevel()
+                        + " | Bet: "      + g.getMinBet() + "-" + g.getMaxBet()
+                        + " | Category: " + g.getBettingCategory()
+                        + " | Active: "   + g.isActive());
+            }
+            System.out.println("-----------------------------------");
+        } else {
+            String message = (String) response.get("message");
+            System.out.println("[FAIL] Could not fetch games: " + (message != null ? message : "Unknown error"));
+        }
+
+    }
+
 
     // TCP Helper operation ----------------------------------------------------------------------------------------------------
 
@@ -252,46 +291,6 @@ public class ManagerConsole {
             return null;
         }
     }
-
-    /**
-     public void listGame() {
-     System.out.println("fetching the game from  the network");
-     Request request = new Request(Request.Type.SHOW_GAMES);
-     Request response = sentToMaster(request);
-
-     if (response == null){
-     System.out.println("[FAIL] No response from Master");
-     return ;
-
-     }
-     String status = (String) response.get("status");
-     if ("OK".equalsIgnoreCase(status)){
-     List<Game> networkGames = (List<Game>) response.get("games"); // o Master tha epistrefei lista logika
-
-     if (networkGames == null || networkGames.isEmpty()){
-     System.out.println("no games loaded ");
-     return ;
-
-     }
-
-     System.out.println("\n--- Distributed Games (" + networkGames.size() + ") ---");
-     for (int i = 0; i < networkGames.size(); i++) {
-     Game g = networkGames.get(i);
-     System.out.println((i + 1) + ". " + g.getGameName()
-     + " | Provider: " + g.getProviderName()
-     + " | Risk: "     + g.getRiskLevel()
-     + " | Bet: "      + g.getMinBet() + "-" + g.getMaxBet()
-     + " | Category: " + g.getBettingCategory()
-     + " | Active: "   + g.isActive());
-     }
-     System.out.println("-----------------------------------");
-     } else {
-     String message = (String) response.get("message");
-     System.out.println("[FAIL] Could not fetch games: " + (message != null ? message : "Unknown error"));
-     }
-
-     }
-     */
 
 
     public static void main(String[] args) {

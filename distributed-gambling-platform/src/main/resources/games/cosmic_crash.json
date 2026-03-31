@@ -1,0 +1,11 @@
+{
+  "GameName": "CosmicCrash",
+  "ProviderName": "ProviderA",
+  "Stars": 2,
+  "NoOfVotes": 60,
+  "GameLogo": "/usr/bin/images/cosmic_crash.png",
+  "MinBet": 5.0,
+  "MaxBet": 500.0,
+  "RiskLevel": "high",
+  "HashKey": "cosmickey111"
+}

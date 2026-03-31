@@ -1,0 +1,11 @@
+{
+  "GameName": "PokerKings",
+  "ProviderName": "ProviderB",
+  "Stars": 5,
+  "NoOfVotes": 512,
+  "GameLogo": "/usr/bin/images/poker_kings.png",
+  "MinBet": 1.0,
+  "MaxBet": 100.0,
+  "RiskLevel": "medium",
+  "HashKey": "pokerkey789"
+}
