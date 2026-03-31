@@ -1,11 +1,11 @@
 package player;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+
+import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
 import shared.Request;
+
 
 public class Player {
 

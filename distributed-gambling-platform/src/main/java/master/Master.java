@@ -89,20 +89,11 @@ public class Master {
         return Math.abs(gameName.hashCode() % workerAddresses.size()); // H(GameName) mod #(workers) returns worker that has this game
     }
 
+    /**
+     * Returns address of worker responsible for game 'gameName'
+     */
     public String getWorkerAddress(String gameName) {
-        /*
-         * Returns address of worker responsible for game 'gameName'
-         */
         return workerAddresses.get(getWorkerIndex(gameName));
-    }
-
-
-    // Entry point ----------------------------------------------------------------------------------------------------
-
-    public static void main(String[] args) {
-
-
-
     }
 
     public String getSrgHost(){
@@ -111,5 +102,31 @@ public class Master {
 
     public int getSrgPort(){
         return srgPort;
+    }
+
+
+    // Entry point ----------------------------------------------------------------------------------------------------
+
+    public static void main(String[] args) {
+
+        Properties config = new Properties();
+        try (InputStream in = new FileInputStream("resources/config.properties")) {
+            config.load(in);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        int masterPort     = Integer.parseInt(config.getProperty("master.port",   "5000"));
+        int workerCount    = Integer.parseInt(config.getProperty("worker.count",  "1"));
+        String srgHost     = config.getProperty("srg.host", "localhost");
+        int    srgPort     = Integer.parseInt(config.getProperty("srg.port",  "7000"));
+
+        ArrayList<String> workers = new ArrayList<>();
+        for (int i = 0; i < workerCount; i++) {
+            workers.add(config.getProperty("worker." + i));
+        }
+
+        new Master(masterPort, workers, srgHost, srgPort).start();
+
     }
 }

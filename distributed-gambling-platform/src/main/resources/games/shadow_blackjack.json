@@ -1,0 +1,11 @@
+{
+  "GameName": "ShadowBlackjack",
+  "ProviderName": "ProviderC",
+  "Stars": 5,
+  "NoOfVotes": 780,
+  "GameLogo": "/usr/bin/images/shadow_blackjack.png",
+  "MinBet": 5.0,
+  "MaxBet": 200.0,
+  "RiskLevel": "high",
+  "HashKey": "shadowkey987"
+}

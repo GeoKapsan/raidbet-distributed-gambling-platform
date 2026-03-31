@@ -29,6 +29,9 @@ public class Request implements Serializable {
     public Type getType() {
         return type;
     }
+    public boolean containsKey(String key) {
+        return payload.containsKey(key);
+    }
 
     @Override
     public String toString() {

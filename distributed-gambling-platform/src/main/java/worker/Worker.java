@@ -1,6 +1,7 @@
 package worker;
 
 import game.Game;
+import master.Master;
 import shared.Request;
 import java.io.*;
 import java.net.*;
@@ -87,7 +88,20 @@ public class Worker {
       
     public static void main(String[] args) {
 
+        Properties config = new Properties();
+        try (InputStream in = new FileInputStream("../../resources/config.properties")) {
+            config.load(in);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
+        // Pass port in command line argument
+        int port           = args.length > 0 ? Integer.parseInt(args[0]) : 6001;
+        String reducerHost = config.getProperty("reducer.host", "localhost");
+        int reducerPort    = Integer.parseInt(config.getProperty("reducer.port", "7000"));
+        String srgHost     = config.getProperty("srg.host", "localhost");
+        int srgPort        = Integer.parseInt(config.getProperty("srg.port",  "8000"));
 
+        new Worker(port, reducerHost, reducerPort, srgHost, srgPort).start();
     }
 }

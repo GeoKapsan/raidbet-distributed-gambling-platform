@@ -46,9 +46,15 @@ public class ClientHandler implements Runnable {
             case ADD_GAME:
             case REMOVE_GAME:
             case CHANGE_RISK:
-                Game game = (Game) request.get("game");
-                String gameName = game.getGameName();
-                forwardToSrg(game, request.getType());
+                String gameName;
+                if (request.containsKey("game")) {
+                    Game game = (Game) request.get("game");
+                    gameName = game.getGameName();
+                    forwardToSrg(game, request.getType());
+                } else {
+                    gameName = (String) request.get("gameName");
+                }
+
                 return forwardToWorkerAndGetResult(request, master.getWorkerAddress(gameName));
 
             case SEARCH:
@@ -177,29 +183,35 @@ public class ClientHandler implements Runnable {
         response.put("status", "OK");
         return response;
     }
-  
-    private Request handleShowGames(Request request){
+
+    /**
+     * Reads and returns all the games from all Workers. For each Worker
+     * a separate Thread is spawned and the Workers return their game.
+     * @param request Request object for SHOW_GAMES
+     * @return Request object with all Workers' games
+     */
+    private Request handleShowGames(Request request) {
         ArrayList<String> workers = master.getAllWorkerAddresses();
         int noOfWorkers = workers.size();
 
-        if(noOfWorkers == 0){
-            Request emptyRes = new Request(Request.Type.RESPONSE);
-            emptyRes.put("status", "FAIL");
-            emptyRes.put("message", "No workers available in the Master.");
-            return emptyRes;
+        Request response = new Request(Request.Type.RESPONSE);
+
+        if (noOfWorkers == 0) {
+            response.put("status", "ERROR");
+            response.put("message", "No workers available in the Master.");
+            return response;
         }
 
-        Request[] mapResults = new Request[noOfWorkers];
+        Request[] results = new Request[noOfWorkers];
         Thread[] threads = new Thread[noOfWorkers];
 
-        // MAP PHASE : Broadcast to all workers
-        for (int i=0 ; i < noOfWorkers; i++){
+        for (int i = 0 ; i < noOfWorkers; i++){
             String workerAddress = workers.get(i);
             final int idx = i;
 
             threads[i] = new Thread(() -> {
                 System.out.println("[Master] MAP_TASK to worker[" + idx + "] " + workerAddress);
-                mapResults[idx] = forwardToWorkerAndGetResult(request, workerAddress);
+                results[idx] = forwardToWorkerAndGetResult(request, workerAddress);
                 System.out.println("[Master] MAP_TASK from worker[" + idx + "] " + workerAddress);
             });
             threads[i].start();
@@ -213,9 +225,20 @@ public class ClientHandler implements Runnable {
                 System.out.println("[Master] Thread interrupted while waiting for SHOW_GAMES results");
             }
         }
-         // thelei kialla
 
+        ArrayList<Game> games = new ArrayList<>();
+        for (Request r :  results) {
 
+            if (!(r.get("status").equals("OK"))) continue;
+
+            ArrayList<Game> game =  (ArrayList<Game>) r.get("games");
+
+            games.addAll(game);
+        }
+
+        response.put("games", games);
+        response.put("status", "OK");
+        return response;
     }
 
   
@@ -255,10 +278,9 @@ public class ClientHandler implements Runnable {
                 ObjectInputStream input = new ObjectInputStream(worker.getInputStream());
 
             ) {
-            
-            
+
             output.flush();
-            Request request=new Request(type);
+            Request request = new Request(type);
             request.put("gameName", game.getGameName());
             request.put("hashKey", game.getHashKey());
             output.writeObject(request);

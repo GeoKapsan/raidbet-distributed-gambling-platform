@@ -1,0 +1,11 @@
+{
+  "GameName": "NeonRoulette",
+  "ProviderName": "ProviderB",
+  "Stars": 4,
+  "NoOfVotes": 340,
+  "GameLogo": "/usr/bin/images/neon_roulette.png",
+  "MinBet": 2.0,
+  "MaxBet": 50.0,
+  "RiskLevel": "medium",
+  "HashKey": "neonkey321"
+}
