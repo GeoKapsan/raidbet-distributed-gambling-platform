@@ -49,6 +49,7 @@ public class WorkerHandler implements Runnable {
             case ADD_GAME: return handleAddGame(request);
             case REMOVE_GAME: return handleRemoveGame(request);
             case CHANGE_RISK: return handleChangeRisk(request);
+            case SHOW_GAMES: return handleShowGames(request);
             case SEARCH: return handleMapTask(request);
             case PLAY: return handlePlay(request);
 
@@ -80,6 +81,14 @@ public class WorkerHandler implements Runnable {
     private Request handleChangeRisk(Request request) {
         Request response = new Request(Request.Type.RESPONSE);
         response.put("status", "ERROR (CHANGE_RISK not implemented)");
+        return response;
+    }
+
+    private Request handleShowGames(Request request) {
+        Request response = new Request(Request.Type.RESPONSE);
+        ArrayList<Game> games = worker.getAllGames();
+        response.put("games", games);
+        response.put("status", "OK");
         return response;
     }
 

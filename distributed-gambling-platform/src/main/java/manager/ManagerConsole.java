@@ -298,8 +298,6 @@ public class ManagerConsole {
         // Βαζουμε dummy host/port γιατι δεν εχουμε Master ακομη
         ManagerConsole console = new ManagerConsole("localhost", 5000);
         console.start();
-
-
     }
 }
 
