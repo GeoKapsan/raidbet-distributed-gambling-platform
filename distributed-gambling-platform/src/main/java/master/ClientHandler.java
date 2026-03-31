@@ -46,9 +46,15 @@ public class ClientHandler implements Runnable {
             case ADD_GAME:
             case REMOVE_GAME:
             case CHANGE_RISK:
-                Game game = (Game) request.get("game");
-                String gameName = game.getGameName();
-                forwardToSrg(game, request.getType());
+                String gameName;
+                if (request.containsKey("game")) {
+                    Game game = (Game) request.get("game");
+                    gameName = game.getGameName();
+                    forwardToSrg(game, request.getType());
+                } else {
+                    gameName = (String) request.get("gameName");
+                }
+
                 return forwardToWorkerAndGetResult(request, master.getWorkerAddress(gameName));
 
             case SEARCH:
@@ -199,8 +205,7 @@ public class ClientHandler implements Runnable {
         Request[] results = new Request[noOfWorkers];
         Thread[] threads = new Thread[noOfWorkers];
 
-        // MAP PHASE : Broadcast to all workers
-        for (int i=0 ; i < noOfWorkers; i++){
+        for (int i = 0 ; i < noOfWorkers; i++){
             String workerAddress = workers.get(i);
             final int idx = i;
 
@@ -273,10 +278,9 @@ public class ClientHandler implements Runnable {
                 ObjectInputStream input = new ObjectInputStream(worker.getInputStream());
 
             ) {
-            
-            
+
             output.flush();
-            Request request=new Request(type);
+            Request request = new Request(type);
             request.put("gameName", game.getGameName());
             request.put("hashKey", game.getHashKey());
             output.writeObject(request);

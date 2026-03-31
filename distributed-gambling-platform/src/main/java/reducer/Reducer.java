@@ -91,4 +91,11 @@ public class Reducer {
         receivedCounts.remove(mapId);
         collectedGames.remove(mapId);
     }
+
+
+    // Entry point ----------------------------------------------------------------------------------------------------
+
+    public static void main(String[] args) {
+
+    }
 }
