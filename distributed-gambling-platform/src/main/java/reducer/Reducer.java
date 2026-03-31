@@ -33,7 +33,7 @@ public class Reducer {
         try (
                 ServerSocket serverSocket = new ServerSocket(port);
         ) {
-            System.out.println("Reducer server listening on port " + port);
+            System.out.println("Reducer server listening on port " + port + "...");
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("[Reducer:" + port + "] New connection from " + clientSocket.getInetAddress());

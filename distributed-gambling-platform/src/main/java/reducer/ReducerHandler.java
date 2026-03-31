@@ -5,7 +5,6 @@ import shared.Request;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.net.*;
 
 
 public class ReducerHandler implements Runnable {

@@ -36,7 +36,8 @@ public class SrgHandler implements Runnable{
 
             output.flush();
         } catch (IOException | ClassNotFoundException | InterruptedException e) {
-            System.err.println("[Srg] Srg handler error: " + e.getMessage());
+            System.err.println("[SRG] SRG Hanlder error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

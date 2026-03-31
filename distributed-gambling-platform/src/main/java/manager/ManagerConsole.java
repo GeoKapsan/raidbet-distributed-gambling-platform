@@ -62,7 +62,7 @@ public class ManagerConsole {
     // Manager operations ----------------------------------------------------------------------------------------------------
 
     private void addGame() {
-        System.out.print("Enter path to the folder containing game JSON files: ");
+        System.out.print("Enter path to the folder containing game JSON files: "); // /Users/georgioskapsanakis/Documents/Aueb/yearThree/secSem/Κατανεμημένα Συστήματα/distributed-gambling-platform/distributed-gambling-platform/src/main/resources/games
         String folderPath = scanner.nextLine().trim();
 
         File folder = new File(folderPath);

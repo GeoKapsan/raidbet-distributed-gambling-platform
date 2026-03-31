@@ -142,7 +142,7 @@ public class ClientHandler implements Runnable {
                 return response;
             }
 
-            System.out.println("[Master] Received Reduce result for mapId=" + mapId);
+            System.out.println("[Master] Received Reduce result for mapId = " + mapId);
 
             Request response = new Request(Request.Type.RESPONSE);
             response.put("status", "OK");
@@ -170,14 +170,14 @@ public class ClientHandler implements Runnable {
         int mapId = (int) request.get("mapId");
         ArrayList<String> games = (ArrayList<String>) request.get("games");
 
-        System.out.println("[Master] Received REDUCER_CALLBACK result for mapId=" + mapId);
+        System.out.println("[Master] Received REDUCER_CALLBACK result for mapId = " + mapId);
 
         SavedMasterState state = master.getMasterState(mapId);
         if (state != null) {
             // setResult will wake up suspended ClientHandler thread for specific mapId
             state.setResult(games != null ? games : new ArrayList<>());
         } else
-            System.out.println("[Master] No state found for mapId=" + mapId);
+            System.out.println("[Master] No state found for mapId = " + mapId);
 
         // respond back to Reducer
         Request response = new Request(Request.Type.RESPONSE);
@@ -270,7 +270,7 @@ public class ClientHandler implements Runnable {
 
     }
 
-    void forwardToSrg(Request request){
+    private Request forwardToSrg(Request request){
 
         try (
                 Socket worker = new Socket(master.getSrgHost(), master.getSrgPort());
@@ -293,9 +293,13 @@ public class ClientHandler implements Runnable {
 
             output.writeObject(request);
             output.flush();
-        
-        } catch (IOException e) {
+
+            Request response = (Request) input.readObject();
+            return response;
+
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
+            return null;
         }
 
     }

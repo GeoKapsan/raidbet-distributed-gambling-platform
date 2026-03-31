@@ -33,7 +33,7 @@ public class Game implements Serializable {
         this.riskLevel = riskLevel;
         this.hashKey = hashKey;
 
-        this.bettingCategory = minBet < 1.0 ? "$" : minBet < 5.0 ? "$$" : "$$$"; // to leei FUN sto pdf dk gt
+        this.bettingCategory = minBet < 1.0 ? "$" : minBet < 5.0 ? "$$" : "$$$";
         switch (riskLevel) {
             case "low":
 
@@ -77,17 +77,23 @@ public class Game implements Serializable {
 
     public boolean satisfiesFilters(Request request) {
         int stars = (Integer) request.get("stars");
-        int noOfVotes = (Integer) request.get("noOfVotes");
-        double minBet = (Double) request.get("minBet");
-        double maxBet = (Double) request.get("maxBet");
+        String bettingCategory = (String) request.get("bettingCategory");
         String riskLevel = (String) request.get("riskLevel");
 
         if (!isActive()) return false;
         if (stars != this.stars) return false;
-        if (noOfVotes != this.noOfVotes) return false;
-        if (minBet > maxBet) return false;
-        if (minBet > this.minBet) return false;
-        if (maxBet < this.maxBet) return false;
+
+        switch (bettingCategory) {
+            case "$":
+                if (minBet < 0.1) return false;
+                break;
+            case "$$":
+                if (maxBet < 1) return false;
+                break;
+            case "$$$":
+                if (minBet < 5) return false;
+        }
+
         if (riskLevel.equals(this.riskLevel)) return false;
 
         return true;

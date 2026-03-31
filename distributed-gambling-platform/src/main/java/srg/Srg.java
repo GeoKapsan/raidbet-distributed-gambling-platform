@@ -26,10 +26,10 @@ public class Srg {
         try (
                 ServerSocket serverSocket = new ServerSocket(port)
         ) {
-            System.out.println("SRG server listening on port " + port);
+            System.out.println("SRG server listening on port " + port + "...");
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("[SRG:" + port + "] New connection from " + clientSocket.getInetAddress());
+                System.out.println("[SRG] New connection from " + clientSocket.getInetAddress());
                 (new Thread(new SrgHandler(this, clientSocket))).start();
             }
         } catch (IOException e) {
