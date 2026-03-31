@@ -50,10 +50,11 @@ public class ClientHandler implements Runnable {
                 if (request.containsKey("game")) {
                     Game game = (Game) request.get("game");
                     gameName = game.getGameName();
-                    forwardToSrg(game, request.getType());
                 } else {
                     gameName = (String) request.get("gameName");
                 }
+
+                forwardToSrg(request);
 
                 return forwardToWorkerAndGetResult(request, master.getWorkerAddress(gameName));
 
@@ -269,7 +270,7 @@ public class ClientHandler implements Runnable {
 
     }
 
-    void forwardToSrg(Game game, Request.Type type){
+    void forwardToSrg(Request request){
 
         try (
                 Socket worker = new Socket(master.getSrgHost(), master.getSrgPort());
@@ -280,9 +281,16 @@ public class ClientHandler implements Runnable {
             ) {
 
             output.flush();
-            Request request = new Request(type);
-            request.put("gameName", game.getGameName());
-            request.put("hashKey", game.getHashKey());
+
+            if (request.containsKey("game")) {
+                Game game = (Game) request.get("game");
+                request.put("gameName", game.getGameName());
+                request.put("hashKey", game.getHashKey());
+            }
+            else {
+                request.put("gameName", request.get("gameName"));
+            }
+
             output.writeObject(request);
             output.flush();
         

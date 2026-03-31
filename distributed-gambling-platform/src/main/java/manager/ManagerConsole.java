@@ -120,14 +120,14 @@ public class ManagerConsole {
 
                 // Send to Master
                 System.out.println("Sending ADD_GAME request for : "+ gameName);
-                Request response = sentToMaster(request);
+                Request response = sendToMaster(request);
 
                 if (response == null) continue;
 
                 String status = (String) response.get("status");
                 String message = (String) response.get("message");
 
-                //prothiki ston master
+                //
                 if ("OK".equals(status)) {
                     System.out.println("[SUCCESS] Game added: " + gameName + (message != null ? " - " + message : ""));
                 } else {
@@ -163,7 +163,7 @@ public class ManagerConsole {
 
         // Send Request to Master
         System.out.println("Sending REMOVE_GAME request for: " + gameName);
-        Request response = sentToMaster(request);
+        Request response = sendToMaster(request);
 
         // Check for response
         if (response == null) {
@@ -209,7 +209,7 @@ public class ManagerConsole {
 
         // ston rapth mesw TCP
         System.out.println("Sending CHANGE_RISK request for: " + gameName + " → " + newRiskLevel);
-        Request response = sentToMaster(request);
+        Request response = sendToMaster(request);
 
         // elegxw response
         if (response == null) {
@@ -234,7 +234,7 @@ public class ManagerConsole {
         System.out.println("Fetching the games from  the network...");
 
         Request request = new Request(Request.Type.SHOW_GAMES);
-        Request response = sentToMaster(request);
+        Request response = sendToMaster(request);
 
         if (response == null) {
             System.out.println("[FAIL] No response from Master");
@@ -273,7 +273,7 @@ public class ManagerConsole {
     // TCP Helper operation ----------------------------------------------------------------------------------------------------
 
     // Send Request to Master and return Response from Master
-    private Request sentToMaster(Request request) {
+    private Request sendToMaster(Request request) {
 
         try (
                 Socket socket = new Socket(masterHost, masterPort);
@@ -294,8 +294,8 @@ public class ManagerConsole {
 
 
     public static void main(String[] args) {
-        // Βαζουμε dummy host/port γιατι δεν εχουμε Master ακομη
-        ManagerConsole console = new ManagerConsole("localhost", 5000);
+
+        ManagerConsole console = new ManagerConsole("localhost", 5001);
         console.start();
     }
 }

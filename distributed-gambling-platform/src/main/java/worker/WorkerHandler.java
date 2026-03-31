@@ -214,7 +214,7 @@ public class WorkerHandler implements Runnable {
     private Request sendToSrg(Request request) {
 
         try (
-                Socket socket = new Socket(worker.getSrgHost(), worker.getPort());
+                Socket socket = new Socket(worker.getSrgHost(), worker.getSrgPort());
 
                 ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());

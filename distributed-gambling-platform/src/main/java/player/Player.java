@@ -46,7 +46,7 @@ public class Player {
 
     }
 
-    private void play(){
+    private void play() {
 
         
         System.out.println("Type the game name you want to play");
