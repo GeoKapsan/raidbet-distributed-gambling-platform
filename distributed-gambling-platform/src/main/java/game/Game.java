@@ -76,12 +76,12 @@ public class Game implements Serializable {
     public void setNoOfVotes(int noOfVotes) { this.noOfVotes = noOfVotes; }
 
     public boolean satisfiesFilters(Request request) {
-        int stars = (Integer) request.get("stars");
-        String bettingCategory = (String) request.get("bettingCategory");
-        String riskLevel = (String) request.get("riskLevel");
+        String stars = request.containsKey("stars") ? String.valueOf((Integer) request.get("stars")) : null;
+        String bettingCategory = request.containsKey("bettingCategory") ? (String) request.get("bettingCategory") : null;
+        String riskLevel = request.containsKey("riskLevel") ? (String) request.get("riskLevel") : null;
 
         if (!isActive()) return false;
-        if (stars != this.stars) return false;
+        if (stars != null && Integer.parseInt(stars) != this.stars) return false;
 
         switch (bettingCategory) {
             case "$":
@@ -94,7 +94,7 @@ public class Game implements Serializable {
                 if (minBet < 5) return false;
         }
 
-        if (riskLevel.equals(this.riskLevel)) return false;
+        if (riskLevel != null && riskLevel.equals(this.riskLevel)) return false;
 
         return true;
     }

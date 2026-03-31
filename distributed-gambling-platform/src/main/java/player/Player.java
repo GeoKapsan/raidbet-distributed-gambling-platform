@@ -101,9 +101,19 @@ public class Player {
     private void play() {
         System.out.print("Game name (ENTER to skip): ");
         String gameName = scanner.nextLine().trim();
+        if (gameName.isEmpty()) {
+            System.out.println("[FAIL] Game name cannot be empty");
+            return;
+        }
 
         System.out.print("Betting amount (ENTER to skip): ");
-        Double bettingAmount = Double.parseDouble(scanner.nextLine().trim());
+        Double bettingAmount;
+        try {
+            bettingAmount = Double.parseDouble(scanner.nextLine().trim());
+        } catch (NullPointerException e) {
+            System.out.println("[FAIL] Betting amount cannot be null");
+            return;
+        }
 
         // Check validity of inserted betting amount
         String validityMessage = checkBettingAmountValidity(bettingAmount);
@@ -111,7 +121,7 @@ public class Player {
             System.out.println(validityMessage);
             return;
         }
-        
+
         // Build Master Request
         Request request = new Request(Request.Type.PLAY);
         request.put("gameName", gameName);
@@ -206,7 +216,13 @@ public class Player {
 
     private void addBalance() {
         System.out.print("Amount to add (ENTER to skip): ");
-        Double addedAmount = Double.parseDouble(scanner.nextLine().trim());
+        Double addedAmount;
+        try {
+            addedAmount = Double.parseDouble(scanner.nextLine().trim());
+        } catch (NullPointerException e) {
+            System.out.println("[FAIL] Amount cannot be null");
+            return;
+        }
 
         if (addedAmount > 0) updateBalance(addedAmount); else System.out.println("[FAIL] The amount must be higher than zero");
 
