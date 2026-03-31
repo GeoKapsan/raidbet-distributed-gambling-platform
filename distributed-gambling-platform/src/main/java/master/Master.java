@@ -127,7 +127,7 @@ public class Master {
             throw new RuntimeException(e);
         }
 
-        String masterHost  = config.getProperty("masterHost");
+        String masterHost  = config.getProperty("master.host");
         int masterPort     = Integer.parseInt(config.getProperty("master.port"));
 
         int workerCount    = Integer.parseInt(config.getProperty("worker.count",  "1"));

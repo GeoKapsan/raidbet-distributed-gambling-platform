@@ -94,12 +94,12 @@ public class WorkerHandler implements Runnable {
 
     private Request handleMapTask(Request request) {
 
-        // saves results from map
+        // Saves results from map
         ArrayList<String[]> results = mapFilters((int) request.get("mapId"), worker.getAllGames(), request);
 
         System.out.println("[Worker: " + worker.getPort() + "] map() emitted " + results.size() + " games");
 
-        // send map result to reducer, must be done before we send response back to Master
+        // Send map result to reducer, must be done before we send response back to Master
         sendToReducer((int) request.get("mapId"), (int) request.get("noOfWorkers"), results);
 
         Request response = new Request(Request.Type.RESPONSE);
@@ -108,7 +108,7 @@ public class WorkerHandler implements Runnable {
     }
 
     private ArrayList<String[]> mapFilters(int key, ArrayList<Game> games, Request filters) {
-        ArrayList<String[]> result = new ArrayList<>();
+        ArrayList<String[]> result = new ArrayList<String[]>();
 
         String[] resultTuple = new String[2];
         for (Game game : games) {
