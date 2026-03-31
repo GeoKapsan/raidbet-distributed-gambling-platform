@@ -206,7 +206,7 @@ public class ClientHandler implements Runnable {
         Request[] results = new Request[noOfWorkers];
         Thread[] threads = new Thread[noOfWorkers];
 
-        for (int i = 0 ; i < noOfWorkers; i++){
+        for (int i = 0 ; i < noOfWorkers; i++) {
             String workerAddress = workers.get(i);
             final int idx = i;
 

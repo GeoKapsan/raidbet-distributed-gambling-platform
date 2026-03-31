@@ -68,7 +68,7 @@ public class ReducerHandler implements Runnable {
     }
 
     private void initiateReduce(int mapId) {
-        ArrayList<String> games = reducer.reduce(mapId, reducer.getCollectedGames(mapId));
+        ArrayList<String> games = reducer.reduce(mapId, reducer.getCollectedGames());
 
         Request request = new  Request(Request.Type.REDUCER_CALLBACK);
         request.put("mapId", mapId);
