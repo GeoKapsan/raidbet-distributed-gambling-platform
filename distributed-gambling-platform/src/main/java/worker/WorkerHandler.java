@@ -155,6 +155,19 @@ public class WorkerHandler implements Runnable {
     }
 
     private Request handlePlay(Request request) {
+
+        Game playedGame = worker.getGame((String) request.get("gameName"));
+        double bettingAmount = (Double) request.get("bettingAmount");
+
+        Request response = new Request(Request.Type.RESPONSE);
+        if (bettingAmount>playedGame.getMaxBet()){
+            response.put("status", "ERROR (Betting amount too large)");
+            return response;
+        }else if (bettingAmount<playedGame.getMinBet()){
+            response.put("status", "ERROR (Betting amount too small)");
+            return response;
+        }
+
         Request srgRequest = new Request(Request.Type.GIVE_NUMBER);
 
         srgRequest.put("gameName", request.get("gameName"));
@@ -164,15 +177,12 @@ public class WorkerHandler implements Runnable {
         int number = (int) srgResponse.get("number");
         String hashedNumber = (String) srgResponse.get("hashedNumber");
 
-        Game playedGame = (Game) request.get("game");
 
-        Request response = new Request(Request.Type.RESPONSE);
 
-        if (hashedNumber.equals(
-                sha256(number + (String) playedGame.getHashKey()))) {
+        if (hashedNumber.equals(sha256(number + (String) playedGame.getHashKey()))) {
 
             double amountWon;
-            double bettingAmount = (Double) request.get("bettingAmount");
+
 
             if (number % 100 == 0) {
                 response.put("winStatus", "JACKPOT!!!");
@@ -205,7 +215,7 @@ public class WorkerHandler implements Runnable {
             response.put("amountWon", amountWon);
             response.put("status", "OK");
         } else {
-            response.put("status", "ERROR(wrong hash)");
+            response.put("status", "ERROR:game not added correctly (wrong hash)");
         }
 
         return response;

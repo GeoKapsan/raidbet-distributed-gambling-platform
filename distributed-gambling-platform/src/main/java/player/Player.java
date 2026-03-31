@@ -36,7 +36,7 @@ public class Player {
                 case "2": play(); break;
                 case "3": search(); break;
                 case "4": addBalance(); break;
-                //case "5": checkBalance(); break;
+                case "5": checkBalance(); break;
                 case "0": {
                     System.out.println("Exiting Player Console.");
                     return;
@@ -117,7 +117,7 @@ public class Player {
 
         // Check validity of inserted betting amount
         String validityMessage = checkBettingAmountValidity(bettingAmount);
-        if (!"OK".equals(validityMessage) || validityMessage.isEmpty()) {
+        if (!"OK".equals(validityMessage)) {
             System.out.println(validityMessage);
             return;
         }
@@ -135,6 +135,7 @@ public class Player {
 
         if (!"OK".equals(status)) {
             System.out.println("[FAIL] Could not play game " + gameName);
+            System.out.println(status);
             return;
         }
 
@@ -144,7 +145,7 @@ public class Player {
         // Update balance for current player
         updateBalance(amountWon - bettingAmount);
 
-        // checkBalance();
+        checkBalance();
     }
 
     private String checkBettingAmountValidity(double amount) {
@@ -231,13 +232,14 @@ public class Player {
 
     private void updateBalance(double balance) {
         this.balance += balance;
+        checkBalance();
     }
 
-    /*
+
     private void checkBalance() {
         System.out.println("Current Balance: " + balance);
     }
-    */
+
 
 
     public static void main(String[] args) {
