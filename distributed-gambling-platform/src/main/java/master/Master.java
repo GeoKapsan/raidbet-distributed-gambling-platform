@@ -70,7 +70,7 @@ public class Master {
      * @param mapId the map id
      * @return the state of the ClientHandler thread
      */
-    public SavedMasterState getMasterState(int mapId) {
+    public synchronized SavedMasterState getMasterState(int mapId) {
         return waitingSet.get(mapId);
     }
 
