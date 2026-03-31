@@ -1,8 +1,13 @@
 package master;
 
+import reducer.Reducer;
+import worker.Worker;
+import srg.Srg;
+
 import java.util.*;
 import java.io.*;
 import java.net.*;
+
 
 public class Master {
 
@@ -110,21 +115,50 @@ public class Master {
     public static void main(String[] args) {
 
         Properties config = new Properties();
-        try (InputStream in = new FileInputStream("resources/config.properties")) {
+        try (
+                InputStream in = Master.class.getClassLoader().getResourceAsStream("config/config.properties")
+        ) {
+
+            if (in == null) throw new RuntimeException("config/config.properties not found in classpath");
+
             config.load(in);
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        int masterPort     = Integer.parseInt(config.getProperty("master.port",   "5000"));
+        String masterHost  = config.getProperty("masterHost");
+        int masterPort     = Integer.parseInt(config.getProperty("master.port"));
+
         int workerCount    = Integer.parseInt(config.getProperty("worker.count",  "1"));
+
+        String reducerHost = config.getProperty("reducer.host", "localhost");
+        int reducerPort    = Integer.parseInt(config.getProperty("reducer.port"));
+
         String srgHost     = config.getProperty("srg.host", "localhost");
-        int    srgPort     = Integer.parseInt(config.getProperty("srg.port",  "7000"));
+        int    srgPort     = Integer.parseInt(config.getProperty("srg.port"));
 
         ArrayList<String> workers = new ArrayList<>();
         for (int i = 0; i < workerCount; i++) {
             workers.add(config.getProperty("worker." + i));
         }
+
+        // Initialize and start Workers
+        for (int i = 0; i < workerCount; i++) {
+
+            int workerPort_i = Integer.parseInt(config.getProperty("worker." + i).split(":")[1]);
+
+            Worker worker = new Worker(workerPort_i, reducerHost, reducerPort, srgHost, srgPort);
+            new Thread(() -> worker.start()).start();
+        }
+
+        // Initialize and start Reducer
+        Reducer reducer = new Reducer(reducerPort, masterHost, masterPort);
+        new Thread(() -> reducer.start()).start();
+
+        // Initialize and start SRG
+        Srg srg = new Srg(srgPort, masterHost, masterPort);
+        new Thread(() -> srg.start()).start();
 
         new Master(masterPort, workers, srgHost, srgPort).start();
 

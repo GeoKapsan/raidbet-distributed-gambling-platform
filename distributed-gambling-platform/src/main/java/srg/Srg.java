@@ -17,8 +17,8 @@ public class Srg {
 
     public Srg(int port, String masterHost, int masterPort) {
         this.port = port;
-        this.masterHost=masterHost;
-        this.masterPort=masterPort;
+        this.masterHost = masterHost;
+        this.masterPort = masterPort;
     }
 
 
@@ -26,9 +26,10 @@ public class Srg {
         try (
                 ServerSocket serverSocket = new ServerSocket(port)
         ) {
-
+            System.out.println("SRG server listening on port " + port);
             while (true) {
                 Socket clientSocket = serverSocket.accept();
+                System.out.println("[SRG:" + port + "] New connection from " + clientSocket.getInetAddress());
                 (new Thread(new SrgHandler(this, clientSocket))).start();
             }
         } catch (IOException e) {
@@ -56,10 +57,8 @@ public class Srg {
     }
 
     public synchronized void remove(String gameName){
-
         generators.remove(gameName);
         hashKeys.remove(gameName);
-
     }
 
     public synchronized int getNumber(String gameName) throws InterruptedException {
@@ -74,6 +73,7 @@ public class Srg {
 
         try (
                 Socket socket = new Socket(masterHost, masterPort);
+
                 ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
         ) {
@@ -89,8 +89,4 @@ public class Srg {
         }
     }
 
-
-    public static void main(String[] args){
-
-    }
 }

@@ -32,7 +32,7 @@ public class Reducer {
     public void start() {
         try (
                 ServerSocket serverSocket = new ServerSocket(port);
-                ) {
+        ) {
             System.out.println("Reducer server listening on port " + port);
             while (true) {
                 Socket clientSocket = serverSocket.accept();
@@ -92,10 +92,4 @@ public class Reducer {
         collectedGames.remove(mapId);
     }
 
-
-    // Entry point ----------------------------------------------------------------------------------------------------
-
-    public static void main(String[] args) {
-
-    }
 }
