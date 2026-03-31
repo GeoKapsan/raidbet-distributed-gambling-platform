@@ -128,7 +128,7 @@ public class Player {
         System.out.println("Enter your username");
         Scanner scan = new Scanner(System.in);
         String name = scan.nextLine().trim();
-        Player p=new Player(name,"localhost", 5000);
+        Player p=new Player(name,"localhost", 5001);
         p.start();
 
     }

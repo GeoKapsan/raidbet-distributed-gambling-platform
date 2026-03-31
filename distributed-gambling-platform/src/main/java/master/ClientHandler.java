@@ -270,7 +270,7 @@ public class ClientHandler implements Runnable {
 
     }
 
-    void forwardToSrg(Request request){
+    private Request forwardToSrg(Request request){
 
         try (
                 Socket worker = new Socket(master.getSrgHost(), master.getSrgPort());
@@ -293,9 +293,13 @@ public class ClientHandler implements Runnable {
 
             output.writeObject(request);
             output.flush();
-        
-        } catch (IOException e) {
+
+            Request response = (Request) input.readObject();
+            return response;
+
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
+            return null;
         }
 
     }
