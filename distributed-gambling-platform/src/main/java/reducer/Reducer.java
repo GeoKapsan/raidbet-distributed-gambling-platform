@@ -1,6 +1,7 @@
 package reducer;
 
 import game.Game;
+import master.Master;
 import shared.Request;
 
 import java.net.*;
@@ -88,6 +89,33 @@ public class Reducer {
         expectedCounts.remove(mapId);
         receivedCounts.remove(mapId);
         collectedGames.remove(mapId);
+    }
+
+
+    // Entry point ----------------------------------------------------------------------------------------------------
+
+    public static void main(String[] args) {
+        Properties config = new Properties();
+        try (
+                InputStream in = Master.class.getClassLoader().getResourceAsStream("config/config.properties")
+        ) {
+
+            if (in == null) throw new RuntimeException("config/config.properties not found in classpath");
+
+            config.load(in);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String masterHost  = config.getProperty("master.host");
+        int masterPort     = Integer.parseInt(config.getProperty("master.port"));
+
+        int reducerPort    = Integer.parseInt(config.getProperty("reducer.port"));
+
+        // Initialize and start Reducer
+        Reducer reducer = new Reducer(reducerPort, masterHost, masterPort);
+        reducer.start();
     }
 
 }

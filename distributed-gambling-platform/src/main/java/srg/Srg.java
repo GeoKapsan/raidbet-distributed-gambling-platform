@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import master.Master;
 import shared.Request;
 
 
@@ -87,6 +88,33 @@ public class Srg {
             System.out.println("[ERROR] Could not communicate with Master: " + e.getMessage());
             return null;
         }
+    }
+
+
+    // Entry point ----------------------------------------------------------------------------------------------------
+
+    public static void main(String[] args) {
+        Properties config = new Properties();
+        try (
+                InputStream in = Master.class.getClassLoader().getResourceAsStream("config/config.properties")
+        ) {
+
+            if (in == null) throw new RuntimeException("config/config.properties not found in classpath");
+
+            config.load(in);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String masterHost  = config.getProperty("master.host");
+        int masterPort     = Integer.parseInt(config.getProperty("master.port"));
+
+        int srgPort        = Integer.parseInt(config.getProperty("srg.port"));
+
+        // Initialize and start SRG
+        Srg srg = new Srg(srgPort, masterHost, masterPort);
+        new Thread(() -> srg.start()).start();
     }
 
 }
