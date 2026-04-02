@@ -32,7 +32,7 @@ public class WorkerHandler implements Runnable {
             output.flush();
 
             Request request = (Request) input.readObject();
-            System.out.println("[Worker] Received " + request.getType() + " request from " + clientSocket.getInetAddress());
+            System.out.println("[Worker:" + worker.getPort() +"] Received " + request.getType() + " request from " + clientSocket.getInetAddress());
 
             Request response = handle(request);
 

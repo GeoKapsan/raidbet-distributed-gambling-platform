@@ -127,38 +127,17 @@ public class Master {
             throw new RuntimeException(e);
         }
 
-        String masterHost  = config.getProperty("master.host");
         int masterPort     = Integer.parseInt(config.getProperty("master.port"));
 
         int workerCount    = Integer.parseInt(config.getProperty("worker.count",  "1"));
 
-        String reducerHost = config.getProperty("reducer.host", "localhost");
-        int reducerPort    = Integer.parseInt(config.getProperty("reducer.port"));
-
         String srgHost     = config.getProperty("srg.host", "localhost");
-        int    srgPort     = Integer.parseInt(config.getProperty("srg.port"));
+        int srgPort        = Integer.parseInt(config.getProperty("srg.port"));
 
         ArrayList<String> workers = new ArrayList<>();
         for (int i = 0; i < workerCount; i++) {
             workers.add(config.getProperty("worker." + i));
         }
-
-        // Initialize and start Workers
-        for (int i = 0; i < workerCount; i++) {
-
-            int workerPort_i = Integer.parseInt(config.getProperty("worker." + i).split(":")[1]);
-
-            Worker worker = new Worker(workerPort_i, reducerHost, reducerPort, srgHost, srgPort);
-            new Thread(() -> worker.start()).start();
-        }
-
-        // Initialize and start Reducer
-        Reducer reducer = new Reducer(reducerPort, masterHost, masterPort);
-        new Thread(() -> reducer.start()).start();
-
-        // Initialize and start SRG
-        Srg srg = new Srg(srgPort, masterHost, masterPort);
-        new Thread(() -> srg.start()).start();
 
         new Master(masterPort, workers, srgHost, srgPort).start();
 
