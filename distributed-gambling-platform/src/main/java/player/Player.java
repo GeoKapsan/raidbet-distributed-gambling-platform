@@ -126,6 +126,7 @@ public class Player {
         Request request = new Request(Request.Type.PLAY);
         request.put("gameName", gameName);
         request.put("bettingAmount", bettingAmount);
+        request.put("playerId", playerId);
 
 
         // Receive response from Master
