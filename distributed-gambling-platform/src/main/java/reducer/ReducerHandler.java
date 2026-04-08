@@ -67,6 +67,8 @@ public class ReducerHandler implements Runnable {
     private void initiateReduce(int mapId) {
         ArrayList<String> games = reducer.reduce(mapId, reducer.getCollectedGames());
 
+        reducer.cleanup(mapId);
+
         Request request = new  Request(Request.Type.REDUCER_CALLBACK);
         request.put("mapId", mapId);
         request.put("gameNames", games);
@@ -74,8 +76,6 @@ public class ReducerHandler implements Runnable {
         Request response = forwardToMaster(request);
 
         // TO-DO handle response by printing something on screen
-
-        reducer.cleanup(mapId);
     }
 
     private Request forwardToMaster(Request request) {

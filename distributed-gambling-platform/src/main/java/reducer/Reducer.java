@@ -19,7 +19,7 @@ public class Reducer {
     private final HashMap<Integer, Integer> expectedCounts = new HashMap<>();
 
     // How many map results have arrived so far for each mapId
-    private final Map<Integer, Integer> receivedCounts = new HashMap<>();
+    private final HashMap<Integer, Integer> receivedCounts = new HashMap<>();
 
     // Accumulated game lists from Workers
     private final ArrayList<String[]> collectedGames = new ArrayList<>();
@@ -71,7 +71,7 @@ public class Reducer {
     }
 
     public synchronized ArrayList<String[]> getCollectedGames() {
-        return new ArrayList<>(collectedGames);
+        return collectedGames;
     }
 
     public synchronized ArrayList<String> reduce(int mapId, ArrayList<String[]> games) {
@@ -80,6 +80,7 @@ public class Reducer {
         for (String[] game : games) {
             if (Integer.parseInt(game[0]) != mapId) continue;
             result.add(game[1]);
+            games.remove(game);
         }
 
         return result;
@@ -88,7 +89,6 @@ public class Reducer {
     public synchronized void cleanup(int mapId) {
         expectedCounts.remove(mapId);
         receivedCounts.remove(mapId);
-        collectedGames.remove(mapId);
     }
 
 

@@ -81,17 +81,23 @@ public class Game implements Serializable {
         String riskLevel = request.containsKey("riskLevel") ? (String) request.get("riskLevel") : null;
 
         if (!isActive()) return false;
+
         if (stars != null && Integer.parseInt(stars) != this.stars) return false;
 
-        switch (bettingCategory) {
-            case "$":
-                if (minBet < 0.1) return false;
-                break;
-            case "$$":
-                if (maxBet < 1) return false;
-                break;
-            case "$$$":
-                if (minBet < 5) return false;
+        if (bettingCategory != null) {
+            switch (bettingCategory) {
+                case "$":
+                    if (minBet < 0.1) return false;
+                    break;
+                case "$$":
+                    if (maxBet < 1) return false;
+                    break;
+                case "$$$":
+                    if (minBet < 5) return false;
+                    break;
+                default:
+                    break;
+            }
         }
 
         if (riskLevel != null && riskLevel.equals(this.riskLevel)) return false;

@@ -86,7 +86,15 @@ public class WorkerHandler implements Runnable {
 
     private Request handleShowGames(Request request) {
         Request response = new Request(Request.Type.RESPONSE);
-        ArrayList<Game> games = worker.getAllGames();
+
+        // factor out inactive games
+        ArrayList<Game> temp_games = worker.getAllGames();
+        ArrayList<Game> games = new ArrayList<>();
+        for (Game game : temp_games) {
+            if (game.isActive()) continue;
+            games.add(game);
+        }
+
         response.put("games", games);
         response.put("status", "OK");
         return response;
