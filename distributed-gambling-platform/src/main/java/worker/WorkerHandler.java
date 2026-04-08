@@ -79,10 +79,72 @@ public class WorkerHandler implements Runnable {
     }
 
     private Request handleChangeRisk(Request request) {
+        String gameName = (String) request.get("gameName");
         Request response = new Request(Request.Type.RESPONSE);
-        response.put("status", "ERROR (CHANGE_RISK not implemented)");
+
+        Game game = worker.getGame(gameName);
+
+        if (game == null) {
+            response.put("status", "ERROR");
+            response.put("message", "Game '" + gameName + "' not found on this worker.");
+            return response;
+        }
+
+        // Apply only the fields that were sent
+        boolean changed = false;
+
+        if (request.containsKey("riskLevel")) {
+            String newRisk = (String) request.get("riskLevel");
+            game.setRiskLevel(newRisk);
+            System.out.println("[Worker:" + worker.getPort() + "] " + gameName + " riskLevel → " + newRisk);
+            changed = true;
+        }
+
+        if (request.containsKey("minBet")) {
+            double newMin = (Double) request.get("minBet");
+            // Guard: minBet must be less than current (or new) maxBet
+            double effectiveMax = request.containsKey("maxBet")
+                    ? (Double) request.get("maxBet")
+                    : game.getMaxBet();
+            if (newMin >= effectiveMax) {
+                response.put("status", "ERROR");
+                response.put("message", "minBet must be less than maxBet.");
+                return response;
+            }
+            game.setMinBet(newMin);
+            System.out.println("[Worker:" + worker.getPort() + "] " + gameName + " minBet → " + newMin);
+            changed = true;
+        }
+
+        if (request.containsKey("maxBet")) {
+            double newMax = (Double) request.get("maxBet");
+            // Guard: maxBet must be greater than current minBet (minBet may already have been updated above)
+            if (newMax <= game.getMinBet()) {
+                response.put("status", "ERROR");
+                response.put("message", "maxBet must be greater than minBet.");
+                return response;
+            }
+            game.setMaxBet(newMax);
+            System.out.println("[Worker:" + worker.getPort() + "] " + gameName + " maxBet → " + newMax);
+            changed = true;
+        }
+
+        if (!changed) {
+            response.put("status", "ERROR");
+            response.put("message", "No valid fields provided to update.");
+            return response;
+        }
+
+        response.put("status", "OK");
+        response.put("message", "Game '" + gameName + "' updated successfully."
+                + " Risk=" + game.getRiskLevel()
+                + " MinBet=" + game.getMinBet()
+                + " MaxBet=" + game.getMaxBet()
+                + " Category=" + game.getBettingCategory());
         return response;
     }
+
+
 
     private Request handleShowGames(Request request) {
         Request response = new Request(Request.Type.RESPONSE);
