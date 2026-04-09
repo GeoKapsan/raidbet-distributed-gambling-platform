@@ -14,9 +14,7 @@ public class Reducer {
     private final int port;
     private final String masterHost;
     private final int masterPort;
-
-    // How many map results to expect before triggering reduce
-    private final HashMap<Integer, Integer> expectedCounts = new HashMap<>();
+    private final int noOfWorkers;
 
     // How many map results have arrived so far for each mapId
     private final HashMap<Integer, Integer> receivedCounts = new HashMap<>();
@@ -24,10 +22,11 @@ public class Reducer {
     // Accumulated game lists from Workers
     private final HashMap<Integer, ArrayList<String[]>> collectedGames = new HashMap<Integer, ArrayList<String[]>>();
 
-    public Reducer(int port, String masterHost, int masterPort) {
+    public Reducer(int port, String masterHost, int masterPort, int noOfWorkers) {
         this.port = port;
         this.masterHost = masterHost;
         this.masterPort = masterPort;
+        this.noOfWorkers = noOfWorkers;
     }
 
     public void start() {
@@ -54,11 +53,10 @@ public class Reducer {
     // Reducer state operations
 
     public synchronized boolean mapIdRegistered(Integer mapId) {
-        return expectedCounts.containsKey(mapId) || receivedCounts.containsKey(mapId);
+        return receivedCounts.containsKey(mapId) || collectedGames.containsKey(mapId);
     }
 
     public synchronized void registerMapReduce(int mapId, int noOfWorkers) {
-        expectedCounts.put(mapId, noOfWorkers);
         receivedCounts.put(mapId, 0);
         collectedGames.put(mapId, new ArrayList<String[]>());
     }
@@ -68,7 +66,7 @@ public class Reducer {
 
         collectedGames.get(mapId).addAll(games);
 
-        return expectedCounts.get(mapId) == receivedCounts.get(mapId);
+        return noOfWorkers == receivedCounts.get(mapId);
     }
 
     public synchronized ArrayList<String[]> getCollectedGames(int mapId) {
@@ -88,7 +86,6 @@ public class Reducer {
     }
 
     public synchronized void cleanup(int mapId) {
-        expectedCounts.remove(mapId);
         receivedCounts.remove(mapId);
 
         // remove games for mapId after reduce operation
@@ -117,8 +114,10 @@ public class Reducer {
 
         int reducerPort    = Integer.parseInt(config.getProperty("reducer.port"));
 
+        int workerCount    = Integer.parseInt(config.getProperty("worker.count",  "3"));
+
         // Initialize and start Reducer
-        Reducer reducer = new Reducer(reducerPort, masterHost, masterPort);
+        Reducer reducer = new Reducer(reducerPort, masterHost, masterPort, workerCount);
         reducer.start();
     }
 

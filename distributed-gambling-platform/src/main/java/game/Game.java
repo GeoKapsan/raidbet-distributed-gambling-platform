@@ -86,8 +86,13 @@ public class Game implements Serializable {
 
     // --- Setters (for manager operations) ---
     public void setActive(boolean active) { this.active = active; }
-    public void setRiskLevel(String riskLevel) { this.riskLevel = riskLevel; this.jackpot = computeJackpot(riskLevel);}//gia na jana ypologizei to Jackpot an allajei to risk (recompute jackpot when risk changes) giati o proistamenos ta thelei agglika
-    public void setMinBet(double minBet) {this.minBet = minBet; this.bettingCategory = computeBettingCategory(minBet);} // recompute category when minBet changes
+
+    // Recompute jackpot when risk changes
+    public void setRiskLevel(String riskLevel) { this.riskLevel = riskLevel; this.jackpot = computeJackpot(riskLevel);}
+
+    // recompute category when minBet changes
+    public void setMinBet(double minBet) {this.minBet = minBet; this.bettingCategory = computeBettingCategory(minBet);}
+
     public void setMaxBet(double maxBet) {this.maxBet = maxBet;}
     public void setStars(double stars) { this.stars = stars; }
     public void setNoOfVotes(int noOfVotes) { this.noOfVotes = noOfVotes; }

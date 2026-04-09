@@ -274,7 +274,7 @@ public class ManagerConsole {
         if (newMinBet    != null)    System.out.println("  Min bet: " + newMinBet);
         if (newMaxBet    != null)    System.out.println("  Max bet: " + newMaxBet);
 
-        
+
         Request response = sendToMaster(request);
 
         if (response == null) {
