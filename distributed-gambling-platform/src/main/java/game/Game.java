@@ -17,8 +17,8 @@ public class Game implements Serializable {
     private String hashKey;
     private boolean active = true;
 
-    private final String bettingCategory;
-    private final double jackpot;
+    private String bettingCategory;
+    private double jackpot;
 
     public Game(String gameName, String providerName, double stars,
                 int noOfVotes, String logoPath, double minBet,
@@ -33,7 +33,9 @@ public class Game implements Serializable {
         this.riskLevel = riskLevel;
         this.hashKey = hashKey;
 
-        this.bettingCategory = minBet < 1.0 ? "$" : minBet < 5.0 ? "$$" : "$$$";
+        this.bettingCategory = computeBettingCategory(minBet);
+        this.jackpot = computeJackpot(riskLevel);
+        
         switch (riskLevel) {
             case "low":
 
@@ -55,6 +57,19 @@ public class Game implements Serializable {
                 break;
         }    }
 
+    private static double computeJackpot(String riskLevel) {
+        switch (riskLevel) {
+            case "low":    return 10.0;
+            case "medium": return 20.0;
+            case "high":   return 40.0;
+            default:       return 0.0;
+        }
+    }
+
+    private static String computeBettingCategory(double minBet) {
+        return minBet < 1.0 ? "$" : minBet < 5.0 ? "$$" : "$$$";
+    }
+
     // --- Getters ---
     public String getGameName() { return gameName; }
     public String getProviderName() { return providerName; }
@@ -71,9 +86,12 @@ public class Game implements Serializable {
 
     // --- Setters (for manager operations) ---
     public void setActive(boolean active) { this.active = active; }
-    public void setRiskLevel(String riskLevel) { this.riskLevel = riskLevel; }
+    public void setRiskLevel(String riskLevel) { this.riskLevel = riskLevel; this.jackpot = computeJackpot(riskLevel);}//gia na jana ypologizei to Jackpot an allajei to risk (recompute jackpot when risk changes) giati o proistamenos ta thelei agglika
+    public void setMinBet(double minBet) {this.minBet = minBet; this.bettingCategory = computeBettingCategory(minBet);} // recompute category when minBet changes
+    public void setMaxBet(double maxBet) {this.maxBet = maxBet;}
     public void setStars(double stars) { this.stars = stars; }
     public void setNoOfVotes(int noOfVotes) { this.noOfVotes = noOfVotes; }
+
 
     public boolean satisfiesFilters(Request request) {
         if (!isActive()) return false;

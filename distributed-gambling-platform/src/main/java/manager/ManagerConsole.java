@@ -36,7 +36,7 @@ public class ManagerConsole {
             switch (choice) {
                 case "1": addGame(); break;
                 case "2": removeGame(); break;
-                case "3": changeRiskLevel(); break;
+                case "3": changeGame(); break;
                 case "4": listGames(); break;
                 case "0": {
                     System.out.println("Exiting Manager Console.");
@@ -52,7 +52,7 @@ public class ManagerConsole {
         System.out.println("\n--- Manager Console ---");
         System.out.println("1. Add Game");
         System.out.println("2. Remove Game");
-        System.out.println("3. Change Game Risk Level");
+        System.out.println("3. Change Game ");
         System.out.println("4. List Games");
         System.out.println("0. Exit");
         System.out.print("Select an option: ");
@@ -62,89 +62,91 @@ public class ManagerConsole {
     // Manager operations ----------------------------------------------------------------------------------------------------
 
     private void addGame() {
-        System.out.print("Enter path to the folder containing game JSON files: "); // /Users/georgioskapsanakis/Documents/Aueb/yearThree/secSem/Κατανεμημένα Συστήματα/distributed-gambling-platform/distributed-gambling-platform/src/main/resources/games
-        String folderPath = scanner.nextLine().trim();
 
-        File folder = new File(folderPath);
-        if (!folder.exists() || !folder.isDirectory()) {
-            System.out.println("Invalid directory path!");
+        String projectDir = System.getProperty("user.dir");
+        String folderPath = projectDir + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator + "games" + File.separator;
+        System.out.print("Enter the name of the JSON file to add (e.g. game.json): ");
+        String fileName = scanner.nextLine().trim();
+
+        if (fileName.isEmpty()) {
+            System.out.println("File name cannot be empty.");
             return;
         }
 
-        File[] files = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".json"));
-        if (files == null || files.length == 0) {
-            System.out.println("No JSON files found in: " + folder.getAbsolutePath());
+        // Αυτόματη προσθήκη του .json σε περίπτωση που ο χρήστης γράψει μόνο "game"
+        if (!fileName.toLowerCase().endsWith(".json")) {
+            fileName += ".json";
+        }
+
+        File file = new File(folderPath + fileName);
+
+        if (!file.exists() || !file.isFile()) {
+            System.out.println("JSON file not found at: " + file.getAbsolutePath());
             return;
         }
 
-        // Φτιάχνουμε τον Parser ΜΙΑ φορά έξω από τη λούπα για καλύτερη απόδοση
         JSONParser parser = new JSONParser();
 
-        for (File file : files) {
-            // Using try-with-resources to automatically close the FileReader
-            try (
-                    FileReader reader = new FileReader(file)
-            ) {
+        try (FileReader reader = new FileReader(file)) {
+            // Parse the file directly into a JSONObject
+            JSONObject jsonObject = (JSONObject) parser.parse(reader);
 
-                // Parse the file directly into a JSONObject
-                JSONObject jsonObject = (JSONObject) parser.parse(reader);
+            // Extract String values
+            String gameName = (String) jsonObject.get("GameName");
+            String providerName = (String) jsonObject.get("ProviderName");
+            double stars = ((Number) jsonObject.get("Stars")).doubleValue();
+            int noOfVotes = ((Number) jsonObject.get("NoOfVotes")).intValue();
+            String logoPath = (String) jsonObject.get("GameLogo");
+            double minBet = ((Number) jsonObject.get("MinBet")).doubleValue();
+            double maxBet = ((Number) jsonObject.get("MaxBet")).doubleValue();
+            String riskLevel = (String) jsonObject.get("RiskLevel");
+            String hashKey = (String) jsonObject.get("HashKey");
 
-                // Extract String values
-                String gameName = (String) jsonObject.get("GameName");
-                String providerName = (String) jsonObject.get("ProviderName");
-                double stars = ((Number) jsonObject.get("Stars")).doubleValue();
-                int noOfVotes = ((Number) jsonObject.get("NoOfVotes")).intValue();
-                String logoPath = (String) jsonObject.get("GameLogo");
-                double minBet = ((Number) jsonObject.get("MinBet")).doubleValue();
-                double maxBet = ((Number) jsonObject.get("MaxBet")).doubleValue();
-                String riskLevel = (String) jsonObject.get("RiskLevel");
-                String hashKey = (String) jsonObject.get("HashKey");
+            // Instantiate your Game object
+            Game parsedGame = new Game(
+                    gameName,
+                    providerName,
+                    stars,
+                    noOfVotes,
+                    logoPath,
+                    minBet,
+                    maxBet,
+                    riskLevel,
+                    hashKey
+            );
 
-                // Instantiate your Game object
-                Game parsedGame = new Game(
-                        gameName,
-                        providerName,
-                        stars,
-                        noOfVotes,
-                        logoPath,
-                        minBet,
-                        maxBet,
-                        riskLevel,
-                        hashKey
-                );
+            // Request build
+            Request request = new Request(Request.Type.ADD_GAME);
+            request.put("game", parsedGame);
 
+            // Send to Master
+            System.out.println("Sending ADD_GAME request for : " + gameName);
+            Request response = sendToMaster(request);
 
-                // Request build
-                Request request = new Request(Request.Type.ADD_GAME);
-                request.put("game" , parsedGame);
-
-                // Send to Master
-                System.out.println("Sending ADD_GAME request for : "+ gameName);
-                Request response = sendToMaster(request);
-
-                if (response == null) continue;
-
+            if (response != null) {
                 String status = (String) response.get("status");
                 String message = (String) response.get("message");
 
-                //
                 if ("OK".equals(status)) {
                     System.out.println("[SUCCESS] Game added: " + gameName + (message != null ? " - " + message : ""));
+
+                    // Εμφάνιση των στοιχείων μόνο εφόσον η προσθήκη ήταν επιτυχής
+                    System.out.println("Game parsed successfully:");
+                    System.out.println("  Name     : " + parsedGame.getGameName());
+                    System.out.println("  Provider : " + parsedGame.getProviderName());
+                    System.out.println("  Risk     : " + parsedGame.getRiskLevel());
+                    System.out.println("  Bet Cat  : " + parsedGame.getBettingCategory());
+                    System.out.println("  Min/Max  : " + parsedGame.getMinBet() + " / " + parsedGame.getMaxBet());
+                    System.out.println("-----------------------------------");
                 } else {
                     System.out.println("[FAIL] Could not add game: " + gameName + (message != null ? " - " + message : ""));
                 }
-
-                System.out.println("Game parsed successfully:");
-                System.out.println("  Name     : " + parsedGame.getGameName());
-                System.out.println("  Provider : " + parsedGame.getProviderName());
-                System.out.println("  Risk     : " + parsedGame.getRiskLevel());
-                System.out.println("  Bet Cat  : " + parsedGame.getBettingCategory());
-                System.out.println("  Min/Max  : " + parsedGame.getMinBet() + " / " + parsedGame.getMaxBet());
-                System.out.println("-----------------------------------");
-
-            } catch (Exception e) {
-                System.out.println("Failed to parse file " + file.getName() + ": " + e.getMessage());
+            } else {
+                System.out.println("[FAIL] No response received from Master.");
             }
+
+        } catch (Exception e) {
+            System.out.println("Failed to parse file " + file.getName() + ": " + e.getMessage());
         }
     }
 
@@ -183,8 +185,15 @@ public class ManagerConsole {
         }
     }
 
-    private void changeRiskLevel() {
-        System.out.print("Enter the name of the game: ");
+    /**
+     * Allows the manager to change any combination of:
+     *   - Risk level  (Low / Medium / High)
+     *   - Min bet
+     *   - Max bet
+     * Fields left blank are not modified.
+     */
+    private void changeGame() {
+        System.out.print("Enter the name of the game to update: ");
         String gameName = scanner.nextLine().trim();
 
         if (gameName.isEmpty()) {
@@ -192,26 +201,76 @@ public class ManagerConsole {
             return;
         }
 
-        System.out.print("Enter new risk level (Low / Medium / High): ");
+        // --- Risk level (optional) ---
+        System.out.print("New risk level (low / medium / high, or ENTER to skip): ");
         String newRiskLevel = scanner.nextLine().trim();
 
-        if (newRiskLevel.isEmpty()) {
-            System.out.println("Risk level cannot be empty.");
+        // --- Min bet (optional) ---
+        System.out.print("New minimum bet (or ENTER to skip): ");
+        String minBetStr = scanner.nextLine().trim();
+
+        // --- Max bet (optional) ---
+        System.out.print("New maximum bet (or ENTER to skip): ");
+        String maxBetStr = scanner.nextLine().trim();
+
+        // At least one field must be changed
+        if (newRiskLevel.isEmpty() && minBetStr.isEmpty() && maxBetStr.isEmpty()) {
+            System.out.println("No changes specified. Operation cancelled.");
             return;
         }
 
-        // ftiaxnw Game object me to onoma kai to neo risk level
-        Game gameToUpdate = new Game(gameName, "", 0, 0, "", 0, 0, newRiskLevel, "");
+        // Validate numeric inputs
+        Double newMinBet = null;
+        Double newMaxBet = null;
 
-        // request
+        if (!minBetStr.isEmpty()) {
+            try {
+                newMinBet = Double.parseDouble(minBetStr);
+                if (newMinBet <= 0) {
+                    System.out.println("[FAIL] Min bet must be positive.");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("[FAIL] Invalid min bet value.");
+                return;
+            }
+        }
+
+        if (!maxBetStr.isEmpty()) {
+            try {
+                newMaxBet = Double.parseDouble(maxBetStr);
+                if (newMaxBet <= 0) {
+                    System.out.println("[FAIL] Max bet must be positive.");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("[FAIL] Invalid max bet value.");
+                return;
+            }
+        }
+
+        // Cross-validate min/max if both provided
+        if (newMinBet != null && newMaxBet != null && newMinBet >= newMaxBet) {
+            System.out.println("[FAIL] Min bet must be less than max bet.");
+            return;
+        }
+
+        // Build request — only populate fields that were actually changed
         Request request = new Request(Request.Type.CHANGE_RISK);
-        request.put("game", gameToUpdate);
+        request.put("gameName", gameName);
 
-        // ston rapth mesw TCP
-        System.out.println("Sending CHANGE_RISK request for: " + gameName + " → " + newRiskLevel);
+        if (!newRiskLevel.isEmpty()) request.put("riskLevel",  newRiskLevel);
+        if (newMinBet    != null)    request.put("minBet",     newMinBet);
+        if (newMaxBet    != null)    request.put("maxBet",     newMaxBet);
+
+        // Summary of what we're sending
+        System.out.println("Sending CHANGE_RISK request for: " + gameName);
+        if (!newRiskLevel.isEmpty()) System.out.println("  Risk level → " + newRiskLevel);
+        if (newMinBet    != null)    System.out.println("  Min bet    → " + newMinBet);
+        if (newMaxBet    != null)    System.out.println("  Max bet    → " + newMaxBet);
+
         Request response = sendToMaster(request);
 
-        // elegxw response
         if (response == null) {
             System.out.println("[FAIL] No response from Master.");
             return;
@@ -221,12 +280,9 @@ public class ManagerConsole {
         String message = (String) response.get("message");
 
         if ("OK".equalsIgnoreCase(status)) {
-
-            System.out.println("[SUCCESS] Risk level changed for: " + gameName
-                    + (message != null ? " - " + message : ""));
+            System.out.println("[SUCCESS] Game updated: " + gameName + (message != null ? " - " + message : ""));
         } else {
-            System.out.println("[FAIL] Could not change risk level for: " + gameName
-                    + (message != null ? " - " + message : ""));
+            System.out.println("[FAIL] Could not update game: " + gameName + (message != null ? " - " + message : ""));
         }
     }
 
