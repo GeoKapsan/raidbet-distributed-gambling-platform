@@ -51,23 +51,23 @@ public class Worker {
         System.out.println("[Worker:" + port + "] Added game " + game.getGameName());
     }
 
-    public synchronized void updateGameProfit(String gameName, double profit) {
+    public synchronized void updateGameProfit(String gameName, double newProfit) {
 
         if (gamesProfit.containsKey(gameName)) {
-            Double old= gamesProfit.get(gameName);
-            gamesProfit.put(gameName, old+profit);
-        }else{
-            gamesProfit.put(gameName, profit);
+            Double oldProfit = gamesProfit.get(gameName);
+            gamesProfit.put(gameName, oldProfit + newProfit);
+        } else {
+            gamesProfit.put(gameName, newProfit);
         }
     }
 
-    public synchronized void updatePlayerProfit(String playerID, double profit) {
+    public synchronized void updatePlayerProfit(String playerID, double newProfit) {
 
         if (playersProfit.containsKey(playerID)) {
-            Double old= playersProfit.get(playerID);
-            playersProfit.put(playerID, old+profit);
+            Double oldProfit = playersProfit.get(playerID);
+            playersProfit.put(playerID, oldProfit + newProfit);
         }else{
-            playersProfit.put(playerID, profit);
+            playersProfit.put(playerID, newProfit);
         }
     }
 

@@ -45,7 +45,8 @@ public class ClientHandler implements Runnable {
 
             case ADD_GAME:
             case REMOVE_GAME:
-            case CHANGE_RISK:
+            case MODIFY_GAME:
+            case RATE_GAME:
             case PLAY:
                 String gameName;
                 if (request.containsKey("game")) {
@@ -55,7 +56,14 @@ public class ClientHandler implements Runnable {
                     gameName = (String) request.get("gameName");
                 }
 
-                forwardToSrg(request);
+                switch (request.getType()) {
+                    case ADD_GAME:
+                    case REMOVE_GAME:
+                        forwardToSrg(request);
+                        break;
+                    default:
+                        break;
+                }
 
                 return forwardToWorkerAndGetResult(request, master.getWorkerAddress(gameName));
 

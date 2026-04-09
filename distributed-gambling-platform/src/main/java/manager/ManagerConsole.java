@@ -13,7 +13,7 @@ import org.json.simple.parser.JSONParser;
 
 public class ManagerConsole {
 
-    // save master host and port
+    // Save master host and port
     private final String masterHost ;
     private final int masterPort;
 
@@ -36,7 +36,7 @@ public class ManagerConsole {
             switch (choice) {
                 case "1": addGame(); break;
                 case "2": removeGame(); break;
-                case "3": changeGame(); break;
+                case "3": modifyGame(); break;
                 case "4": listGames(); break;
                 case "0": {
                     System.out.println("Exiting Manager Console.");
@@ -65,29 +65,30 @@ public class ManagerConsole {
 
         String projectDir = System.getProperty("user.dir");
         String folderPath = projectDir + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator + "games" + File.separator;
-        System.out.print("Enter the name of the JSON file to add (e.g. game.json): ");
+        System.out.print("Enter the name of the JSON file to add: ");
         String fileName = scanner.nextLine().trim();
 
         if (fileName.isEmpty()) {
-            System.out.println("File name cannot be empty.");
+            System.out.println("[FAIL] File name cannot be empty.");
             return;
         }
 
-        // Αυτόματη προσθήκη του .json σε περίπτωση που ο χρήστης γράψει μόνο "game"
         if (!fileName.toLowerCase().endsWith(".json")) {
             fileName += ".json";
         }
 
+        // Add file
         File file = new File(folderPath + fileName);
 
         if (!file.exists() || !file.isFile()) {
-            System.out.println("JSON file not found at: " + file.getAbsolutePath());
+            System.out.println("[FAIL] JSON file not found at: " + file.getAbsolutePath());
             return;
         }
 
         JSONParser parser = new JSONParser();
 
         try (FileReader reader = new FileReader(file)) {
+
             // Parse the file directly into a JSONObject
             JSONObject jsonObject = (JSONObject) parser.parse(reader);
 
@@ -102,7 +103,7 @@ public class ManagerConsole {
             String riskLevel = (String) jsonObject.get("RiskLevel");
             String hashKey = (String) jsonObject.get("HashKey");
 
-            // Instantiate your Game object
+            // Instantiate Game object
             Game parsedGame = new Game(
                     gameName,
                     providerName,
@@ -128,9 +129,8 @@ public class ManagerConsole {
                 String message = (String) response.get("message");
 
                 if ("OK".equals(status)) {
-                    System.out.println("[SUCCESS] Game added: " + gameName + (message != null ? " - " + message : ""));
+                    System.out.println("Game added: " + gameName + (message != null ? " - " + message : ""));
 
-                    // Εμφάνιση των στοιχείων μόνο εφόσον η προσθήκη ήταν επιτυχής
                     System.out.println("Game parsed successfully:");
                     System.out.println("  Name     : " + parsedGame.getGameName());
                     System.out.println("  Provider : " + parsedGame.getProviderName());
@@ -146,16 +146,17 @@ public class ManagerConsole {
             }
 
         } catch (Exception e) {
-            System.out.println("Failed to parse file " + file.getName() + ": " + e.getMessage());
+            System.out.println("[FAIL] Failed to parse file " + file.getName() + ": " + e.getMessage());
         }
     }
 
     private void removeGame() {
+
+        // Insert game name to remove
         System.out.print("Enter the name of the game to remove: ");
         String gameName = scanner.nextLine().trim();
-
         if (gameName.isEmpty()) {
-            System.out.println("Game name cannot be empty.");
+            System.out.println("[FAIL] Game name cannot be empty.");
             return;
         }
 
@@ -164,7 +165,8 @@ public class ManagerConsole {
         request.put("gameName", gameName);
 
         // Send Request to Master
-        System.out.println("Sending REMOVE_GAME request for: " + gameName);
+        System.out.println("Sending REMOVE_GAME request for: '" + gameName + "'");
+
         Request response = sendToMaster(request);
 
         // Check for response
@@ -176,13 +178,12 @@ public class ManagerConsole {
         String status  = (String) response.get("status");
         String message = (String) response.get("message");
 
-        if ("OK".equals(status)) {
-            System.out.println("[SUCCESS] Game removed: " + gameName
-                    + (message != null ? " - " + message : ""));
-        } else {
-            System.out.println("[FAIL] Could not remove game: " + gameName
-                    + (message != null ? " - " + message : ""));
+        if (!"OK".equals(status)) {
+            System.out.println("[FAIL] " + message);
+            return;
         }
+
+        System.out.println("Game removed successfully");
     }
 
     /**
@@ -192,18 +193,22 @@ public class ManagerConsole {
      *   - Max bet
      * Fields left blank are not modified.
      */
-    private void changeGame() {
+    private void modifyGame() {
         System.out.print("Enter the name of the game to update: ");
         String gameName = scanner.nextLine().trim();
 
         if (gameName.isEmpty()) {
-            System.out.println("Game name cannot be empty.");
+            System.out.println("[FAIL] Game name cannot be empty.");
             return;
         }
 
         // --- Risk level (optional) ---
-        System.out.print("New risk level (low / medium / high, or ENTER to skip): ");
+        System.out.print("New risk level (low/medium/high, or ENTER to skip): ");
         String newRiskLevel = scanner.nextLine().trim();
+        if (!"low".equals(newRiskLevel) ||  !"medium".equals(newRiskLevel) ||   !"high".equals(newRiskLevel)) {
+            System.out.println("[FAIL] Invalid risk level.");
+            return;
+        }
 
         // --- Min bet (optional) ---
         System.out.print("New minimum bet (or ENTER to skip): ");
@@ -215,7 +220,7 @@ public class ManagerConsole {
 
         // At least one field must be changed
         if (newRiskLevel.isEmpty() && minBetStr.isEmpty() && maxBetStr.isEmpty()) {
-            System.out.println("No changes specified. Operation cancelled.");
+            System.out.println("[FAIL] No changes specified. Operation cancelled.");
             return;
         }
 
@@ -256,18 +261,19 @@ public class ManagerConsole {
         }
 
         // Build request — only populate fields that were actually changed
-        Request request = new Request(Request.Type.CHANGE_RISK);
+        Request request = new Request(Request.Type.MODIFY_GAME);
         request.put("gameName", gameName);
 
         if (!newRiskLevel.isEmpty()) request.put("riskLevel",  newRiskLevel);
         if (newMinBet    != null)    request.put("minBet",     newMinBet);
         if (newMaxBet    != null)    request.put("maxBet",     newMaxBet);
 
-        // Summary of what we're sending
+        // Summary
         System.out.println("Sending CHANGE_RISK request for: " + gameName);
-        if (!newRiskLevel.isEmpty()) System.out.println("  Risk level → " + newRiskLevel);
-        if (newMinBet    != null)    System.out.println("  Min bet    → " + newMinBet);
-        if (newMaxBet    != null)    System.out.println("  Max bet    → " + newMaxBet);
+        if (!newRiskLevel.isEmpty()) System.out.println("  Risk level: " + newRiskLevel);
+        if (newMinBet    != null)    System.out.println("  Min bet: " + newMinBet);
+        if (newMaxBet    != null)    System.out.println("  Max bet: " + newMaxBet);
+
 
         Request response = sendToMaster(request);
 
@@ -279,11 +285,12 @@ public class ManagerConsole {
         String status  = (String) response.get("status");
         String message = (String) response.get("message");
 
-        if ("OK".equalsIgnoreCase(status)) {
-            System.out.println("[SUCCESS] Game updated: " + gameName + (message != null ? " - " + message : ""));
-        } else {
-            System.out.println("[FAIL] Could not update game: " + gameName + (message != null ? " - " + message : ""));
+        if (!"OK".equals(status)) {
+            System.out.println("[FAIL] " + message);
+            return;
         }
+
+        System.out.println("Game updated: " + gameName + (message != null ? " - " + message : ""));
     }
 
     private void listGames() {
@@ -299,14 +306,14 @@ public class ManagerConsole {
 
         ArrayList<String> gameNames = (ArrayList<String>) response.get("gameNames");
         if (gameNames == null || gameNames.isEmpty()) {
-            System.out.println("Workers don't have any games.");
+            System.out.println("[FAIL] Workers don't have any games.");
             return;
         }
 
         System.out.println("\n── All Available games ──────────────────────────");
         for (String g : gameNames) {
-            System.out.println(g);
-            System.out.println("-----------------------------------");
+            System.out.println("\t" + g);
+            System.out.println("\t-----------------------------------");
         }
         System.out.println("────────────────────────────────────────");
 
