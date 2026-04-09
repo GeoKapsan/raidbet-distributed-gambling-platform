@@ -1,12 +1,10 @@
 package player;
 
 import java.io.*;
-import java.net.Socket;
+import java.net.*;
 import java.util.*;
 
-import manager.ManagerConsole;
 import shared.Request;
-import game.Game;
 
 
 public class Player {
@@ -36,7 +34,7 @@ public class Player {
                 case "2": play(); break;
                 case "3": search(); break;
                 case "4": addBalance(); break;
-                case "5": checkBalance(); break;
+                // case "5": printBalance(); break;
                 case "0": {
                     System.out.println("Exiting Player Console.");
                     return;
@@ -54,7 +52,7 @@ public class Player {
         System.out.println("2. Play");
         System.out.println("3. Search Games");
         System.out.println("4. Add balance");
-        //System.out.println("5. Check balance");
+        // System.out.println("5. Check balance");
         System.out.println("0. Exit");
         System.out.print("Select an option: ");
     }
@@ -72,7 +70,7 @@ public class Player {
 
         ArrayList<String> gameNames = (ArrayList<String>) response.get("gameNames");
         if (gameNames == null || gameNames.isEmpty()) {
-            System.out.println("Workers don't have any games.");
+            System.out.println("[FAIL] Workers don't have any games.");
             return;
         }
 
@@ -86,6 +84,8 @@ public class Player {
     }
 
     private void play() {
+
+        // Insert game name to play
         System.out.print("Game name (ENTER to skip): ");
         String gameName = scanner.nextLine().trim();
         if (gameName.isEmpty()) {
@@ -93,12 +93,19 @@ public class Player {
             return;
         }
 
+        // Insert betting amount
         System.out.print("Betting amount (ENTER to skip): ");
+        String bettingAmountStr = scanner.nextLine().trim();
+        if (bettingAmountStr.isEmpty()) {
+            System.out.println("[FAIL] Game name cannot be empty");
+            return;
+        }
+
         Double bettingAmount;
         try {
-            bettingAmount = Double.parseDouble(scanner.nextLine().trim());
-        } catch (NullPointerException e) {
-            System.out.println("[FAIL] Betting amount cannot be null");
+            bettingAmount = Double.parseDouble(bettingAmountStr);
+        } catch (NumberFormatException e) {
+            System.out.println("[FAIL] Betting amount cannot String");
             return;
         }
 
@@ -122,18 +129,17 @@ public class Player {
         String status = (String) response.get("status");
 
         if (!"OK".equals(status)) {
-            System.out.println("[FAIL] Could not play game " + gameName);
-            System.out.println(status);
+            System.out.println("[FAIL] " + response.get("message"));
             return;
         }
 
         double amountWon = (Double) response.get("amountWon");
-        System.out.println("Amount Won: "+ amountWon + "FUN");
+        System.out.println("Amount Won: "+ amountWon + " FUN");
 
         // Update balance for current player
         updateBalance(amountWon - bettingAmount);
 
-        checkBalance();
+        printBalance();
     }
 
     private String checkBettingAmountValidity(double amount) {
@@ -157,26 +163,31 @@ public class Player {
 
         System.out.print("Stars (1-5, or ENTER to skip): ");
         String starsStr = scanner.nextLine().trim();
-        if (!starsStr.isEmpty()) request.put("stars", Integer.parseInt(starsStr));
+        try {
+            if (!starsStr.isEmpty()) request.put("stars", Integer.parseInt(starsStr));
+        } catch (NumberFormatException e) {
+            System.out.println("[FAIL] Stars must be int");
+            return;
+        }
 
         // Send to Master
         Request response = sendToMaster(request);
 
-        if ("ERROR".equals(response.get("status"))) {
-            System.out.println("Error: " + response.get("message"));
+        if (!"OK".equals(response.get("status"))) {
+            System.out.println("[FAIL] " + response.get("message"));
             return;
         }
 
         ArrayList<String> gameNames = (ArrayList<String>) response.get("gameNames");
         if (gameNames == null || gameNames.isEmpty()) {
-            System.out.println("No games match your filters.");
+            System.out.println("No games match your filters");
             return;
         }
 
         System.out.println("\n── Matching games ──────────────────────────");
         for (String g : gameNames) {
-            System.out.println(g);
-            System.out.println("-----------------------------------");
+            System.out.println("\t" + g);
+            System.out.println("\t-----------------------------------");
         }
         System.out.println("────────────────────────────────────────");
     }
@@ -204,27 +215,35 @@ public class Player {
     }
 
     private void addBalance() {
+
+        // Insert betting amount
         System.out.print("Amount to add (ENTER to skip): ");
+        System.out.print("Betting amount (ENTER to skip): ");
+        String addedAmountStr = scanner.nextLine().trim();
+        if (addedAmountStr.isEmpty()) {
+            System.out.println("[FAIL] Game name cannot be empty");
+            return;
+        }
+
         Double addedAmount;
         try {
-            addedAmount = Double.parseDouble(scanner.nextLine().trim());
-        } catch (NullPointerException e) {
-            System.out.println("[FAIL] Amount cannot be null");
+            addedAmount = Double.parseDouble(addedAmountStr);
+        } catch (NumberFormatException e) {
+            System.out.println("[FAIL] Betting amount cannot String");
             return;
         }
 
         if (addedAmount > 0) updateBalance(addedAmount); else System.out.println("[FAIL] The amount must be higher than zero");
-
     }
 
 
     private void updateBalance(double balance) {
         this.balance += balance;
-        checkBalance();
+        printBalance();
     }
 
 
-    private void checkBalance() {
+    private void printBalance() {
         System.out.println("Current Balance: " + balance);
     }
 
