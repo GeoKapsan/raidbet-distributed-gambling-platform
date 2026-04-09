@@ -19,10 +19,10 @@ public class Reducer {
     private final HashMap<Integer, Integer> expectedCounts = new HashMap<>();
 
     // How many map results have arrived so far for each mapId
-    private final Map<Integer, Integer> receivedCounts = new HashMap<>();
+    private final HashMap<Integer, Integer> receivedCounts = new HashMap<>();
 
     // Accumulated game lists from Workers
-    private final ArrayList<String[]> collectedGames = new ArrayList<>();
+    private final HashMap<Integer, ArrayList<String[]>> collectedGames = new HashMap<Integer, ArrayList<String[]>>();
 
     public Reducer(int port, String masterHost, int masterPort) {
         this.port = port;
@@ -59,24 +59,26 @@ public class Reducer {
 
     public synchronized void registerMapReduce(int mapId, int noOfWorkers) {
         expectedCounts.put(mapId, noOfWorkers);
-        receivedCounts.put(mapId, 1);
+        receivedCounts.put(mapId, 0);
+        collectedGames.put(mapId, new ArrayList<String[]>());
     }
 
     public synchronized boolean collect(int mapId, ArrayList<String[]> games) {
         receivedCounts.put(mapId, receivedCounts.get(mapId) + 1);
 
-        collectedGames.addAll(games);
+        collectedGames.get(mapId).addAll(games);
 
         return expectedCounts.get(mapId) == receivedCounts.get(mapId);
     }
 
-    public synchronized ArrayList<String[]> getCollectedGames() {
-        return new ArrayList<>(collectedGames);
+    public synchronized ArrayList<String[]> getCollectedGames(int mapId) {
+        return collectedGames.get(mapId);
     }
 
     public synchronized ArrayList<String> reduce(int mapId, ArrayList<String[]> games) {
         ArrayList<String> result = new ArrayList<>();
 
+        // join all games to final_value
         for (String[] game : games) {
             if (Integer.parseInt(game[0]) != mapId) continue;
             result.add(game[1]);
@@ -88,6 +90,8 @@ public class Reducer {
     public synchronized void cleanup(int mapId) {
         expectedCounts.remove(mapId);
         receivedCounts.remove(mapId);
+
+        // remove games for mapId after reduce operation
         collectedGames.remove(mapId);
     }
 

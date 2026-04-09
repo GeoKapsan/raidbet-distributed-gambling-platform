@@ -6,7 +6,7 @@ import java.util.HashMap;
 public class Request implements Serializable {
 
     public enum Type {
-        ADD_GAME, REMOVE_GAME, CHANGE_RISK, SHOW_GAMES, // Manager operations
+        ADD_GAME, REMOVE_GAME, CHANGE_RISK, // Manager operations
         SEARCH, PLAY, ADD_BALANCE,                      // Player operations
         REDUCER_CALLBACK,                               // Reducer -> Master operation
         GIVE_NUMBER,
