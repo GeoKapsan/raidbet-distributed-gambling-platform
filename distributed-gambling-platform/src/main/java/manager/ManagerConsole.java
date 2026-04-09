@@ -233,7 +233,7 @@ public class ManagerConsole {
     private void listGames() {
         System.out.println("Fetching the games from  the network...");
 
-        Request request = new Request(Request.Type.SHOW_GAMES);
+        Request request = new Request(Request.Type.SEARCH);
         Request response = sendToMaster(request);
 
         if (response == null) {
@@ -241,31 +241,18 @@ public class ManagerConsole {
             return ;
         }
 
-        String status = (String) response.get("status");
-        if ("OK".equals(status)) {
-            ArrayList<Game> games = (ArrayList<Game>) response.get("games");
-
-            if (games == null || games.isEmpty()){
-                System.out.println("No games loaded ");
-                return ;
-
-            }
-
-            System.out.println("\n--- Available Games (" + games.size() + ") ---");
-            for (int i = 0; i < games.size(); i++) {
-                Game g = games.get(i);
-                System.out.println((i + 1) + ". " + g.getGameName()
-                        + " | Provider: " + g.getProviderName()
-                        + " | Risk: "     + g.getRiskLevel()
-                        + " | Bet: "      + g.getMinBet() + "-" + g.getMaxBet()
-                        + " | Category: " + g.getBettingCategory()
-                        + " | Active: "   + g.isActive());
-            }
-            System.out.println("-----------------------------------");
-        } else {
-            String message = (String) response.get("message");
-            System.out.println("[FAIL] Could not fetch games: " + (message != null ? message : "Unknown error"));
+        ArrayList<String> gameNames = (ArrayList<String>) response.get("gameNames");
+        if (gameNames == null || gameNames.isEmpty()) {
+            System.out.println("Workers don't have any games.");
+            return;
         }
+
+        System.out.println("\n── All Available games ──────────────────────────");
+        for (String g : gameNames) {
+            System.out.println(g);
+            System.out.println("-----------------------------------");
+        }
+        System.out.println("────────────────────────────────────────");
 
     }
 

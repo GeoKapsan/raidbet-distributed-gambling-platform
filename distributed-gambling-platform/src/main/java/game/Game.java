@@ -76,11 +76,11 @@ public class Game implements Serializable {
     public void setNoOfVotes(int noOfVotes) { this.noOfVotes = noOfVotes; }
 
     public boolean satisfiesFilters(Request request) {
+        if (!isActive()) return false;
+
         String stars = request.containsKey("stars") ? String.valueOf((Integer) request.get("stars")) : null;
         String bettingCategory = request.containsKey("bettingCategory") ? (String) request.get("bettingCategory") : null;
         String riskLevel = request.containsKey("riskLevel") ? (String) request.get("riskLevel") : null;
-
-        if (!isActive()) return false;
 
         if (stars != null && Integer.parseInt(stars) != this.stars) return false;
 

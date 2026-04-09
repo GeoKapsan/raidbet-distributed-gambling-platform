@@ -49,7 +49,6 @@ public class WorkerHandler implements Runnable {
             case ADD_GAME: return handleAddGame(request);
             case REMOVE_GAME: return handleRemoveGame(request);
             case CHANGE_RISK: return handleChangeRisk(request);
-            case SHOW_GAMES: return handleShowGames(request);
             case SEARCH: return handleMapTask(request);
             case PLAY: return handlePlay(request);
 
@@ -84,22 +83,6 @@ public class WorkerHandler implements Runnable {
         return response;
     }
 
-    private Request handleShowGames(Request request) {
-        Request response = new Request(Request.Type.RESPONSE);
-
-        // factor out inactive games
-        ArrayList<Game> temp_games = worker.getAllGames();
-        ArrayList<Game> games = new ArrayList<>();
-        for (Game game : temp_games) {
-            if (game.isActive()) continue;
-            games.add(game);
-        }
-
-        response.put("games", games);
-        response.put("status", "OK");
-        return response;
-    }
-
     private Request handleMapTask(Request request) {
 
         // Saves results from map
@@ -118,8 +101,8 @@ public class WorkerHandler implements Runnable {
     private ArrayList<String[]> mapFilters(int key, ArrayList<Game> games, Request filters) {
         ArrayList<String[]> result = new ArrayList<String[]>();
 
-        String[] resultTuple = new String[2];
         for (Game game : games) {
+            String[] resultTuple = new String[2];
             if (game.satisfiesFilters(filters)) {
                 resultTuple[0] = Integer.toString(key);
                 resultTuple[1] = game.getGameName();
