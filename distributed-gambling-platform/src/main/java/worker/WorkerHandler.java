@@ -48,7 +48,8 @@ public class WorkerHandler implements Runnable {
         switch (request.getType()) {
             case ADD_GAME: return handleAddGame(request);
             case REMOVE_GAME: return handleRemoveGame(request);
-            case CHANGE_RISK: return handleChangeRisk(request);
+            case MODIFY_GAME: return handleModifyGame(request);
+            case RATE_GAME: return handleRateGame(request);
             case SEARCH: return handleMapTask(request);
             case PLAY: return handlePlay(request);
 
@@ -77,7 +78,7 @@ public class WorkerHandler implements Runnable {
         return response;
     }
 
-    private Request handleChangeRisk(Request request) {
+    private Request handleModifyGame(Request request) {
         String gameName = (String) request.get("gameName");
         Request response = new Request(Request.Type.RESPONSE);
 
@@ -140,6 +141,25 @@ public class WorkerHandler implements Runnable {
                 + " MinBet=" + game.getMinBet()
                 + " MaxBet=" + game.getMaxBet()
                 + " Category=" + game.getBettingCategory());
+        return response;
+    }
+
+    private Request handleRateGame(Request request) {
+
+        Request response = new Request(Request.Type.RESPONSE);
+
+        String gameName = (String) request.get("gameName");
+        Game game = worker.getGame(gameName);
+        if (game == null) {
+            response.put("status", "ERROR");
+            response.put("message", "Game '" + gameName + "' doesn't exist");
+            return response;
+        }
+
+        Integer stars = (Integer) request.get("stars");
+        game.rate(stars);
+
+        response.put("status", "OK");
         return response;
     }
 
@@ -207,33 +227,42 @@ public class WorkerHandler implements Runnable {
 
     private Request handlePlay(Request request) {
 
-        Game playedGame = worker.getGame((String) request.get("gameName"));
-        double bettingAmount = (Double) request.get("bettingAmount");
-
         Request response = new Request(Request.Type.RESPONSE);
-        if (bettingAmount>playedGame.getMaxBet()){
-            response.put("status", "ERROR (Betting amount too large)");
-            return response;
-        }else if (bettingAmount<playedGame.getMinBet()){
-            response.put("status", "ERROR (Betting amount too small)");
+
+        String gameName = (String) request.get("gameName");
+        Game playedGame = worker.getGame(gameName);
+        if (playedGame == null) {
+            response.put("status", "ERROR");
+            response.put("message", "Game '" + gameName + "' doesn't exist");
             return response;
         }
 
+        double bettingAmount = (Double) request.get("bettingAmount");
+
+        if (bettingAmount > playedGame.getMaxBet()){
+            response.put("status", "ERROR");
+            response.put("message", "Betting amount too large");
+            return response;
+        } else if (bettingAmount < playedGame.getMinBet()) {
+            response.put("status", "ERROR");
+            response.put("message", "Betting amount too low");
+            return response;
+        }
+
+        // Request is valid
         Request srgRequest = new Request(Request.Type.GIVE_NUMBER);
 
-        srgRequest.put("gameName", request.get("gameName"));
+        srgRequest.put("gameName", gameName);
 
+        // Register game to SRG
         Request srgResponse = sendToSrg(srgRequest);
 
         int number = (int) srgResponse.get("number");
         String hashedNumber = (String) srgResponse.get("hashedNumber");
 
-
-
         if (hashedNumber.equals(sha256(number + (String) playedGame.getHashKey()))) {
 
             double amountWon;
-
 
             if (number % 100 == 0) {
                 response.put("winStatus", "JACKPOT!!!");
@@ -270,7 +299,8 @@ public class WorkerHandler implements Runnable {
             worker.updateGameProfit(playedGame.getGameName(), bettingAmount-amountWon);
 
         } else {
-            response.put("status", "ERROR:game not added correctly (wrong hash)");
+            response.put("status", "ERROR");
+            response.put("message", "Game not added correctly (wrong hash)");
         }
 
         return response;

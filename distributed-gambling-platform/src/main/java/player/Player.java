@@ -34,13 +34,14 @@ public class Player {
                 case "2": play(); break;
                 case "3": search(); break;
                 case "4": addBalance(); break;
-                // case "5": printBalance(); break;
+                case "5": rateByGameName(); break;
+                // case "6": printBalance(); break;
                 case "0": {
                     System.out.println("Exiting Player Console.");
                     return;
                 }
                 default:
-                    System.out.println("Invalid option. Please try again.");
+                    System.out.println("[FAIL] Invalid option. Please try again.");
                     break;
             }
         }
@@ -52,7 +53,8 @@ public class Player {
         System.out.println("2. Play");
         System.out.println("3. Search Games");
         System.out.println("4. Add balance");
-        // System.out.println("5. Check balance");
+        System.out.println("5. Rate game");
+        // System.out.println("6. Check balance");
         System.out.println("0. Exit");
         System.out.print("Select an option: ");
     }
@@ -76,8 +78,8 @@ public class Player {
 
         System.out.println("\n── All Available games ──────────────────────────");
         for (String g : gameNames) {
-            System.out.println(g);
-            System.out.println("-----------------------------------");
+            System.out.println("\t" + g);
+            System.out.println("\t-----------------------------------");
         }
         System.out.println("────────────────────────────────────────");
 
@@ -150,6 +152,7 @@ public class Player {
 
     private void search() {
 
+        // Build Master Request by player input
         Request request = new Request(Request.Type.SEARCH);
         request.put("playerId", playerId);
 
@@ -192,28 +195,6 @@ public class Player {
         System.out.println("────────────────────────────────────────");
     }
 
-    /**
-     * Sends to Master newly built Request for current player
-     * @param request
-     * @return response from Master
-     */
-    private Request sendToMaster(Request request) {
-        try (
-                Socket socket = new Socket(masterHost, masterPort);
-
-                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-        ) {
-            oos.flush();
-            oos.writeObject(request);
-            oos.flush();
-            return (Request) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("[FAIL] Could not communicate with Master: " + e.getMessage());
-            return null;
-        }
-    }
-
     private void addBalance() {
 
         // Insert betting amount
@@ -247,7 +228,74 @@ public class Player {
         System.out.println("Current Balance: " + balance);
     }
 
+    private void rateByGameName() {
 
+        // Insert game name to rate
+        System.out.print("Game name (ENTER to skip): ");
+        String gameName = scanner.nextLine().trim();
+        if (gameName.isEmpty()) {
+            System.out.println("[FAIL] Game name cannot be empty");
+            return;
+        }
+
+
+        // Build Master Request by player input
+        Request request = new Request(Request.Type.RATE_GAME);
+        request.put("playerId", playerId);
+        request.put("gameName", gameName);
+
+        System.out.print("Stars (1-5, or ENTER to skip): ");
+        String starsStr = scanner.nextLine().trim();
+        try {
+            if (!starsStr.isEmpty()) request.put("stars", Integer.parseInt(starsStr));
+            else {
+                System.out.println("[FAIL] Stars cannot be empty");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("[FAIL] Stars must be int");
+            return;
+        }
+
+
+        // Send to Master
+        Request response = sendToMaster(request);
+
+        if (!"OK".equals(response.get("status"))) {
+            System.out.println("[FAIL] " + response.get("message"));
+            return;
+        }
+
+        System.out.println("Game rated successfully");
+    }
+
+
+    // TCP operation helpers ----------------------------------------------------------------------------------------------------
+
+    /**
+     * Sends to Master newly built Request for current player
+     * @param request
+     * @return response from Master
+     */
+    private Request sendToMaster(Request request) {
+        try (
+                Socket socket = new Socket(masterHost, masterPort);
+
+                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+        ) {
+            oos.flush();
+            oos.writeObject(request);
+            oos.flush();
+            return (Request) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("[FAIL] Could not communicate with Master: " + e.getMessage());
+            return null;
+        }
+    }
+
+
+    // Entry point ----------------------------------------------------------------------------------------------------
 
     public static void main(String[] args) {
         System.out.print("Enter your username: ");

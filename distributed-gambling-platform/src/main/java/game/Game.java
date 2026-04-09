@@ -92,6 +92,11 @@ public class Game implements Serializable {
     public void setStars(double stars) { this.stars = stars; }
     public void setNoOfVotes(int noOfVotes) { this.noOfVotes = noOfVotes; }
 
+    public void rate(int stars) {
+        setStars((getStars() * getNoOfVotes() + stars) / (noOfVotes + 1));
+        setNoOfVotes(noOfVotes + 1);
+    }
+
 
     public boolean satisfiesFilters(Request request) {
         if (!isActive()) return false;
@@ -118,7 +123,7 @@ public class Game implements Serializable {
             }
         }
 
-        if (riskLevel != null && riskLevel.equals(this.riskLevel)) return false;
+        if (riskLevel != null && !riskLevel.equals(this.riskLevel)) return false;
 
         return true;
     }
