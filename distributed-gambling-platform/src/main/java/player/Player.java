@@ -4,7 +4,9 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import master.Master;
 import shared.Request;
+import srg.Srg;
 
 
 public class Player {
@@ -298,13 +300,30 @@ public class Player {
     // Entry point ----------------------------------------------------------------------------------------------------
 
     public static void main(String[] args) {
+        Properties config = new Properties();
+        try (
+                InputStream in = Master.class.getClassLoader().getResourceAsStream("config/config.properties")
+        ) {
+
+            if (in == null) throw new RuntimeException("config/config.properties not found in classpath");
+
+            config.load(in);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String masterHost  = config.getProperty("master.host");
+        int masterPort     = Integer.parseInt(config.getProperty("master.port"));
+
         System.out.print("Enter your username: ");
 
         Scanner scan = new Scanner(System.in);
         String playerId = scan.nextLine().trim();
 
-        Player console = new Player(playerId, "localhost", 5001);
-        console.start();
+        // Initialize and start Player dummy app
+        Player console = new Player(playerId, masterHost, masterPort);
+        new Thread(() -> console.start()).start();
     }
 }
 

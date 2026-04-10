@@ -1,6 +1,8 @@
 package manager;
 
 import game.Game;
+import master.Master;
+import player.Player;
 import shared.Request;
 
 import java.io.*;
@@ -344,10 +346,27 @@ public class ManagerConsole {
 
 
     public static void main(String[] args) {
+        Properties config = new Properties();
+        try (
+                InputStream in = Master.class.getClassLoader().getResourceAsStream("config/config.properties")
+        ) {
 
-        ManagerConsole console = new ManagerConsole("localhost", 5001);
-        console.start();
+            if (in == null) throw new RuntimeException("config/config.properties not found in classpath");
+
+            config.load(in);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String masterHost  = config.getProperty("master.host");
+        int masterPort     = Integer.parseInt(config.getProperty("master.port"));
+
+        // Initialize and start Master console app
+        ManagerConsole console = new ManagerConsole(masterHost, masterPort);
+        new Thread(() -> console.start()).start();
     }
+
 }
 
 
