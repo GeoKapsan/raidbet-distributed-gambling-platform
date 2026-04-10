@@ -56,14 +56,9 @@ public class ClientHandler implements Runnable {
                     gameName = (String) request.get("gameName");
                 }
 
-                switch (request.getType()) {
-                    case ADD_GAME:
-                    case REMOVE_GAME:
-                        forwardToSrg(request);
-                        break;
-                    default:
-                        break;
-                }
+                if ((request.getType() == Request.Type.ADD_GAME) || request.getType() == Request.Type.REMOVE_GAME) {}
+                    forwardToSrg(request);
+
 
                 return forwardToWorkerAndGetResult(request, master.getWorkerAddress(gameName));
 
