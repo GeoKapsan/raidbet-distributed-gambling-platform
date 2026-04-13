@@ -364,7 +364,7 @@ public class ManagerConsole {
 
         // Initialize and start Master console app
         ManagerConsole console = new ManagerConsole(masterHost, masterPort);
-        new Thread(() -> console.start()).start();
+        console.start();
     }
 
 }

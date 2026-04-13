@@ -114,7 +114,7 @@ public class Srg {
 
         // Initialize and start SRG
         Srg srg = new Srg(srgPort, masterHost, masterPort);
-        new Thread(() -> srg.start()).start();
+        srg.start();
     }
 
 }

@@ -129,17 +129,17 @@ public class Master {
 
         int masterPort     = Integer.parseInt(config.getProperty("master.port"));
 
-        int workerCount    = Integer.parseInt(config.getProperty("worker.count",  "1"));
+        int workerCount    = Integer.parseInt(config.getProperty("worker.count"));
 
-        String srgHost     = config.getProperty("srg.host", "localhost");
+        String srgHost     = config.getProperty("srg.host");
         int srgPort        = Integer.parseInt(config.getProperty("srg.port"));
 
         ArrayList<String> workers = new ArrayList<>();
         for (int i = 0; i < workerCount; i++) {
-            workers.add(config.getProperty("worker." + i));
+            workers.add(config.getProperty("worker." + i + ".host") + ":" + config.getProperty("worker.port"));
         }
 
-        new Master(masterPort, workers, srgHost, srgPort).start();
-
+        Master master = new Master(masterPort, workers, srgHost, srgPort);
+        master.start();
     }
 }
