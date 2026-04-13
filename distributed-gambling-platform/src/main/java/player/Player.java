@@ -101,7 +101,7 @@ public class Player {
         System.out.print("Betting amount (ENTER to skip): ");
         String bettingAmountStr = scanner.nextLine().trim();
         if (bettingAmountStr.isEmpty()) {
-            System.out.println("[FAIL] Game name cannot be empty");
+            System.out.println("[FAIL] Betting amount cannot be empty");
             return;
         }
 
