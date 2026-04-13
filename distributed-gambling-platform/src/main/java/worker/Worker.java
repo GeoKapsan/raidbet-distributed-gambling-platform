@@ -136,14 +136,11 @@ public class Worker {
             workers.add(config.getProperty("worker." + i));
         }
 
-        // Initialize and start Workers
-        for (int i = 0; i < workerCount; i++) {
+        // Initialize and start Worker
+        int workerPort = Integer.parseInt(config.getProperty("worker.port"));
 
-            int workerPort_i = Integer.parseInt(config.getProperty("worker." + i).split(":")[1]);
-
-            Worker worker = new Worker(workerPort_i, reducerHost, reducerPort, srgHost, srgPort);
-            new Thread(() -> worker.start()).start();
-        }
+        Worker worker = new Worker(workerPort, reducerHost, reducerPort, srgHost, srgPort);
+        worker.start();
     }
 
 }

@@ -323,7 +323,7 @@ public class Player {
 
         // Initialize and start Player dummy app
         Player console = new Player(playerId, masterHost, masterPort);
-        new Thread(() -> console.start()).start();
+        console.start();
     }
 }
 
