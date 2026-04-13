@@ -137,8 +137,14 @@ public class Worker {
         }
 
         // Initialize and start Worker
-        int workerPort = Integer.parseInt(config.getProperty("worker.port"));
-
+        int workerPort;
+        try {
+            workerPort = Integer.parseInt(args[0]);
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+            workerPort = Integer.parseInt(config.getProperty("worker.port"));
+        }
+        
         Worker worker = new Worker(workerPort, reducerHost, reducerPort, srgHost, srgPort);
         worker.start();
     }

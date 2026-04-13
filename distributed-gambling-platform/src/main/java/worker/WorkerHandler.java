@@ -295,8 +295,8 @@ public class WorkerHandler implements Runnable {
             response.put("amountWon", amountWon);
             response.put("status", "OK");
 
-            worker.updatePlayerProfit((String) request.get("playerID"), amountWon-bettingAmount);
-            worker.updateGameProfit(playedGame.getGameName(), bettingAmount-amountWon);
+            worker.updatePlayerProfit((String) request.get("playerID"), amountWon - bettingAmount);
+            worker.updateGameProfit(playedGame.getGameName(), bettingAmount - amountWon);
 
         } else {
             response.put("status", "ERROR");
