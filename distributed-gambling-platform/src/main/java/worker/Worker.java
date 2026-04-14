@@ -13,7 +13,7 @@ public class Worker {
     private final String reducerHost;
     private final int reducerPort;
     private final HashMap<String, Game> games = new HashMap<>();
-    private final HashMap<String, Double> gamesProfit = new HashMap<>();
+    private final HashMap<String, Double> gamesProfit = new HashMap<>(); //test
     private final HashMap<String, Double> playersProfit = new HashMap<>();
     private final String srgHost;
     private final int srgPort;
@@ -123,18 +123,11 @@ public class Worker {
             throw new RuntimeException(e);
         }
 
-        int workerCount    = Integer.parseInt(config.getProperty("worker.count",  "1"));
-
         String reducerHost = config.getProperty("reducer.host", "localhost");
         int reducerPort    = Integer.parseInt(config.getProperty("reducer.port"));
 
         String srgHost     = config.getProperty("srg.host", "localhost");
         int    srgPort     = Integer.parseInt(config.getProperty("srg.port"));
-
-        ArrayList<String> workers = new ArrayList<>();
-        for (int i = 0; i < workerCount; i++) {
-            workers.add(config.getProperty("worker." + i));
-        }
 
         // Initialize and start Worker
         int workerPort;
