@@ -13,7 +13,7 @@ public class Worker {
     private final String reducerHost;
     private final int reducerPort;
     private final HashMap<String, Game> games = new HashMap<>();
-    private final HashMap<String, Double> gamesProfit = new HashMap<>();
+    private final HashMap<String, Double> gamesProfit = new HashMap<>(); //test
     private final HashMap<String, Double> playersProfit = new HashMap<>();
     private final String srgHost;
     private final int srgPort;
