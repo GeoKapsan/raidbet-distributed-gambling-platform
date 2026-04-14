@@ -13,8 +13,6 @@ public class Worker {
     private final String reducerHost;
     private final int reducerPort;
     private final HashMap<String, Game> games = new HashMap<>();
-    private final HashMap<String, Double> gamesProfit = new HashMap<>();
-    private final HashMap<String, Double> playersProfit = new HashMap<>();
     private final String srgHost;
     private final int srgPort;
 
@@ -49,26 +47,6 @@ public class Worker {
     public synchronized void addGame(Game game) {
         games.put(game.getGameName(), game);
         System.out.println("[Worker:" + port + "] Added game " + game.getGameName());
-    }
-
-    public synchronized void updateGameProfit(String gameName, double newProfit) {
-
-        if (gamesProfit.containsKey(gameName)) {
-            Double oldProfit = gamesProfit.get(gameName);
-            gamesProfit.put(gameName, oldProfit + newProfit);
-        } else {
-            gamesProfit.put(gameName, newProfit);
-        }
-    }
-
-    public synchronized void updatePlayerProfit(String playerID, double newProfit) {
-
-        if (playersProfit.containsKey(playerID)) {
-            Double oldProfit = playersProfit.get(playerID);
-            playersProfit.put(playerID, oldProfit + newProfit);
-        }else{
-            playersProfit.put(playerID, newProfit);
-        }
     }
 
     public synchronized void removeGame(String gameName) {
