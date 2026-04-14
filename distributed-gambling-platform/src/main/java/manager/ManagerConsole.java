@@ -2,7 +2,6 @@ package manager;
 
 import game.Game;
 import master.Master;
-import player.Player;
 import shared.Request;
 
 import java.io.*;
@@ -28,9 +27,7 @@ public class ManagerConsole {
 
     public void start() {
 
-        boolean running = true;
-
-        while (running) {
+        while (true) {
             printMenu();
 
             String choice = scanner.nextLine().trim();
@@ -207,7 +204,7 @@ public class ManagerConsole {
         // --- Risk level (optional) ---
         System.out.print("New risk level (low/medium/high, or ENTER to skip): ");
         String newRiskLevel = scanner.nextLine().trim();
-        if (!"low".equals(newRiskLevel) ||  !"medium".equals(newRiskLevel) ||   !"high".equals(newRiskLevel)) {
+        if (!"low".equals(newRiskLevel) &&  !"medium".equals(newRiskLevel) &&   !"high".equals(newRiskLevel)) {
             System.out.println("[FAIL] Invalid risk level.");
             return;
         }
