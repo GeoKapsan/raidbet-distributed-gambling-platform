@@ -42,31 +42,28 @@ public class ClientHandler implements Runnable {
 
     private Request route(Request request) {
         switch (request.getType()) {
-
             case ADD_GAME:
+                Game game = (Game) request.get("game");
+                forwardToSrg(request);
+                return forwardToWorkerAndGetResult(request, master.getWorkerAddress(game.getGameName()));
+
             case REMOVE_GAME:
+                forwardToSrg(request);
+                return forwardToWorkerAndGetResult(request, master.getWorkerAddress((String) request.get("gameName")));
+
             case MODIFY_GAME:
             case RATE_GAME:
             case PLAY:
-                String gameName;
-                if (request.containsKey("game")) {
-                    Game game = (Game) request.get("game");
-                    gameName = game.getGameName();
-                } else {
-                    gameName = (String) request.get("gameName");
-                }
+                return forwardToWorkerAndGetResult(request, master.getWorkerAddress((String) request.get("gameName")));
 
-                if ((request.getType() == Request.Type.ADD_GAME) || request.getType() == Request.Type.REMOVE_GAME) {}
-                    forwardToSrg(request);
+            case SEARCH:
+                return handleSearch(request);
 
+            case REDUCER_CALLBACK:
+                return handleReducerCallback(request);
 
-                return forwardToWorkerAndGetResult(request, master.getWorkerAddress(gameName));
-
-            case SEARCH: return handleSearch(request);
-
-            case REDUCER_CALLBACK: return handleReducerCallback(request);
-
-            default: return new Request(Request.Type.RESPONSE);
+            default:
+                return new Request(Request.Type.RESPONSE);
         }
     }
 
