@@ -51,15 +51,11 @@ public class SrgHandler implements Runnable{
             case ADD_GAME:
 
                 srg.put(gameName, (String) request.get("hashKey"));
-                response.put("status", "OK");
-                response.put("message", "Game" + gameName + " added successfully.");
                 break;
 
             case REMOVE_GAME:
 
                 srg.remove(gameName);
-                response.put("status", "OK");
-                response.put("message", "Game" + gameName + " removed successfully.");
                 break;
 
             case GIVE_NUMBER:
@@ -70,7 +66,6 @@ public class SrgHandler implements Runnable{
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                response.put("status", "OK");
                 response.put("number", number);
                 response.put("hashedNumber", sha256(number + srg.getHashKey(gameName)));
                 break;
