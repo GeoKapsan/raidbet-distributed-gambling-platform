@@ -123,18 +123,11 @@ public class Worker {
             throw new RuntimeException(e);
         }
 
-        int workerCount    = Integer.parseInt(config.getProperty("worker.count",  "1"));
-
         String reducerHost = config.getProperty("reducer.host", "localhost");
         int reducerPort    = Integer.parseInt(config.getProperty("reducer.port"));
 
         String srgHost     = config.getProperty("srg.host", "localhost");
         int    srgPort     = Integer.parseInt(config.getProperty("srg.port"));
-
-        ArrayList<String> workers = new ArrayList<>();
-        for (int i = 0; i < workerCount; i++) {
-            workers.add(config.getProperty("worker." + i));
-        }
 
         // Initialize and start Worker
         int workerPort = Integer.parseInt(config.getProperty("worker.port"));
