@@ -37,7 +37,6 @@ public class Player {
                 case "3": search(); break;
                 case "4": addBalance(); break;
                 case "5": rateByGameName(); break;
-                // case "6": printBalance(); break;
                 case "0": {
                     System.out.println("Exiting Player Console.");
                     return;

@@ -45,6 +45,10 @@ public class Reducer {
         }
     }
 
+    public synchronized int getNoOfWorkers() {
+        return noOfWorkers;
+    }
+
     public String getMasterHostAndPort() {
         return masterHost + ":" + masterPort;
     }

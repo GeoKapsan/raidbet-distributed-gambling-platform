@@ -63,7 +63,9 @@ public class WorkerHandler implements Runnable {
     private Request handleAddGame(Request request) {
         Game game = (Game) request.get("game");
         Request response = new Request(Request.Type.RESPONSE);
+
         worker.addGame(game);
+
         response.put("message", "Game" + game.getGameName() + " added successfully.");
         response.put("status", "OK");
         return response;
@@ -71,10 +73,18 @@ public class WorkerHandler implements Runnable {
 
     private Request handleRemoveGame(Request request) {
         String gameName = (String) request.get("gameName");
+
         Request response = new Request(Request.Type.RESPONSE);
-        worker.removeGame(gameName);
-        response.put("message", "Game" + gameName + " removed successfully.");
-        response.put("status", "OK");
+
+        boolean removedGame = worker.removeGame(gameName);
+        if (removedGame) {
+            response.put("status", "OK");
+            response.put("message", "Game" + gameName + " removed successfully.");
+        } else {
+            response.put("status", "ERROR");
+            response.put("message", "Game" + gameName + " not found.");
+        }
+
         return response;
     }
 
@@ -171,7 +181,7 @@ public class WorkerHandler implements Runnable {
         System.out.println("[Worker: " + worker.getPort() + "] map() emitted " + results.size() + " games");
 
         // Send map result to reducer, must be done before we send response back to Master
-        sendToReducer((int) request.get("mapId"), (int) request.get("noOfWorkers"), results);
+        sendToReducer((int) request.get("mapId"), results);
 
         Request response = new Request(Request.Type.RESPONSE);
         response.put("status", "OK");
@@ -192,12 +202,11 @@ public class WorkerHandler implements Runnable {
         return result;
     }
 
-    private void sendToReducer(int mapId, int noOfWorkers, ArrayList<String[]> results) {
+    private void sendToReducer(int mapId, ArrayList<String[]> results) {
 
         // build Request for reducer
         Request request = new Request(Request.Type.SEARCH);
         request.put("mapId", mapId);
-        request.put("noOfWorkers", noOfWorkers);
         request.put("map_result", results);
 
         // connect to Reducer

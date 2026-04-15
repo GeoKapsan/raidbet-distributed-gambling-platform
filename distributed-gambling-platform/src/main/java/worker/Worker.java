@@ -66,16 +66,19 @@ public class Worker {
         if (playersProfit.containsKey(playerID)) {
             Double oldProfit = playersProfit.get(playerID);
             playersProfit.put(playerID, oldProfit + newProfit);
-        }else{
+        } else {
             playersProfit.put(playerID, newProfit);
         }
     }
 
-    public synchronized void removeGame(String gameName) {
+    public synchronized boolean removeGame(String gameName) {
         Game game = games.get(gameName);
         if (games.get(gameName) != null) {
             game.setActive(false);
             System.out.println("[Worker:" + port + "] Removed game " + game.getGameName());
+        }
+        else  {
+            System.out.println("[Worker:" + port + "] Failed to remove game " + game.getGameName());
         }
     }
 
