@@ -27,7 +27,7 @@ public class ReducerHandler implements Runnable {
 
             Request request = (Request) input.readObject();
 
-            Request response = handle(request);
+            Request response = handleSearch(request);
 
             output.writeObject(response);
 
@@ -35,16 +35,6 @@ public class ReducerHandler implements Runnable {
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-    }
-
-    private Request handle(Request request) {
-        if (request.getType() == Request.Type.SEARCH) {
-            return handleSearch(request);
-        }
-        Request response = new Request(Request.Type.RESPONSE);
-        response.put("status", "error");
-        response.put("message", "Reducer received invalid request");
-        return response;
     }
 
     private Request handleSearch(Request request) {
