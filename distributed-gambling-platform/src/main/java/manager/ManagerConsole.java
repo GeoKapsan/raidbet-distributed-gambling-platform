@@ -205,7 +205,7 @@ public class ManagerConsole {
         System.out.print("New risk level (low/medium/high, or ENTER to skip): ");
         String newRiskLevel = scanner.nextLine().trim();
         if (!newRiskLevel.isEmpty()) {
-            if (!"low".equals(newRiskLevel) &&  !"medium".equals(newRiskLevel) &&   !"high".equals(newRiskLevel)) {
+            if (!"low".equals(newRiskLevel) && !"medium".equals(newRiskLevel) && !"high".equals(newRiskLevel)) {
                 System.out.println("[FAIL] Invalid risk level.");
                 return;
             }
@@ -261,7 +261,7 @@ public class ManagerConsole {
             return;
         }
 
-        // Build request — only populate fields that were actually changed
+        // Build request — only create fields that were actually changed
         Request request = new Request(Request.Type.MODIFY_GAME);
         request.put("gameName", gameName);
 

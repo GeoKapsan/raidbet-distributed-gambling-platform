@@ -244,7 +244,8 @@ public class WorkerHandler implements Runnable {
 
         String gameName = (String) request.get("gameName");
         Game playedGame = worker.getGame(gameName);
-        if (playedGame == null) {
+
+        if (playedGame == null || !playedGame.isActive()) {
             response.put("status", "ERROR");
             response.put("message", "Game '" + gameName + "' doesn't exist");
             return response;
