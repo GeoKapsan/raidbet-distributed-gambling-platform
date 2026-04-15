@@ -204,9 +204,11 @@ public class ManagerConsole {
         // --- Risk level (optional) ---
         System.out.print("New risk level (low/medium/high, or ENTER to skip): ");
         String newRiskLevel = scanner.nextLine().trim();
-        if (!"low".equals(newRiskLevel) &&  !"medium".equals(newRiskLevel) &&   !"high".equals(newRiskLevel)) {
-            System.out.println("[FAIL] Invalid risk level.");
-            return;
+        if (!newRiskLevel.isEmpty()) {
+            if (!"low".equals(newRiskLevel) &&  !"medium".equals(newRiskLevel) &&   !"high".equals(newRiskLevel)) {
+                System.out.println("[FAIL] Invalid risk level.");
+                return;
+            }
         }
 
         // --- Min bet (optional) ---
