@@ -94,12 +94,11 @@ public class ClientHandler implements Runnable {
 
                 // put number of workers and mapId for the specific map task so the Reducer knows the number of workers for the map task
                 request.put("mapId", mapId);
-                request.put("noOfWorkers", noOfWorkers);
 
                 Request response = forwardToWorkerAndGetResult(request, workerAddress);
 
                 if (response == null || !"OK".equals(response.get("status"))) {
-                    System.err.println("[Master] Worker[" + idx + "] for map Id= " + mapId + " did not respond");
+                    System.out.println("[Master] Worker[" + idx + "] for map Id= " + mapId + " did not respond");
                 } else {
                     System.out.println("[Master] Worker[" + idx + "] for mapId=" + mapId + " succeeded");
                 }

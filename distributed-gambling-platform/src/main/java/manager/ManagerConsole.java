@@ -20,7 +20,7 @@ public class ManagerConsole {
 
     private final Scanner scanner = new Scanner(System.in);
 
-    public ManagerConsole(String masterHost, int masterPort){
+    public ManagerConsole(String masterHost, int masterPort) {
         this.masterHost = masterHost;
         this.masterPort = masterPort;
     }

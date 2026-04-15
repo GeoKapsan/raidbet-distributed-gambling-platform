@@ -60,7 +60,7 @@ public class SrgHandler implements Runnable{
 
             case GIVE_NUMBER:
 
-                int number= 0;
+                int number = 0;
                 try {
                     number = srg.getNumber(gameName);
                 } catch (InterruptedException e) {

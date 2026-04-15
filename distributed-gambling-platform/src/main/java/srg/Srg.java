@@ -11,15 +11,11 @@ import shared.Request;
 public class Srg {
 
     private final int port ;
-    private final String masterHost;
-    private final int masterPort ;
     private HashMap<String, Buffer> generators = new HashMap<>();
     private HashMap<String, String> hashKeys = new HashMap<>();
 
-    public Srg(int port, String masterHost, int masterPort) {
+    public Srg(int port) {
         this.port = port;
-        this.masterHost = masterHost;
-        this.masterPort = masterPort;
     }
 
 
@@ -70,26 +66,6 @@ public class Srg {
         return hashKeys.get(gameName);
     }
 
-    private Request sentToMaster(Request request) {
-
-        try (
-                Socket socket = new Socket(masterHost, masterPort);
-
-                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-        ) {
-
-            oos.writeObject(request);
-            oos.flush();
-
-            return (Request) ois.readObject();
-
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("[ERROR] Could not communicate with Master: " + e.getMessage());
-            return null;
-        }
-    }
-
 
     // Entry point ----------------------------------------------------------------------------------------------------
 
@@ -107,13 +83,10 @@ public class Srg {
             throw new RuntimeException(e);
         }
 
-        String masterHost  = config.getProperty("master.host");
-        int masterPort     = Integer.parseInt(config.getProperty("master.port"));
-
         int srgPort        = Integer.parseInt(config.getProperty("srg.port"));
 
         // Initialize and start SRG
-        Srg srg = new Srg(srgPort, masterHost, masterPort);
+        Srg srg = new Srg(srgPort);
         srg.start();
     }
 

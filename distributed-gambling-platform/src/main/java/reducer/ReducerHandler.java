@@ -49,9 +49,8 @@ public class ReducerHandler implements Runnable {
 
     private Request handleSearch(Request request) {
         int mapId = (int) request.get("mapId");
-        int noOfWorkers = (int) request.get("noOfWorkers");
 
-        if (!reducer.mapIdRegistered(mapId)) reducer.registerMapReduce(mapId, noOfWorkers);
+        if (!reducer.mapIdRegistered(mapId)) reducer.registerMapReduce(mapId, reducer.getNoOfWorkers());
 
         ArrayList<String[]> games = (ArrayList<String[]>) request.get("map_result");
 
@@ -74,8 +73,6 @@ public class ReducerHandler implements Runnable {
         request.put("gameNames", games);
 
         Request response = forwardToMaster(request);
-
-        // TO-DO handle response by printing something on screen
     }
 
     private Request forwardToMaster(Request request) {

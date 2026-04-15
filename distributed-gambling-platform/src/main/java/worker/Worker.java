@@ -47,7 +47,11 @@ public class Worker {
     // Worker's game operations ----------------------------------------------------------------------------------------------------
 
     public synchronized void addGame(Game game) {
-        games.put(game.getGameName(), game);
+        if (games.containsKey(game.getGameName())) {
+            games.get(game.getGameName()).setActive(true);
+        } else {
+            games.put(game.getGameName(), game);
+        }
         System.out.println("[Worker:" + port + "] Added game " + game.getGameName());
     }
 
@@ -66,16 +70,21 @@ public class Worker {
         if (playersProfit.containsKey(playerID)) {
             Double oldProfit = playersProfit.get(playerID);
             playersProfit.put(playerID, oldProfit + newProfit);
-        }else{
+        } else {
             playersProfit.put(playerID, newProfit);
         }
     }
 
-    public synchronized void removeGame(String gameName) {
+    public synchronized boolean removeGame(String gameName) {
         Game game = games.get(gameName);
         if (games.get(gameName) != null) {
             game.setActive(false);
             System.out.println("[Worker:" + port + "] Removed game " + game.getGameName());
+            return true;
+        }
+        else  {
+            System.out.println("[Worker:" + port + "] Failed to remove game " + game.getGameName());
+            return false;
         }
     }
 
@@ -130,8 +139,14 @@ public class Worker {
         int    srgPort     = Integer.parseInt(config.getProperty("srg.port"));
 
         // Initialize and start Worker
-        int workerPort = Integer.parseInt(config.getProperty("worker.port"));
-
+        int workerPort;
+        try {
+            workerPort = Integer.parseInt(args[0]);
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+            workerPort = Integer.parseInt(config.getProperty("worker.port"));
+        }
+        
         Worker worker = new Worker(workerPort, reducerHost, reducerPort, srgHost, srgPort);
         worker.start();
     }

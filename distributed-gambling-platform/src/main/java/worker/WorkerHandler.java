@@ -56,6 +56,7 @@ public class WorkerHandler implements Runnable {
             default:
                 Request response = new Request(Request.Type.RESPONSE);
                 response.put("status", "ERROR");
+
                 return response;
         }
     }
@@ -63,7 +64,9 @@ public class WorkerHandler implements Runnable {
     private Request handleAddGame(Request request) {
         Game game = (Game) request.get("game");
         Request response = new Request(Request.Type.RESPONSE);
+
         worker.addGame(game);
+
         response.put("message", "Game" + game.getGameName() + " added successfully.");
         response.put("status", "OK");
         return response;
@@ -71,10 +74,18 @@ public class WorkerHandler implements Runnable {
 
     private Request handleRemoveGame(Request request) {
         String gameName = (String) request.get("gameName");
+
         Request response = new Request(Request.Type.RESPONSE);
-        worker.removeGame(gameName);
-        response.put("message", "Game" + gameName + " removed successfully.");
-        response.put("status", "OK");
+
+        boolean removedGame = worker.removeGame(gameName);
+        if (removedGame) {
+            response.put("status", "OK");
+            response.put("message", "Game" + gameName + " removed successfully.");
+        } else {
+            response.put("status", "ERROR");
+            response.put("message", "Game" + gameName + " not found.");
+        }
+
         return response;
     }
 
@@ -86,7 +97,7 @@ public class WorkerHandler implements Runnable {
 
         if (game == null) {
             response.put("status", "ERROR");
-            response.put("message", "Game '" + gameName + "' not found on this worker.");
+            response.put("message", "Game" + gameName + " not found.");
             return response;
         }
 
@@ -102,10 +113,10 @@ public class WorkerHandler implements Runnable {
 
         if (request.containsKey("minBet")) {
             double newMin = (Double) request.get("minBet");
+
             // Guard: minBet must be less than current (or new) maxBet
-            double effectiveMax = request.containsKey("maxBet")
-                    ? (Double) request.get("maxBet")
-                    : game.getMaxBet();
+            double effectiveMax = request.containsKey("maxBet") ? (Double) request.get("maxBet") : game.getMaxBet();
+
             if (newMin >= effectiveMax) {
                 response.put("status", "ERROR");
                 response.put("message", "minBet must be less than maxBet.");
@@ -118,12 +129,14 @@ public class WorkerHandler implements Runnable {
 
         if (request.containsKey("maxBet")) {
             double newMax = (Double) request.get("maxBet");
+
             // Guard: maxBet must be greater than current minBet (minBet may already have been updated above)
             if (newMax <= game.getMinBet()) {
                 response.put("status", "ERROR");
                 response.put("message", "maxBet must be greater than minBet.");
                 return response;
             }
+
             game.setMaxBet(newMax);
             System.out.println("[Worker:" + worker.getPort() + "] " + gameName + " maxBet → " + newMax);
             changed = true;
@@ -150,6 +163,7 @@ public class WorkerHandler implements Runnable {
 
         String gameName = (String) request.get("gameName");
         Game game = worker.getGame(gameName);
+
         if (game == null) {
             response.put("status", "ERROR");
             response.put("message", "Game '" + gameName + "' doesn't exist");
@@ -171,7 +185,7 @@ public class WorkerHandler implements Runnable {
         System.out.println("[Worker: " + worker.getPort() + "] map() emitted " + results.size() + " games");
 
         // Send map result to reducer, must be done before we send response back to Master
-        sendToReducer((int) request.get("mapId"), (int) request.get("noOfWorkers"), results);
+        sendToReducer((int) request.get("mapId"), results);
 
         Request response = new Request(Request.Type.RESPONSE);
         response.put("status", "OK");
@@ -192,12 +206,11 @@ public class WorkerHandler implements Runnable {
         return result;
     }
 
-    private void sendToReducer(int mapId, int noOfWorkers, ArrayList<String[]> results) {
+    private void sendToReducer(int mapId, ArrayList<String[]> results) {
 
         // build Request for reducer
         Request request = new Request(Request.Type.SEARCH);
         request.put("mapId", mapId);
-        request.put("noOfWorkers", noOfWorkers);
         request.put("map_result", results);
 
         // connect to Reducer
@@ -295,8 +308,8 @@ public class WorkerHandler implements Runnable {
             response.put("amountWon", amountWon);
             response.put("status", "OK");
 
-            worker.updatePlayerProfit((String) request.get("playerID"), amountWon-bettingAmount);
-            worker.updateGameProfit(playedGame.getGameName(), bettingAmount-amountWon);
+            worker.updatePlayerProfit((String) request.get("playerID"), amountWon - bettingAmount);
+            worker.updateGameProfit(playedGame.getGameName(), bettingAmount - amountWon);
 
         } else {
             response.put("status", "ERROR");

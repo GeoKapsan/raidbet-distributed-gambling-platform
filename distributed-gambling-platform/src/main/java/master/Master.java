@@ -134,9 +134,14 @@ public class Master {
         String srgHost     = config.getProperty("srg.host");
         int srgPort        = Integer.parseInt(config.getProperty("srg.port"));
 
+        // Save Workers' addresses to Master
         ArrayList<String> workers = new ArrayList<>();
         for (int i = 0; i < workerCount; i++) {
-            workers.add(config.getProperty("worker." + i + ".host") + ":" + config.getProperty("worker.port"));
+            try {
+                workers.add(config.getProperty("worker." + i + ".host") + ":" + args[i]);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                workers.add(config.getProperty("worker." + i + ".host") + ":" + config.getProperty("worker.port"));
+            }
         }
 
         Master master = new Master(masterPort, workers, srgHost, srgPort);

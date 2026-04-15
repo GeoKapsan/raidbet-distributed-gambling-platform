@@ -37,7 +37,6 @@ public class Player {
                 case "3": search(); break;
                 case "4": addBalance(); break;
                 case "5": rateByGameName(); break;
-                // case "6": printBalance(); break;
                 case "0": {
                     System.out.println("Exiting Player Console.");
                     return;
@@ -56,7 +55,6 @@ public class Player {
         System.out.println("3. Search Games");
         System.out.println("4. Add balance");
         System.out.println("5. Rate game");
-        // System.out.println("6. Check balance");
         System.out.println("0. Exit");
         System.out.print("Select an option: ");
     }
@@ -92,6 +90,7 @@ public class Player {
         // Insert game name to play
         System.out.print("Game name (ENTER to skip): ");
         String gameName = scanner.nextLine().trim();
+
         if (gameName.isEmpty()) {
             System.out.println("[FAIL] Game name cannot be empty");
             return;
