@@ -56,6 +56,7 @@ public class WorkerHandler implements Runnable {
             default:
                 Request response = new Request(Request.Type.RESPONSE);
                 response.put("status", "ERROR");
+
                 return response;
         }
     }
