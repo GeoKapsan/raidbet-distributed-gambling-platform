@@ -62,6 +62,11 @@ public class ClientHandler implements Runnable {
             case REDUCER_CALLBACK:
                 return handleReducerCallback(request);
 
+            case PLAYER_PROFIT:
+
+            case PROVIDER_PROFIT:
+
+
             default:
                 return new Request(Request.Type.RESPONSE);
         }

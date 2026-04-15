@@ -14,16 +14,16 @@ import java .util.*;
  */
 public class SavedMasterState {
 
-    private ArrayList<String> games;
+    private ArrayList<String> result;
     private boolean ready = false;
 
     /**
      * Called by the ClientHandler thread to deposit the Reducer result
      * and stops the suspension of previous ClientHandler thread.
-     * @param games Reducer result
+     * @param result Reducer result
      */
-    public synchronized void setResult(ArrayList<String> games) {
-        this.games = games;
+    public synchronized void setResult(ArrayList<String> result) {
+        this.result = result;
         ready = true;
         notify(); // wake thread waiting on thread
     }
@@ -46,6 +46,6 @@ public class SavedMasterState {
             wait(remaining);
         }
 
-        return games;
+        return result;
     }
 }

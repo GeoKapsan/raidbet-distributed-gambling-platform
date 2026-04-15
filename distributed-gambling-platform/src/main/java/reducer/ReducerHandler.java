@@ -38,39 +38,66 @@ public class ReducerHandler implements Runnable {
     }
 
     private Request handle(Request request) {
-        if (request.getType() == Request.Type.SEARCH) {
-            return handleSearch(request);
-        }
-        Request response = new Request(Request.Type.RESPONSE);
-        response.put("status", "error");
-        response.put("message", "Reducer received invalid request");
-        return response;
-    }
-
-    private Request handleSearch(Request request) {
         int mapId = (int) request.get("mapId");
 
-        if (!reducer.mapIdRegistered(mapId)) reducer.registerMapReduce(mapId, reducer.getNoOfWorkers());
+        if (!reducer.mapIdRegistered(mapId)) reducer.registerMapReduce(mapId);
 
-        ArrayList<String[]> games = (ArrayList<String[]>) request.get("map_result");
+        ArrayList<String> result = (ArrayList<String>) request.get("map_result");
 
-        boolean shouldReduce = reducer.collect(mapId, games);
+        boolean shouldReduce = reducer.collect(mapId, result);
 
-        if (shouldReduce) initiateReduce(mapId);
+        if (shouldReduce) initiateReduce(mapId, request.getType());
 
         Request response = new Request(Request.Type.RESPONSE);
         response.put("status", "OK");
         return response;
     }
 
-    private void initiateReduce(int mapId) {
-        ArrayList<String> games = reducer.reduce(mapId, reducer.getCollectedGames(mapId));
+
+    private void initiateReduce(int mapId, Request.Type type) {
+        ArrayList<String> results= reducer.getCollectedResults(mapId);
 
         reducer.cleanup(mapId);
 
         Request request = new  Request(Request.Type.REDUCER_CALLBACK);
         request.put("mapId", mapId);
-        request.put("gameNames", games);
+
+        switch (type) {
+            case SEARCH:
+                request.put("gameNames", results);
+                break;
+
+            case PROVIDER_PROFIT:
+                if (results.isEmpty())
+                    request.put("result", "Invalid provider name or no games have been played under this provider");
+                else {
+                    String[] parts;
+                    double profit=0.0;
+
+                    for (String profitPerGame : results) {
+                        parts = profitPerGame.split(":");
+                        profit+= Double.parseDouble(parts[1]);
+                    }
+
+                    results.add("Total:"+profit+" FUN");
+                    request.put("result", results);
+                }
+
+                break;
+
+            case PLAYER_PROFIT:
+                if (results.isEmpty())
+                    request.put("result", "Invalid player name");
+                else {
+                    double profit=0.0;
+                    for (String profitPerGame : results) {
+                        profit+=Double.parseDouble(profitPerGame);
+                    }
+                    request.put("result", "Total Profit/Loss:"+profit+" FUN");
+                }
+                break;
+        }
+
 
         Request response = forwardToMaster(request);
     }

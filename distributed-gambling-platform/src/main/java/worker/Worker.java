@@ -13,7 +13,7 @@ public class Worker {
     private final String reducerHost;
     private final int reducerPort;
     private final HashMap<String, Game> games = new HashMap<>();
-    private final HashMap<String, Double> gamesProfit = new HashMap<>(); //test
+    private final HashMap<String, Double> gamesProfit = new HashMap<>();
     private final HashMap<String, Double> playersProfit = new HashMap<>();
     private final String srgHost;
     private final int srgPort;
@@ -73,6 +73,16 @@ public class Worker {
         } else {
             playersProfit.put(playerID, newProfit);
         }
+    }
+
+    public double getPlayerProfit(String playerID) {
+        if (playersProfit.containsKey(playerID)) return playersProfit.get(playerID);
+        return Double.NaN;
+    }
+
+    public double getGameProfit(String gameName) {
+        if (gamesProfit.containsKey(gameName)) return gamesProfit.get(gameName);
+        return Double.NaN;
     }
 
     public synchronized boolean removeGame(String gameName) {

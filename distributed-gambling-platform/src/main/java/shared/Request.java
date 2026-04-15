@@ -7,6 +7,7 @@ public class Request implements Serializable {
 
     public enum Type {
         ADD_GAME, REMOVE_GAME, MODIFY_GAME,             // Manager operations
+        PROVIDER_PROFIT, PLAYER_PROFIT,
         SEARCH, PLAY, RATE_GAME,                        // Player operations
         REDUCER_CALLBACK,                               // Reducer -> Master operation
         GIVE_NUMBER,

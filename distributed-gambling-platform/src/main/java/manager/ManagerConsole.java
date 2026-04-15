@@ -37,6 +37,8 @@ public class ManagerConsole {
                 case "2": removeGame(); break;
                 case "3": modifyGame(); break;
                 case "4": listGames(); break;
+                case "5": providerProfit(); break;
+                case "6": playerProfit(); break;
                 case "0": {
                     System.out.println("Exiting Manager Console.");
                     return;
@@ -53,6 +55,8 @@ public class ManagerConsole {
         System.out.println("2. Remove Game");
         System.out.println("3. Change Game ");
         System.out.println("4. List Games");
+        System.out.println("5. Profit/Loss for a provider");
+        System.out.println("6. Profit/Loss for a player");
         System.out.println("0. Exit");
         System.out.print("Select an option: ");
     }
@@ -319,6 +323,26 @@ public class ManagerConsole {
         System.out.println("────────────────────────────────────────");
 
     }
+    private void providerProfit(){
+        System.out.println("Enter provider name:");
+        String choice = scanner.nextLine().trim();
+
+        Request request = new Request(Request.Type.PROVIDER_PROFIT);
+        request.put("providerName", choice);
+        Request response=sendToMaster(request);
+
+        for (String s: (ArrayList<String>) response.get("result")) System.out.println(s);
+    }
+
+    private void playerProfit(){
+        System.out.println("Enter player name:");
+        String choice = scanner.nextLine().trim();
+        Request request = new Request(Request.Type.PLAYER_PROFIT);
+        request.put("playerName", choice);
+        Request response=sendToMaster(request);
+        System.out.println(response.get("result"));
+    }
+
 
 
     // TCP Helper operation ----------------------------------------------------------------------------------------------------
