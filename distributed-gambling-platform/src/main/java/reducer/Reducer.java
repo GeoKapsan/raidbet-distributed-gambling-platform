@@ -45,10 +45,6 @@ public class Reducer {
         }
     }
 
-    public synchronized int getNoOfWorkers() {
-        return noOfWorkers;
-    }
-
     public String getMasterHostAndPort() {
         return masterHost + ":" + masterPort;
     }
@@ -60,7 +56,7 @@ public class Reducer {
         return receivedCounts.containsKey(mapId) || collectedGames.containsKey(mapId);
     }
 
-    public synchronized void registerMapReduce(int mapId, int noOfWorkers) {
+    public synchronized void registerMapReduce(int mapId) {
         receivedCounts.put(mapId, 0);
         collectedGames.put(mapId, new ArrayList<String[]>());
     }

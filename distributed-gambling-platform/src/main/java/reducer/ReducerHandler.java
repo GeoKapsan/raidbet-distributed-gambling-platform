@@ -40,7 +40,7 @@ public class ReducerHandler implements Runnable {
     private Request handleSearch(Request request) {
         int mapId = (int) request.get("mapId");
 
-        if (!reducer.mapIdRegistered(mapId)) reducer.registerMapReduce(mapId, reducer.getNoOfWorkers());
+        if (!reducer.mapIdRegistered(mapId)) reducer.registerMapReduce(mapId);
 
         ArrayList<String[]> games = (ArrayList<String[]>) request.get("map_result");
 
