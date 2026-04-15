@@ -47,7 +47,11 @@ public class Worker {
     // Worker's game operations ----------------------------------------------------------------------------------------------------
 
     public synchronized void addGame(Game game) {
-        games.put(game.getGameName(), game);
+        if (games.containsKey(game.getGameName())) {
+            games.get(game.getGameName()).setActive(true);
+        } else {
+            games.put(game.getGameName(), game);
+        }
         System.out.println("[Worker:" + port + "] Added game " + game.getGameName());
     }
 
@@ -76,9 +80,11 @@ public class Worker {
         if (games.get(gameName) != null) {
             game.setActive(false);
             System.out.println("[Worker:" + port + "] Removed game " + game.getGameName());
+            return true;
         }
         else  {
             System.out.println("[Worker:" + port + "] Failed to remove game " + game.getGameName());
+            return false;
         }
     }
 

@@ -55,7 +55,6 @@ public class Player {
         System.out.println("3. Search Games");
         System.out.println("4. Add balance");
         System.out.println("5. Rate game");
-        // System.out.println("6. Check balance");
         System.out.println("0. Exit");
         System.out.print("Select an option: ");
     }
@@ -91,6 +90,7 @@ public class Player {
         // Insert game name to play
         System.out.print("Game name (ENTER to skip): ");
         String gameName = scanner.nextLine().trim();
+
         if (gameName.isEmpty()) {
             System.out.println("[FAIL] Game name cannot be empty");
             return;

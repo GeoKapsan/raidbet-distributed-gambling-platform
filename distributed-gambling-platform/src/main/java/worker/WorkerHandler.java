@@ -97,7 +97,7 @@ public class WorkerHandler implements Runnable {
 
         if (game == null) {
             response.put("status", "ERROR");
-            response.put("message", "Game '" + gameName + "' not found on this worker.");
+            response.put("message", "Game" + gameName + " not found.");
             return response;
         }
 
@@ -113,10 +113,10 @@ public class WorkerHandler implements Runnable {
 
         if (request.containsKey("minBet")) {
             double newMin = (Double) request.get("minBet");
+
             // Guard: minBet must be less than current (or new) maxBet
-            double effectiveMax = request.containsKey("maxBet")
-                    ? (Double) request.get("maxBet")
-                    : game.getMaxBet();
+            double effectiveMax = request.containsKey("maxBet") ? (Double) request.get("maxBet") : game.getMaxBet();
+
             if (newMin >= effectiveMax) {
                 response.put("status", "ERROR");
                 response.put("message", "minBet must be less than maxBet.");
@@ -129,12 +129,14 @@ public class WorkerHandler implements Runnable {
 
         if (request.containsKey("maxBet")) {
             double newMax = (Double) request.get("maxBet");
+
             // Guard: maxBet must be greater than current minBet (minBet may already have been updated above)
             if (newMax <= game.getMinBet()) {
                 response.put("status", "ERROR");
                 response.put("message", "maxBet must be greater than minBet.");
                 return response;
             }
+
             game.setMaxBet(newMax);
             System.out.println("[Worker:" + worker.getPort() + "] " + gameName + " maxBet → " + newMax);
             changed = true;
@@ -161,6 +163,7 @@ public class WorkerHandler implements Runnable {
 
         String gameName = (String) request.get("gameName");
         Game game = worker.getGame(gameName);
+
         if (game == null) {
             response.put("status", "ERROR");
             response.put("message", "Game '" + gameName + "' doesn't exist");
