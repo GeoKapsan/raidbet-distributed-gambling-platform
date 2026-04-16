@@ -64,7 +64,7 @@ public class ReducerHandler implements Runnable {
 
         switch (type) {
             case SEARCH:
-                request.put("gameNames", results);
+                request.put("result", results);
                 break;
 
             case PROVIDER_PROFIT:

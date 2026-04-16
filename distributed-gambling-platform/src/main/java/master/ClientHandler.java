@@ -56,16 +56,11 @@ public class ClientHandler implements Runnable {
             case PLAY:
                 return forwardToWorkerAndGetResult(request, master.getWorkerAddress((String) request.get("gameName")));
 
-            case SEARCH:
-                return handleSearch(request);
+            case SEARCH, PROVIDER_PROFIT, PLAYER_PROFIT:
+                return handleMapTask(request);
 
             case REDUCER_CALLBACK:
                 return handleReducerCallback(request);
-
-            case PLAYER_PROFIT:
-
-            case PROVIDER_PROFIT:
-
 
             default:
                 return new Request(Request.Type.RESPONSE);
@@ -74,7 +69,7 @@ public class ClientHandler implements Runnable {
 
     // MapReduce SHOW_GAMES & SEARCH ----------------------------------------------------------------------------------------------------
 
-    private Request handleSearch(Request request) {
+    private Request handleMapTask(Request request) {
 
         // generate new mapId
         int mapId = master.generateMapId();
@@ -128,12 +123,12 @@ public class ClientHandler implements Runnable {
         // This ClientThread will suspend waiting for another ClientThread to notify this thread after
         // it receives the REDUCER_CALLBACK with the result
         try {
-            ArrayList<String> games = state.waitForResult(TIMEOUT_MS);
+            ArrayList<String> results = state.waitForResult(TIMEOUT_MS);
 
             // remove this state from Master, no longer needed
             master.removeSavedMasterState(mapId);
 
-            if (games == null) {
+            if (results == null) {
                 // Timeout — Reducer never replied (setResult was not executed)
                 Request response = new Request(Request.Type.RESPONSE);
                 response.put("status",  "ERROR");
@@ -143,9 +138,9 @@ public class ClientHandler implements Runnable {
 
             System.out.println("[Master] Received Reduce result for mapId=" + mapId);
 
-            Request response = new Request(Request.Type.RESPONSE);
+            Request response = new Request(request.getType());
             response.put("status", "OK");
-            response.put("gameNames",  games);
+            response.put("result",  results);
             return response;
 
         } catch (InterruptedException e) {
@@ -167,14 +162,14 @@ public class ClientHandler implements Runnable {
      */
     private Request handleReducerCallback(Request request) {
         int mapId = (int) request.get("mapId");
-        ArrayList<String> games = (ArrayList<String>) request.get("gameNames");
+        ArrayList<String> results = (ArrayList<String>) request.get("result");
 
         System.out.println("[Master] Received REDUCER_CALLBACK result for mapId = " + mapId);
 
         SavedMasterState state = master.getMasterState(mapId);
         if (state != null) {
             // setResult will wake up suspended ClientHandler thread for specific mapId
-            state.setResult(games != null ? games : new ArrayList<>());
+            state.setResult(results != null ? results : new ArrayList<>());
         } else
             System.out.println("[Master] No state found for mapId = " + mapId);
 

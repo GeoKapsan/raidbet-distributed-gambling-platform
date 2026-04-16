@@ -182,7 +182,7 @@ public class Player {
             return;
         }
 
-        ArrayList<String> gameNames = (ArrayList<String>) response.get("gameNames");
+        ArrayList<String> gameNames = (ArrayList<String>) response.get("result");
         if (gameNames == null || gameNames.isEmpty()) {
             System.out.println("No games match your filters");
             return;
