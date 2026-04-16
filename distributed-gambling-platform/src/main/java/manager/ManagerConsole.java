@@ -331,16 +331,26 @@ public class ManagerConsole {
         request.put("providerName", choice);
         Request response=sendToMaster(request);
 
-        for (String s: (ArrayList<String>) response.get("result")) System.out.println(s);
+        ArrayList<String> result=(ArrayList<String>) response.get("result");
+        if (result == null) {
+            System.out.println("[FAIL] No result from Master.");
+            return;}
+        for (String s: result) System.out.println(s);
     }
 
     private void playerProfit(){
         System.out.println("Enter player name:");
         String choice = scanner.nextLine().trim();
+
         Request request = new Request(Request.Type.PLAYER_PROFIT);
         request.put("playerName", choice);
+
         Request response=sendToMaster(request);
-        System.out.println(response.get("result"));
+        ArrayList<String> result=(ArrayList<String>) response.get("result");
+        if (result == null) {
+            System.out.println("[FAIL] No result from Master.");
+            return;}
+        System.out.println(result.getFirst());
     }
 
 

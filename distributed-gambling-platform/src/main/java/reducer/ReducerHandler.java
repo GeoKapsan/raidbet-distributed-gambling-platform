@@ -64,12 +64,12 @@ public class ReducerHandler implements Runnable {
 
         switch (type) {
             case SEARCH:
-                request.put("result", results);
+
                 break;
 
             case PROVIDER_PROFIT:
                 if (results.isEmpty())
-                    request.put("result", "Invalid provider name or no games have been played under this provider");
+                    results.add("Invalid provider name or no games have been played under this provider");
                 else {
                     String[] parts;
                     double profit=0.0;
@@ -80,14 +80,14 @@ public class ReducerHandler implements Runnable {
                     }
 
                     results.add("Total:"+profit+" FUN");
-                    request.put("result", results);
+
                 }
 
                 break;
 
             case PLAYER_PROFIT:
                 if (results.isEmpty())
-                    request.put("result", "Invalid player name");
+                    results.add("Invalid player name");
                 else {
                     double profit=0.0;
                     for (String profitPerGame : results) {
@@ -96,7 +96,10 @@ public class ReducerHandler implements Runnable {
                     request.put("result", "Total Profit/Loss:"+profit+" FUN");
                 }
                 break;
+            default:
+                break;
         }
+        request.put("result", results);
 
 
         Request response = forwardToMaster(request);
