@@ -5,7 +5,6 @@ import java.net.*;
 import java.util.*;
 
 import master.Master;
-import shared.Request;
 
 
 public class Srg {

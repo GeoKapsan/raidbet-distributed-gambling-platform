@@ -1,8 +1,6 @@
 package reducer;
 
-import game.Game;
 import master.Master;
-import shared.Request;
 
 import java.net.*;
 import java.util.*;

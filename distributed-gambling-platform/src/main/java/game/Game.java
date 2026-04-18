@@ -34,7 +34,6 @@ public class Game implements Serializable {
         this.hashKey = hashKey;
 
         this.bettingCategory = computeBettingCategory(minBet);
-        this.jackpot = computeJackpot(riskLevel);
         
         switch (riskLevel) {
             case "low":
@@ -82,7 +81,7 @@ public class Game implements Serializable {
     public String getHashKey() { return hashKey; }
     public boolean isActive() { return active; }
     public String getBettingCategory() { return bettingCategory; }
-    public double getJackpot() { return jackpot; }
+    public double getJackpot() { return this.jackpot; }
 
     // --- Setters (for manager operations) ---
     public void setActive(boolean active) { this.active = active; }
