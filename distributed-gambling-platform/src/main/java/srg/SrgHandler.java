@@ -36,7 +36,7 @@ public class SrgHandler implements Runnable{
 
             output.flush();
         } catch (IOException | ClassNotFoundException | InterruptedException e) {
-            System.err.println("[SRG] SRG Hanlder error: " + e.getMessage());
+            System.err.println("[SRG] SRG Handler error: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -78,6 +78,11 @@ public class SrgHandler implements Runnable{
         return response;
     }
 
+    /**
+     * Compute hash digest from input
+     * @param input
+     * @return
+     */
     private String sha256(String input) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

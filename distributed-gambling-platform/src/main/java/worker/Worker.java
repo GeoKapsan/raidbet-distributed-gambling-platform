@@ -2,7 +2,6 @@ package worker;
 
 import game.Game;
 import master.Master;
-import shared.Request;
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -46,15 +45,30 @@ public class Worker {
 
     // Worker's game operations ----------------------------------------------------------------------------------------------------
 
-    public synchronized void addGame(Game game) {
+    /**
+     * Adds game to Worker's game list.
+     * If the game already exists, it is active then it returns false and ignores the incoming game to add.
+     * If the game already exists, it is not active, then it activates the game with that name.
+     * @param game the game to add
+     * @return true if the game was added successfully, false if it wasn't added
+     */
+    public synchronized boolean addGame(Game game) {
         if (games.containsKey(game.getGameName())) {
+            if (games.get(game.getGameName()).isActive())
+                return false;
             games.get(game.getGameName()).setActive(true);
         } else {
             games.put(game.getGameName(), game);
         }
         System.out.println("[Worker:" + port + "] Added game " + game.getGameName());
+        return true;
     }
 
+    /**
+     * Updates games profit for specific game in the Worker's game list
+     * @param gameName
+     * @param newProfit
+     */
     public synchronized void updateGameProfit(String gameName, double newProfit) {
 
         if (gamesProfit.containsKey(gameName)) {
@@ -65,6 +79,11 @@ public class Worker {
         }
     }
 
+    /**
+     * Updates player profit for specific player Id in the Worker's players list
+     * @param playerID
+     * @param newProfit
+     */
     public synchronized void updatePlayerProfit(String playerID, double newProfit) {
 
         if (playersProfit.containsKey(playerID)) {
@@ -75,15 +94,22 @@ public class Worker {
         }
     }
 
+    /**
+     * Removes game from Worker's game list.
+     * If game does not exist it returns false.
+     * If the game is removed successfully it returns true.
+     * @param gameName
+     * @return
+     */
     public synchronized boolean removeGame(String gameName) {
         Game game = games.get(gameName);
-        if (games.get(gameName) != null) {
+        if (game != null) {
             game.setActive(false);
             System.out.println("[Worker:" + port + "] Removed game " + game.getGameName());
             return true;
         }
         else  {
-            System.out.println("[Worker:" + port + "] Failed to remove game " + game.getGameName());
+            System.out.println("[Worker:" + port + "] Failed to remove game '" +  gameName + "'" );
             return false;
         }
     }
