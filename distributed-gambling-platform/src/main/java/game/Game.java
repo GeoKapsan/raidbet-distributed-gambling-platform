@@ -1,4 +1,4 @@
-package game; //test1
+package game;
 
 import shared.Request;
 
