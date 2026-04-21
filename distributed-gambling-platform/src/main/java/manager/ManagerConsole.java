@@ -259,12 +259,6 @@ public class ManagerConsole {
             }
         }
 
-        // Cross-validate min/max if both provided
-        if (newMinBet != null && newMaxBet != null && newMinBet >= newMaxBet) {
-            System.out.println("[FAIL] Min bet must be less than max bet.");
-            return;
-        }
-
         // Build request — only create fields that were actually changed
         Request request = new Request(Request.Type.MODIFY_GAME);
         request.put("gameName", gameName);

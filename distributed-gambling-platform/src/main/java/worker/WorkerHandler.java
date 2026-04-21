@@ -284,6 +284,9 @@ public class WorkerHandler implements Runnable {
 
         // Register game to SRG
         Request srgResponse = sendToSrg(srgRequest);
+        if  (srgResponse == null) {
+            response.put("status", "ERROR from Srg");
+            return response;}
 
         int number = (int) srgResponse.get("number");
         String hashedNumber = (String) srgResponse.get("hashedNumber");
