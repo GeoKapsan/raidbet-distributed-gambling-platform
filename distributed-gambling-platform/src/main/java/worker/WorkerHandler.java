@@ -65,10 +65,15 @@ public class WorkerHandler implements Runnable {
         Game game = (Game) request.get("game");
         Request response = new Request(Request.Type.RESPONSE);
 
-        worker.addGame(game);
+        boolean addedGame = worker.addGame(game);
+        if (!addedGame) {
+            response.put("status", "ERROR");
+            response.put("message", "Game" + game.getGameName() + " already exists.");
+        } else {
+            response.put("message", "Game" + game.getGameName() + " added successfully.");
+            response.put("status", "OK");
+        }
 
-        response.put("message", "Game" + game.getGameName() + " added successfully.");
-        response.put("status", "OK");
         return response;
     }
 
@@ -80,10 +85,10 @@ public class WorkerHandler implements Runnable {
         boolean removedGame = worker.removeGame(gameName);
         if (removedGame) {
             response.put("status", "OK");
-            response.put("message", "Game" + gameName + " removed successfully.");
+            response.put("message", "Game '" + gameName + "' removed successfully.");
         } else {
             response.put("status", "ERROR");
-            response.put("message", "Game" + gameName + " not found.");
+            response.put("message", "Game '" + gameName + "' not found.");
         }
 
         return response;
@@ -95,9 +100,10 @@ public class WorkerHandler implements Runnable {
 
         Game game = worker.getGame(gameName);
 
+        // Game does not exist in Worker's game list
         if (game == null) {
             response.put("status", "ERROR");
-            response.put("message", "Game" + gameName + " not found.");
+            response.put("message", "Game '" + gameName + "' not found.");
             return response;
         }
 
@@ -106,8 +112,12 @@ public class WorkerHandler implements Runnable {
 
         if (request.containsKey("riskLevel")) {
             String newRisk = (String) request.get("riskLevel");
+
             game.setRiskLevel(newRisk);
+
             System.out.println("[Worker:" + worker.getPort() + "] " + gameName + " riskLevel → " + newRisk);
+
+            // Raise flag
             changed = true;
         }
 
@@ -122,8 +132,12 @@ public class WorkerHandler implements Runnable {
                 response.put("message", "minBet must be less than maxBet.");
                 return response;
             }
+
             game.setMinBet(newMin);
+
             System.out.println("[Worker:" + worker.getPort() + "] " + gameName + " minBet → " + newMin);
+
+            // Raise flag
             changed = true;
         }
 
@@ -138,10 +152,14 @@ public class WorkerHandler implements Runnable {
             }
 
             game.setMaxBet(newMax);
+
             System.out.println("[Worker:" + worker.getPort() + "] " + gameName + " maxBet → " + newMax);
+
+            // Raise flag
             changed = true;
         }
 
+        // No changes given from player
         if (!changed) {
             response.put("status", "ERROR");
             response.put("message", "No valid fields provided to update.");
@@ -153,7 +171,8 @@ public class WorkerHandler implements Runnable {
                 + " Risk=" + game.getRiskLevel()
                 + " MinBet=" + game.getMinBet()
                 + " MaxBet=" + game.getMaxBet()
-                + " Category=" + game.getBettingCategory());
+                +
+                " Category=" + game.getBettingCategory());
         return response;
     }
 
@@ -164,13 +183,14 @@ public class WorkerHandler implements Runnable {
         String gameName = (String) request.get("gameName");
         Game game = worker.getGame(gameName);
 
-        if (game == null || !game.isActive()) {
+        // Game does not exist/is not active
+        if (game == null || !(game.isActive())) {
             response.put("status", "ERROR");
             response.put("message", "Game '" + gameName + "' doesn't exist");
             return response;
         }
 
-        Integer stars = (Integer) request.get("stars");
+        int stars = (int) request.get("stars");
         game.rate(stars);
 
         response.put("status", "OK");
@@ -244,9 +264,6 @@ public class WorkerHandler implements Runnable {
             output.flush();
 
             Request response = (Request) input.readObject();
-
-            // TO-DO handle response by printing something on screen
-
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -267,6 +284,7 @@ public class WorkerHandler implements Runnable {
 
         double bettingAmount = (Double) request.get("bettingAmount");
 
+        // Check betting amount validity
         if (bettingAmount > playedGame.getMaxBet()){
             response.put("status", "ERROR");
             response.put("message", "Betting amount too large");
@@ -282,7 +300,7 @@ public class WorkerHandler implements Runnable {
 
         srgRequest.put("gameName", gameName);
 
-        // Register game to SRG
+        // Request random number from SRG
         Request srgResponse = sendToSrg(srgRequest);
         if  (srgResponse == null) {
             response.put("status", "ERROR from Srg");
@@ -300,25 +318,21 @@ public class WorkerHandler implements Runnable {
                 amountWon = bettingAmount * playedGame.getJackpot();
             } else {
                 double[] A = new double[10];
+
                 switch (playedGame.getRiskLevel()) {
                     case "low":
-
                         A = LOW;
                         break;
-
                     case "medium":
-
                         A = MEDIUM;
                         break;
-
                     case "high":
-
                         A = HIGH;
                         break;
-
                     default:
                         break;
                 }
+
                 response.put("winStatus", "NOT JACKPOT");
                 amountWon = bettingAmount * A[number % 10];
             }
@@ -357,6 +371,11 @@ public class WorkerHandler implements Runnable {
         }
     }
 
+    /**
+     * Function that builds the hash digest.
+     * @param input
+     * @return
+     */
     private String sha256(String input) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

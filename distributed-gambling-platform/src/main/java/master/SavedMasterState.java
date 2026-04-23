@@ -9,7 +9,7 @@ import java .util.*;
  * The ClientHandler thread that later handles the REDUCER_CALLBACK calls
  * setResult(), which deposits the final game list and wakes the suspended
  * thread via notify().
- * Both methods are synchronized on 'this' (the SearchResult instance),
+ * Both methods are synchronized on 'this' (the SavedMasterState instance),
  * so wait() and notify() operate on the same monitor.
  */
 public class SavedMasterState {

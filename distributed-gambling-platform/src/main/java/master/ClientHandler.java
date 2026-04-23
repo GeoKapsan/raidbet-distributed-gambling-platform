@@ -82,7 +82,7 @@ public class ClientHandler implements Runnable {
         SavedMasterState state = new SavedMasterState();
         master.registerMapReduceOperation(mapId, state);
 
-        // creating MAP_TASK to send to Workers
+        // creating SEARCH task to send to Workers
         ArrayList<String> workers = master.getAllWorkerAddresses();
         int noOfWorkers = workers.size();
 

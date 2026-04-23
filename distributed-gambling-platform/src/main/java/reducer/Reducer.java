@@ -1,8 +1,6 @@
 package reducer;
 
-import game.Game;
 import master.Master;
-import shared.Request;
 
 import java.net.*;
 import java.util.*;
@@ -43,10 +41,6 @@ public class Reducer {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public synchronized int getNoOfWorkers() {
-        return noOfWorkers;
     }
 
     public String getMasterHostAndPort() {

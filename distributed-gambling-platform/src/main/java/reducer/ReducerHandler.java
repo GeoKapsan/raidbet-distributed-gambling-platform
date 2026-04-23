@@ -27,7 +27,7 @@ public class ReducerHandler implements Runnable {
 
             Request request = (Request) input.readObject();
 
-            Request response = handle(request);
+            Request response = handleSearch(request);
 
             output.writeObject(response);
 
