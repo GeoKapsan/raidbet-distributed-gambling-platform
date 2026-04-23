@@ -35,26 +35,7 @@ public class Game implements Serializable {
 
         this.bettingCategory = computeBettingCategory(minBet);
         
-        switch (riskLevel) {
-            case "low":
-
-                this.jackpot = 10.0;
-                break;
-
-            case "medium":
-
-                this.jackpot = 20.0;
-                break;
-
-            case "high":
-
-                this.jackpot = 40.0;
-                break;
-
-            default:
-                this.jackpot=0.0;
-                break;
-        }    }
+    }
 
     private static double computeJackpot(String riskLevel) {
         switch (riskLevel) {

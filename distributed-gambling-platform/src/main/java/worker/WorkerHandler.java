@@ -200,9 +200,7 @@ public class WorkerHandler implements Runnable {
     private Request handleMapTask(Request request) {
 
         // Saves results from map
-        ArrayList<String[]> results = mapFilters((int) request.get("mapId"), worker.getAllGames(), request);
-
-        System.out.println("[Worker: " + worker.getPort() + "] map() emitted " + results.size() + " games");
+        ArrayList<String> results = getResults(worker.getAllGames(), request);
 
         // Send map result to reducer, must be done before we send response back to Master
         sendToReducer((int) request.get("mapId"), results);
@@ -212,33 +210,37 @@ public class WorkerHandler implements Runnable {
         return response;
     }
 
-    /**
-     * Map function. Filters the Worker's game list to find the games that satisfy the filters the players give.
-     * @param key
-     * @param games
-     * @param filters
-     * @return
-     */
-    private ArrayList<String[]> mapFilters(int key, ArrayList<Game> games, Request filters) {
-        ArrayList<String[]> result = new ArrayList<String[]>();
+    private ArrayList<String> getResults(ArrayList<Game> games, Request request) {
+        ArrayList<String> result = new ArrayList<>();
 
-        for (Game game : games) {
-            String[] resultTuple = new String[2];
-            if (game.satisfiesFilters(filters)) {
-                resultTuple[0] = Integer.toString(key);
-                resultTuple[1] = game.getGameName();
-                result.add(resultTuple);
-            }
+        switch (request.getType()){
+            case SEARCH:
+                for (Game game : games) {
+                    if (game.satisfiesFilters(request)) {
+                        result.add(game.getGameName());
+                    }
+                }
+                break;
+
+            case PLAYER_PROFIT:
+                double resultProfit = worker.getPlayerProfit((String) request.get("playerName"));
+                if (!Double.isNaN(resultProfit))result.add(String.valueOf(resultProfit));
+                break;
+
+            case PROVIDER_PROFIT:
+               double profit;
+                for (Game game : games) {
+                    profit=worker.getGameProfit(game.getGameName());
+                    if (game.getProviderName().equals(request.get("providerName")) && !Double.isNaN(profit))
+                        result.add(game.getGameName()+":"+profit);
+                    break;
+                }
         }
+
         return result;
     }
 
-    /**
-     * Sends the result of the map operation to Reducer.
-     * @param mapId
-     * @param results
-     */
-    private void sendToReducer(int mapId, ArrayList<String[]> results) {
+    private void sendToReducer(int mapId, ArrayList<String> results) {
 
         // build Request for reducer
         Request request = new Request(Request.Type.SEARCH);
@@ -300,6 +302,9 @@ public class WorkerHandler implements Runnable {
 
         // Request random number from SRG
         Request srgResponse = sendToSrg(srgRequest);
+        if  (srgResponse == null) {
+            response.put("status", "ERROR from Srg");
+            return response;}
 
         int number = (int) srgResponse.get("number");
         String hashedNumber = (String) srgResponse.get("hashedNumber");

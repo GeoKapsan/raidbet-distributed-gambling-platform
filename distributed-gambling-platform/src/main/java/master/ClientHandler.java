@@ -44,7 +44,10 @@ public class ClientHandler implements Runnable {
         switch (request.getType()) {
             case ADD_GAME:
                 Game game = (Game) request.get("game");
-                forwardToSrg(request);
+                Request request1= new Request(Request.Type.ADD_GAME);
+                request1.put("gameName", game.getGameName());
+                request1.put("hashKey", game.getHashKey());
+                forwardToSrg(request1);
                 return forwardToWorkerAndGetResult(request, master.getWorkerAddress(game.getGameName()));
 
             case REMOVE_GAME:
@@ -56,8 +59,8 @@ public class ClientHandler implements Runnable {
             case PLAY:
                 return forwardToWorkerAndGetResult(request, master.getWorkerAddress((String) request.get("gameName")));
 
-            case SEARCH:
-                return handleSearch(request);
+            case SEARCH, PROVIDER_PROFIT, PLAYER_PROFIT:
+                return handleMapTask(request);
 
             case REDUCER_CALLBACK:
                 return handleReducerCallback(request);
@@ -69,7 +72,7 @@ public class ClientHandler implements Runnable {
 
     // MapReduce SHOW_GAMES & SEARCH ----------------------------------------------------------------------------------------------------
 
-    private Request handleSearch(Request request) {
+    private Request handleMapTask(Request request) {
 
         // generate new mapId
         int mapId = master.generateMapId();
@@ -123,12 +126,12 @@ public class ClientHandler implements Runnable {
         // This ClientThread will suspend waiting for another ClientThread to notify this thread after
         // it receives the REDUCER_CALLBACK with the result
         try {
-            ArrayList<String> games = state.waitForResult(TIMEOUT_MS);
+            ArrayList<String> results = state.waitForResult(TIMEOUT_MS);
 
             // remove this state from Master, no longer needed
             master.removeSavedMasterState(mapId);
 
-            if (games == null) {
+            if (results == null) {
                 // Timeout — Reducer never replied (setResult was not executed)
                 Request response = new Request(Request.Type.RESPONSE);
                 response.put("status",  "ERROR");
@@ -138,9 +141,9 @@ public class ClientHandler implements Runnable {
 
             System.out.println("[Master] Received Reduce result for mapId=" + mapId);
 
-            Request response = new Request(Request.Type.RESPONSE);
+            Request response = new Request(request.getType());
             response.put("status", "OK");
-            response.put("gameNames",  games);
+            response.put("result",  results);
             return response;
 
         } catch (InterruptedException e) {
@@ -162,14 +165,14 @@ public class ClientHandler implements Runnable {
      */
     private Request handleReducerCallback(Request request) {
         int mapId = (int) request.get("mapId");
-        ArrayList<String> games = (ArrayList<String>) request.get("gameNames");
+        ArrayList<String> results = (ArrayList<String>) request.get("result");
 
         System.out.println("[Master] Received REDUCER_CALLBACK result for mapId = " + mapId);
 
         SavedMasterState state = master.getMasterState(mapId);
         if (state != null) {
             // setResult will wake up suspended ClientHandler thread for specific mapId
-            state.setResult(games != null ? games : new ArrayList<>());
+            state.setResult(results != null ? results : new ArrayList<>());
         } else
             System.out.println("[Master] No state found for mapId = " + mapId);
 
@@ -207,36 +210,23 @@ public class ClientHandler implements Runnable {
 
     }
 
-    private Request forwardToSrg(Request request){
+    private void forwardToSrg(Request request){
 
         try (
                 Socket worker = new Socket(master.getSrgHost(), master.getSrgPort());
 
                 ObjectOutputStream output = new ObjectOutputStream(worker.getOutputStream());
-                ObjectInputStream input = new ObjectInputStream(worker.getInputStream());
 
             ) {
 
             output.flush();
-
-            if (request.containsKey("game")) {
-                Game game = (Game) request.get("game");
-                request.put("gameName", game.getGameName());
-                request.put("hashKey", game.getHashKey());
-            }
-            else {
-                request.put("gameName", request.get("gameName"));
-            }
-
             output.writeObject(request);
             output.flush();
 
-            Request response = (Request) input.readObject();
-            return response;
 
-        } catch (IOException | ClassNotFoundException e) {
+
+        } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }
 
     }

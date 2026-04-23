@@ -18,7 +18,7 @@ public class Reducer {
     private final HashMap<Integer, Integer> receivedCounts = new HashMap<>();
 
     // Accumulated game lists from Workers
-    private final HashMap<Integer, ArrayList<String[]>> collectedGames = new HashMap<Integer, ArrayList<String[]>>();
+    private final HashMap<Integer, ArrayList<String>> collectedResults = new HashMap<Integer, ArrayList<String>>();
 
     public Reducer(int port, String masterHost, int masterPort, int noOfWorkers) {
         this.port = port;
@@ -51,43 +51,33 @@ public class Reducer {
     // Reducer state operations
 
     public synchronized boolean mapIdRegistered(Integer mapId) {
-        return receivedCounts.containsKey(mapId) || collectedGames.containsKey(mapId);
+        return receivedCounts.containsKey(mapId) || collectedResults.containsKey(mapId);
     }
 
     public synchronized void registerMapReduce(int mapId) {
         receivedCounts.put(mapId, 0);
-        collectedGames.put(mapId, new ArrayList<String[]>());
+        collectedResults.put(mapId, new ArrayList<String>());
     }
 
-    public synchronized boolean collect(int mapId, ArrayList<String[]> games) {
+    public synchronized boolean collect(int mapId, ArrayList<String> results) {
         receivedCounts.put(mapId, receivedCounts.get(mapId) + 1);
 
-        collectedGames.get(mapId).addAll(games);
+        collectedResults.get(mapId).addAll(results);
 
         return noOfWorkers == receivedCounts.get(mapId);
     }
 
-    public synchronized ArrayList<String[]> getCollectedGames(int mapId) {
-        return collectedGames.get(mapId);
+    public ArrayList<String> getCollectedResults(int mapId) {
+        return collectedResults.get(mapId);
     }
 
-    public synchronized ArrayList<String> reduce(int mapId, ArrayList<String[]> games) {
-        ArrayList<String> result = new ArrayList<>();
 
-        // join all games to final_value
-        for (String[] game : games) {
-            if (Integer.parseInt(game[0]) != mapId) continue;
-            result.add(game[1]);
-        }
-
-        return result;
-    }
 
     public synchronized void cleanup(int mapId) {
         receivedCounts.remove(mapId);
 
         // remove games for mapId after reduce operation
-        collectedGames.remove(mapId);
+        collectedResults.remove(mapId);
     }
 
 

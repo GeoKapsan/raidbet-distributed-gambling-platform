@@ -182,7 +182,7 @@ public class Player {
             return;
         }
 
-        ArrayList<String> gameNames = (ArrayList<String>) response.get("gameNames");
+        ArrayList<String> gameNames = (ArrayList<String>) response.get("result");
         if (gameNames == null || gameNames.isEmpty()) {
             System.out.println("No games match your filters");
             return;
@@ -200,14 +200,13 @@ public class Player {
 
         // Insert betting amount
         System.out.print("Amount to add (ENTER to skip): ");
-        System.out.print("Betting amount (ENTER to skip): ");
         String addedAmountStr = scanner.nextLine().trim();
         if (addedAmountStr.isEmpty()) {
             System.out.println("[FAIL] Game name cannot be empty");
             return;
         }
 
-        Double addedAmount;
+        double addedAmount;
         try {
             addedAmount = Double.parseDouble(addedAmountStr);
         } catch (NumberFormatException e) {
