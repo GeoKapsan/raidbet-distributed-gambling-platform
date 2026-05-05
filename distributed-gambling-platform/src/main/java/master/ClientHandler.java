@@ -44,10 +44,14 @@ public class ClientHandler implements Runnable {
         switch (request.getType()) {
             case ADD_GAME:
                 Game game = (Game) request.get("game");
-                Request request1= new Request(Request.Type.ADD_GAME);
-                request1.put("gameName", game.getGameName());
-                request1.put("hashKey", game.getHashKey());
-                forwardToSrg(request1);
+
+                Request addRequest= new Request(Request.Type.ADD_GAME);
+                addRequest.put("gameName", game.getGameName());
+                addRequest.put("hashKey", game.getHashKey());
+
+                // Send Request to SRG
+                forwardToSrg(addRequest);
+
                 return forwardToWorkerAndGetResult(request, master.getWorkerAddress(game.getGameName()));
 
             case REMOVE_GAME:
@@ -74,15 +78,15 @@ public class ClientHandler implements Runnable {
 
     private Request handleMapTask(Request request) {
 
-        // generate new mapId
+        // Generate new mapId
         int mapId = master.generateMapId();
         System.out.println("[Master] Initiating SEARCH for mapId=" + mapId);
 
-        // register ClientHandler state in the waiting set before starting map function
+        // Register ClientHandler state in the waiting set before starting map function
         SavedMasterState state = new SavedMasterState();
         master.registerMapReduceOperation(mapId, state);
 
-        // creating SEARCH task to send to Workers
+        // Creating SEARCH task to send to Workers
         ArrayList<String> workers = master.getAllWorkerAddresses();
         int noOfWorkers = workers.size();
 
@@ -128,7 +132,7 @@ public class ClientHandler implements Runnable {
         try {
             ArrayList<String> results = state.waitForResult(TIMEOUT_MS);
 
-            // remove this state from Master, no longer needed
+            // Remove this state from Master, no longer needed
             master.removeSavedMasterState(mapId);
 
             if (results == null) {
@@ -214,16 +218,12 @@ public class ClientHandler implements Runnable {
 
         try (
                 Socket worker = new Socket(master.getSrgHost(), master.getSrgPort());
-
                 ObjectOutputStream output = new ObjectOutputStream(worker.getOutputStream());
-
             ) {
 
             output.flush();
             output.writeObject(request);
             output.flush();
-
-
 
         } catch (IOException e) {
             e.printStackTrace();

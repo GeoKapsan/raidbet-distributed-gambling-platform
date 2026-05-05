@@ -27,7 +27,7 @@ public class ReducerHandler implements Runnable {
 
             Request request = (Request) input.readObject();
 
-            Request response = handleSearch(request);
+            Request response = handle(request);
 
             output.writeObject(response);
 
@@ -46,7 +46,15 @@ public class ReducerHandler implements Runnable {
 
         boolean shouldReduce = reducer.collect(mapId, result);
 
-        if (shouldReduce) initiateReduce(mapId, request.getType());
+        if (shouldReduce) {
+            ArrayList<String> results = initiateReduce(mapId, request.getType());
+
+            Request requestToMaster = new Request(Request.Type.REDUCER_CALLBACK);
+            request.put("mapId", mapId);
+            request.put("result", results);
+
+            forwardToMaster(requestToMaster);
+        }
 
         Request response = new Request(Request.Type.RESPONSE);
         response.put("status", "OK");
@@ -54,55 +62,50 @@ public class ReducerHandler implements Runnable {
     }
 
 
-    private void initiateReduce(int mapId, Request.Type type) {
-        ArrayList<String> results= reducer.getCollectedResults(mapId);
+    private ArrayList<String> initiateReduce(int mapId, Request.Type type) {
+        ArrayList<String> results = reducer.getCollectedResults(mapId);
 
         reducer.cleanup(mapId);
-
-        Request request = new  Request(Request.Type.REDUCER_CALLBACK);
-        request.put("mapId", mapId);
 
         switch (type) {
             case SEARCH:
 
-                break;
+                return results;
 
             case PROVIDER_PROFIT:
-                if (results.isEmpty())
-                    results.add("Invalid provider name or no games have been played under this provider");
-                else {
-                    String[] parts;
-                    double profit=0.0;
 
-                    for (String profitPerGame : results) {
-                        parts = profitPerGame.split(":");
-                        profit+= Double.parseDouble(parts[1]);
-                    }
+                String[] parts;
+                double providerProfit = 0.0;
 
-                    results.add("Total:"+profit+" FUN");
-
+                for (String profitPerGame : results) {
+                    parts = profitPerGame.split(":");
+                    providerProfit += Double.parseDouble(parts[1]);
                 }
+
+                results.add("Total:" + providerProfit + " FUN");
 
                 break;
 
             case PLAYER_PROFIT:
-                if (results.isEmpty())
-                    results.add("Invalid player name");
-                else {
-                    double profit=0.0;
-                    for (String profitPerGame : results) {
-                        profit+=Double.parseDouble(profitPerGame);
-                    }
-                    request.put("result", "Total Profit/Loss:"+profit+" FUN");
+
+                double profit = 0.0;
+
+                for (String profitPerGame : results) {
+                    profit += Double.parseDouble(profitPerGame);
                 }
+
+                // Remove all elements
+                results.clear();
+
+                results.add("Total Profit/Loss:" + profit + " FUN");
+
                 break;
+
             default:
                 break;
         }
-        request.put("result", results);
 
-
-        Request response = forwardToMaster(request);
+        return results;
     }
 
     private Request forwardToMaster(Request request) {
