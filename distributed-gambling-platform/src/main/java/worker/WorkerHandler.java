@@ -202,7 +202,10 @@ public class WorkerHandler implements Runnable {
         ArrayList<String> results = getResults(worker.getAllGames(), request);
 
         // Send map result to reducer, must be done before we send response back to Master
-        sendToReducer((int) request.get("mapId"), results, request.getType());
+        Request mapRequest =  new Request(request.getType());
+        mapRequest.put("mapId", request.get("mapId"));
+        request.put("map_result", results);
+        sendToReducer(mapRequest);
 
         Request response = new Request(Request.Type.RESPONSE);
         response.put("status", "OK");
@@ -246,12 +249,10 @@ public class WorkerHandler implements Runnable {
         return result;
     }
 
-    private void sendToReducer(int mapId, ArrayList<String> results, Request.Type type) {
+    private void sendToReducer(Request request) {
 
         // build Request for reducer according
-        Request request = type == Request.Type.SEARCH ? new Request(Request.Type.SEARCH) : type == Request.Type.PLAYER_PROFIT ?  new Request(Request.Type.PLAYER_PROFIT) : new Request(Request.Type.PROVIDER_PROFIT);
-        request.put("mapId", mapId);
-        request.put("map_result", results);
+
 
         // connect to Reducer
         String reducerHost = worker.getReducerHostAndPort().split(":")[0];
