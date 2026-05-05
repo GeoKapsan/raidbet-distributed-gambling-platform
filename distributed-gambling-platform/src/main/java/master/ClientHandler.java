@@ -80,7 +80,7 @@ public class ClientHandler implements Runnable {
 
         // Generate new mapId
         int mapId = master.generateMapId();
-        System.out.println("[Master] Initiating SEARCH for mapId=" + mapId);
+        System.out.println("[Master] Initiating " + request.getType() + " for mapId=" + mapId);
 
         // Register ClientHandler state in the waiting set before starting map function
         SavedMasterState state = new SavedMasterState();
@@ -171,7 +171,7 @@ public class ClientHandler implements Runnable {
         int mapId = (int) request.get("mapId");
         ArrayList<String> results = (ArrayList<String>) request.get("result");
 
-        System.out.println("[Master] Received REDUCER_CALLBACK result for mapId = " + mapId);
+        System.out.println("[Master] Received REDUCER_CALLBACK result for mapId=" + mapId);
 
         SavedMasterState state = master.getMasterState(mapId);
         if (state != null) {
@@ -219,13 +219,14 @@ public class ClientHandler implements Runnable {
         try (
                 Socket worker = new Socket(master.getSrgHost(), master.getSrgPort());
                 ObjectOutputStream output = new ObjectOutputStream(worker.getOutputStream());
+                ObjectInputStream input = new ObjectInputStream(worker.getInputStream());
             ) {
 
             output.flush();
             output.writeObject(request);
             output.flush();
-
-        } catch (IOException e) {
+            Request response = (Request) input.readObject();
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
