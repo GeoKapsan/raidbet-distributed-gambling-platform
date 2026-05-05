@@ -229,6 +229,10 @@ public class ManagerConsole {
             return;
         }
 
+        if (minBetStr.isEmpty() ^ maxBetStr.isEmpty()) {
+            System.out.println("[FAIL] Either both or none of the values must be specified.");
+        }
+
         // Validate numeric inputs
         Double newMinBet = null;
         Double newMaxBet = null;
@@ -323,27 +327,38 @@ public class ManagerConsole {
 
         Request request = new Request(Request.Type.PROVIDER_PROFIT);
         request.put("providerName", choice);
-        Request response=sendToMaster(request);
 
-        ArrayList<String> result=(ArrayList<String>) response.get("result");
+        // Send Request to Master
+        Request response = sendToMaster(request);
+
+        // Receive response
+        ArrayList<String> result = (ArrayList<String>) response.get("result");
+
         if (result == null) {
             System.out.println("[FAIL] No result from Master.");
-            return;}
-        for (String s: result) System.out.println(s);
+            return;
+        }
+
+        for (String s: result)
+            System.out.println(s);
     }
 
-    private void playerProfit(){
+    private void playerProfit() {
         System.out.println("Enter player name:");
         String choice = scanner.nextLine().trim();
 
         Request request = new Request(Request.Type.PLAYER_PROFIT);
         request.put("playerName", choice);
 
-        Request response=sendToMaster(request);
-        ArrayList<String> result=(ArrayList<String>) response.get("result");
+        // Send Request to Master
+        Request response = sendToMaster(request);
+        ArrayList<String> result = (ArrayList<String>) response.get("result");
+
         if (result == null) {
             System.out.println("[FAIL] No result from Master.");
-            return;}
+            return;
+        }
+
         System.out.println(result.getFirst());
     }
 

@@ -67,7 +67,7 @@ public class Reducer {
         return noOfWorkers == receivedCounts.get(mapId);
     }
 
-    public ArrayList<String> getCollectedResults(int mapId) {
+    public synchronized ArrayList<String> getCollectedResults(int mapId) {
         return collectedResults.get(mapId);
     }
 

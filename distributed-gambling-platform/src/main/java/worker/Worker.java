@@ -94,12 +94,12 @@ public class Worker {
         }
     }
 
-    public double getPlayerProfit(String playerID) {
+    public synchronized double getPlayerProfit(String playerID) {
         if (playersProfit.containsKey(playerID)) return playersProfit.get(playerID);
         return Double.NaN;
     }
 
-    public double getGameProfit(String gameName) {
+    public synchronized double getGameProfit(String gameName) {
         if (gamesProfit.containsKey(gameName)) return gamesProfit.get(gameName);
         return Double.NaN;
     }

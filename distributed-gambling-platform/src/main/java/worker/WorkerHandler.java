@@ -50,7 +50,7 @@ public class WorkerHandler implements Runnable {
             case REMOVE_GAME: return handleRemoveGame(request);
             case MODIFY_GAME: return handleModifyGame(request);
             case RATE_GAME: return handleRateGame(request);
-            case SEARCH: return handleMapTask(request);
+            case SEARCH, PLAYER_PROFIT, PROVIDER_PROFIT: return handleMapTask(request);
             case PLAY: return handlePlay(request);
 
             default:
@@ -171,8 +171,7 @@ public class WorkerHandler implements Runnable {
                 + " Risk=" + game.getRiskLevel()
                 + " MinBet=" + game.getMinBet()
                 + " MaxBet=" + game.getMaxBet()
-                +
-                " Category=" + game.getBettingCategory());
+                + " Category=" + game.getBettingCategory());
         return response;
     }
 
@@ -203,17 +202,23 @@ public class WorkerHandler implements Runnable {
         ArrayList<String> results = getResults(worker.getAllGames(), request);
 
         // Send map result to reducer, must be done before we send response back to Master
-        sendToReducer((int) request.get("mapId"), results);
+        sendToReducer((int) request.get("mapId"), results, request.getType());
 
         Request response = new Request(Request.Type.RESPONSE);
         response.put("status", "OK");
         return response;
     }
 
+    /**
+     * Map function. Filters the Worker's game list to find the games that satisfy the filters the players give.
+     * @param games all the Worker's games
+     * @param request SEARCH/PROVIDER_PROFIT/PLAYER_PROFIT Request
+     * @return results
+     */
     private ArrayList<String> getResults(ArrayList<Game> games, Request request) {
         ArrayList<String> result = new ArrayList<>();
 
-        switch (request.getType()){
+        switch (request.getType()) {
             case SEARCH:
                 for (Game game : games) {
                     if (game.satisfiesFilters(request)) {
@@ -224,15 +229,16 @@ public class WorkerHandler implements Runnable {
 
             case PLAYER_PROFIT:
                 double resultProfit = worker.getPlayerProfit((String) request.get("playerName"));
-                if (!Double.isNaN(resultProfit))result.add(String.valueOf(resultProfit));
+                if (!Double.isNaN(resultProfit))
+                    result.add(String.valueOf(resultProfit));
                 break;
 
             case PROVIDER_PROFIT:
                double profit;
                 for (Game game : games) {
-                    profit=worker.getGameProfit(game.getGameName());
+                    profit = worker.getGameProfit(game.getGameName());
                     if (game.getProviderName().equals(request.get("providerName")) && !Double.isNaN(profit))
-                        result.add(game.getGameName()+":"+profit);
+                        result.add(game.getGameName() + ":" + profit);
                     break;
                 }
         }
@@ -240,10 +246,10 @@ public class WorkerHandler implements Runnable {
         return result;
     }
 
-    private void sendToReducer(int mapId, ArrayList<String> results) {
+    private void sendToReducer(int mapId, ArrayList<String> results, Request.Type type) {
 
-        // build Request for reducer
-        Request request = new Request(Request.Type.SEARCH);
+        // build Request for reducer according
+        Request request = type == Request.Type.SEARCH ? new Request(Request.Type.SEARCH) : type == Request.Type.PLAYER_PROFIT ?  new Request(Request.Type.PLAYER_PROFIT) : new Request(Request.Type.PROVIDER_PROFIT);
         request.put("mapId", mapId);
         request.put("map_result", results);
 
