@@ -85,9 +85,8 @@ public class Worker {
      * @param newProfit
      */
     public synchronized void updatePlayerProfit(String playerID, double newProfit) {
-
         if (playersProfit.containsKey(playerID)) {
-            Double oldProfit = playersProfit.get(playerID);
+            double oldProfit = getPlayerProfit(playerID);
             playersProfit.put(playerID, oldProfit + newProfit);
         } else {
             playersProfit.put(playerID, newProfit);

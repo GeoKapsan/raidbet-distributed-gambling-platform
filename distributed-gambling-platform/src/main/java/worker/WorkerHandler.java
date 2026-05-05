@@ -201,11 +201,16 @@ public class WorkerHandler implements Runnable {
         // Saves results from map
         ArrayList<String> results = getResults(worker.getAllGames(), request);
 
+        // build Request for reducer according
+        Request.Type type = request.getType();
+        int mapId = (int) request.get("mapId");
+
+        Request requestToReducer = type == Request.Type.SEARCH ? new Request(Request.Type.SEARCH) : type == Request.Type.PLAYER_PROFIT ?  new Request(Request.Type.PLAYER_PROFIT) : new Request(Request.Type.PROVIDER_PROFIT);
+        requestToReducer.put("mapId", mapId);
+        requestToReducer.put("map_result", results);
+
         // Send map result to reducer, must be done before we send response back to Master
-        Request mapRequest =  new Request(request.getType());
-        mapRequest.put("mapId", request.get("mapId"));
-        request.put("map_result", results);
-        sendToReducer(mapRequest);
+        sendToReducer(requestToReducer);
 
         Request response = new Request(Request.Type.RESPONSE);
         response.put("status", "OK");
@@ -228,12 +233,14 @@ public class WorkerHandler implements Runnable {
                         result.add(game.getGameName());
                     }
                 }
+
                 break;
 
             case PLAYER_PROFIT:
                 double resultProfit = worker.getPlayerProfit((String) request.get("playerName"));
                 if (!Double.isNaN(resultProfit))
                     result.add(String.valueOf(resultProfit));
+
                 break;
 
             case PROVIDER_PROFIT:
@@ -242,8 +249,9 @@ public class WorkerHandler implements Runnable {
                     profit = worker.getGameProfit(game.getGameName());
                     if (game.getProviderName().equals(request.get("providerName")) && !Double.isNaN(profit))
                         result.add(game.getGameName() + ":" + profit);
-                    break;
                 }
+
+                break;
         }
 
         return result;
@@ -251,10 +259,7 @@ public class WorkerHandler implements Runnable {
 
     private void sendToReducer(Request request) {
 
-        // build Request for reducer according
-
-
-        // connect to Reducer
+        // Connect to Reducer
         String reducerHost = worker.getReducerHostAndPort().split(":")[0];
         int reducerPort = Integer.parseInt(worker.getReducerHostAndPort().split(":")[1]);
         try (
@@ -289,7 +294,7 @@ public class WorkerHandler implements Runnable {
             return response;
         }
 
-        double bettingAmount = (Double) request.get("bettingAmount");
+        double bettingAmount = (double) request.get("bettingAmount");
 
         // Check betting amount validity
         if (bettingAmount > playedGame.getMaxBet()){
@@ -321,21 +326,29 @@ public class WorkerHandler implements Runnable {
             double amountWon;
 
             if (number % 100 == 0) {
+
                 response.put("winStatus", "JACKPOT!!!");
                 amountWon = bettingAmount * playedGame.getJackpot();
+
             } else {
                 double[] A = new double[10];
 
                 switch (playedGame.getRiskLevel()) {
                     case "low":
+
                         A = LOW;
                         break;
+
                     case "medium":
+
                         A = MEDIUM;
                         break;
+
                     case "high":
+
                         A = HIGH;
                         break;
+
                     default:
                         break;
                 }
@@ -347,7 +360,9 @@ public class WorkerHandler implements Runnable {
             response.put("amountWon", amountWon);
             response.put("status", "OK");
 
-            worker.updatePlayerProfit((String) request.get("playerID"), amountWon - bettingAmount);
+            String playerId = (String) request.get("playerId");
+
+            worker.updatePlayerProfit(playerId, amountWon - bettingAmount);
             worker.updateGameProfit(playedGame.getGameName(), bettingAmount - amountWon);
 
         } else {

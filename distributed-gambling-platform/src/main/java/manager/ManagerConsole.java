@@ -307,7 +307,7 @@ public class ManagerConsole {
             return ;
         }
 
-        ArrayList<String> gameNames = (ArrayList<String>) response.get("gameNames");
+        ArrayList<String> gameNames = (ArrayList<String>) response.get("result");
         if (gameNames == null || gameNames.isEmpty()) {
             System.out.println("[FAIL] Workers don't have any games.");
             return;
@@ -322,7 +322,7 @@ public class ManagerConsole {
 
     }
     private void providerProfit(){
-        System.out.println("Enter provider name:");
+        System.out.print("Enter provider name: ");
         String choice = scanner.nextLine().trim();
 
         Request request = new Request(Request.Type.PROVIDER_PROFIT);
@@ -339,12 +339,20 @@ public class ManagerConsole {
             return;
         }
 
-        for (String s: result)
-            System.out.println(s);
+        if (result.isEmpty()) {
+            System.out.println("No data for " + "\"" + choice + "\".");
+            return;
+        }
+
+        for (int i = 0; i < result.size() - 1; i++) {
+            System.out.println(result.get(i));
+        }
+
+        System.out.println("Total: " + result.getLast() + " FUN");
     }
 
     private void playerProfit() {
-        System.out.println("Enter player name:");
+        System.out.print("Enter player name: ");
         String choice = scanner.nextLine().trim();
 
         Request request = new Request(Request.Type.PLAYER_PROFIT);
@@ -354,12 +362,12 @@ public class ManagerConsole {
         Request response = sendToMaster(request);
         ArrayList<String> result = (ArrayList<String>) response.get("result");
 
-        if (result == null) {
+        if (result == null || result.isEmpty()) {
             System.out.println("[FAIL] No result from Master.");
             return;
         }
 
-        System.out.println(result.getFirst());
+        System.out.println("Total Profit/Loss: " + result.getFirst() + " FUN");
     }
 
 

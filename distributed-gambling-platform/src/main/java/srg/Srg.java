@@ -25,7 +25,7 @@ public class Srg {
             System.out.println("SRG server listening on port " + port + "...");
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("[SRG] New connection from " + clientSocket.getInetAddress());
+                System.out.println("[SRG] New connection from " + clientSocket.getInetAddress() + ':' + clientSocket.getPort());
                 (new Thread(new SrgHandler(this, clientSocket))).start();
             }
         } catch (IOException e) {
@@ -82,7 +82,7 @@ public class Srg {
             throw new RuntimeException(e);
         }
 
-        int srgPort        = Integer.parseInt(config.getProperty("srg.port"));
+        int srgPort = Integer.parseInt(config.getProperty("srg.port"));
 
         // Initialize and start SRG
         Srg srg = new Srg(srgPort);

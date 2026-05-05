@@ -50,8 +50,8 @@ public class ReducerHandler implements Runnable {
             ArrayList<String> results = initiateReduce(mapId, request.getType());
 
             Request requestToMaster = new Request(Request.Type.REDUCER_CALLBACK);
-            request.put("mapId", mapId);
-            request.put("result", results);
+            requestToMaster.put("mapId", mapId);
+            requestToMaster.put("result", results);
 
             forwardToMaster(requestToMaster);
         }
@@ -82,7 +82,12 @@ public class ReducerHandler implements Runnable {
                     providerProfit += Double.parseDouble(parts[1]);
                 }
 
-                results.add("Total:" + providerProfit + " FUN");
+                String providerProfitStr = Double.toString(providerProfit);
+
+                if (providerProfit > 0.0)
+                    providerProfitStr = "+"  + providerProfitStr;
+
+                results.add(providerProfitStr);
 
                 break;
 
@@ -97,7 +102,12 @@ public class ReducerHandler implements Runnable {
                 // Remove all elements
                 results.clear();
 
-                results.add("Total Profit/Loss:" + profit + " FUN");
+                String profitStr = Double.toString(profit);
+
+                if (profit > 0.0)
+                    profitStr = "+" + profitStr;
+
+                results.add(profitStr);
 
                 break;
 
