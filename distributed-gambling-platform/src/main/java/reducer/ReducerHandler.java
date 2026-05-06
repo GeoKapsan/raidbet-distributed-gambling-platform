@@ -42,12 +42,12 @@ public class ReducerHandler implements Runnable {
 
         if (!reducer.mapIdRegistered(mapId)) reducer.registerMapReduce(mapId);
 
-        ArrayList<String> result = (ArrayList<String>) request.get("map_result");
+        ArrayList<Object> result = (ArrayList<Object>) request.get("map_result");
 
         boolean shouldReduce = reducer.collect(mapId, result);
 
         if (shouldReduce) {
-            ArrayList<String> results = initiateReduce(mapId, request.getType());
+            ArrayList<Object> results = initiateReduce(mapId, request.getType());
 
             Request requestToMaster = new Request(Request.Type.REDUCER_CALLBACK);
             requestToMaster.put("mapId", mapId);
@@ -62,8 +62,8 @@ public class ReducerHandler implements Runnable {
     }
 
 
-    private ArrayList<String> initiateReduce(int mapId, Request.Type type) {
-        ArrayList<String> results = reducer.getCollectedResults(mapId);
+    private ArrayList<Object> initiateReduce(int mapId, Request.Type type) {
+        ArrayList<Object> results = reducer.getCollectedResults(mapId);
 
         reducer.cleanup(mapId);
 
@@ -77,8 +77,9 @@ public class ReducerHandler implements Runnable {
                 String[] parts;
                 double providerProfit = 0.0;
 
-                for (String profitPerGame : results) {
-                    parts = profitPerGame.split(":");
+                for (Object profitPerGame :  results) {
+                    String profitPerGameString = (String) profitPerGame;
+                    parts = profitPerGameString.split(":");
                     providerProfit += Double.parseDouble(parts[1]);
                 }
 
@@ -95,8 +96,8 @@ public class ReducerHandler implements Runnable {
 
                 double profit = 0.0;
 
-                for (String profitPerGame : results) {
-                    profit += Double.parseDouble(profitPerGame);
+                for (Object profitPerGame : results) {
+                    profit += Double.parseDouble((String) profitPerGame);
                 }
 
                 // Remove all elements

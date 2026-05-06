@@ -16,6 +16,7 @@ public class Worker {
     private final HashMap<String, Double> playersProfit = new HashMap<>();
     private final String srgHost;
     private final int srgPort;
+    private final File imageDirectory;
 
     public Worker(int port, String reducerHost, int reducerPort, String srgHost, int srgPort) {
         this.port = port;
@@ -23,6 +24,12 @@ public class Worker {
         this.reducerPort = reducerPort;
         this.srgHost = srgHost;
         this.srgPort = srgPort;
+
+        this.imageDirectory = new File("images");
+
+        if (!imageDirectory.exists()) {
+            imageDirectory.mkdirs();
+        }
     }
 
     public void start() {
@@ -52,13 +59,23 @@ public class Worker {
      * @param game the game to add
      * @return true if the game was added successfully, false if it wasn't added
      */
-    public synchronized boolean addGame(Game game) {
+    public synchronized boolean addGame(Game game, byte[] image) {
         if (games.containsKey(game.getGameName())) {
             if (games.get(game.getGameName()).isActive())
                 return false;
             games.get(game.getGameName()).setActive(true);
         } else {
             games.put(game.getGameName(), game);
+            String safeName = game.getGameName().replaceAll("[^a-zA-Z0-9]", "_");
+            File imageFile = new File(imageDirectory, safeName + ".png");
+
+            if (image != null) {
+                try (FileOutputStream fos = new FileOutputStream(imageFile)) {
+                    fos.write(image);
+                } catch (IOException e) {
+                    System.err.println("Worker: " + e.getMessage());
+                }
+            }
         }
         System.out.println("[Worker:" + port + "] Added game " + game.getGameName());
         return true;
