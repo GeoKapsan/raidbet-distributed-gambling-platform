@@ -29,7 +29,6 @@ public class Worker {
 
         if (!imageDirectory.exists()) {
             imageDirectory.mkdirs();
-            System.out.println("Worker: Ο φάκελος 'images' δημιουργήθηκε επιτυχώς.");
         }
     }
 

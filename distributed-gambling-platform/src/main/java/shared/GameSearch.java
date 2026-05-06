@@ -1,6 +1,8 @@
 package shared;
 
-public class GameSearch {
+import java.io.Serializable;
+
+public class GameSearch implements Serializable {
     private final String gameName;
     private final byte[] img;
 

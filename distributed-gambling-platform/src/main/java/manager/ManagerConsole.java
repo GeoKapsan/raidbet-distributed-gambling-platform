@@ -2,6 +2,7 @@ package manager;
 
 import game.Game;
 import master.Master;
+import shared.GameSearch;
 import shared.Request;
 
 import java.io.*;
@@ -319,15 +320,15 @@ public class ManagerConsole {
             return ;
         }
 
-        ArrayList<String> gameNames = (ArrayList<String>) response.get("result");
-        if (gameNames == null || gameNames.isEmpty()) {
+        ArrayList<Object> games = (ArrayList<Object>) response.get("result");
+        if (games == null || games.isEmpty()) {
             System.out.println("[FAIL] Workers don't have any games.");
             return;
         }
 
         System.out.println("\n── All Available games ──────────────────────────");
-        for (String g : gameNames) {
-            System.out.println("\t" + g);
+        for (Object g : games) {
+            System.out.println("\t" + ((GameSearch) g).getGameName());
             System.out.println("\t-----------------------------------");
         }
         System.out.println("────────────────────────────────────────");
