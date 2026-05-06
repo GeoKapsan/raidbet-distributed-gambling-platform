@@ -5,6 +5,7 @@ import java.net.*;
 import java.util.*;
 
 import master.Master;
+import shared.GameSearch;
 import shared.Request;
 import srg.Srg;
 
@@ -182,15 +183,16 @@ public class Player {
             return;
         }
 
-        ArrayList<String> gameNames = (ArrayList<String>) response.get("result");
-        if (gameNames == null || gameNames.isEmpty()) {
+        ArrayList<Object> games = (ArrayList<Object>) response.get("result");
+        if (games == null || games.isEmpty()) {
             System.out.println("No games match your filters");
             return;
         }
 
         System.out.println("\n── Matching games ──────────────────────────");
-        for (String g : gameNames) {
-            System.out.println("\t" + g);
+        for (Object g : games) {
+            GameSearch game = (GameSearch) g;
+            System.out.println("\t" + game.getGameName());
             System.out.println("\t-----------------------------------");
         }
         System.out.println("────────────────────────────────────────");

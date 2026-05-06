@@ -69,7 +69,7 @@ public class Worker {
             games.put(game.getGameName(), game);
             String safeName = game.getGameName().replaceAll("[^a-zA-Z0-9]", "_");
             File imageFile = new File(imageDirectory, safeName + ".png");
-            // 2. Αποθήκευση των bytes της εικόνας κατευθείαν στον δίσκο
+
             if (image != null) {
                 try (FileOutputStream fos = new FileOutputStream(imageFile)) {
                     fos.write(image);
