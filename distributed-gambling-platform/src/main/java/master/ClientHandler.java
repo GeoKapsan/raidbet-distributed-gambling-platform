@@ -130,7 +130,7 @@ public class ClientHandler implements Runnable {
         // This ClientThread will suspend waiting for another ClientThread to notify this thread after
         // it receives the REDUCER_CALLBACK with the result
         try {
-            ArrayList<String> results = state.waitForResult(TIMEOUT_MS);
+            ArrayList<Object> results = state.waitForResult(TIMEOUT_MS);
 
             // Remove this state from Master, no longer needed
             master.removeSavedMasterState(mapId);
@@ -169,7 +169,7 @@ public class ClientHandler implements Runnable {
      */
     private Request handleReducerCallback(Request request) {
         int mapId = (int) request.get("mapId");
-        ArrayList<String> results = (ArrayList<String>) request.get("result");
+        ArrayList<Object> results = (ArrayList<Object>) request.get("result");
 
         System.out.println("[Master] Received REDUCER_CALLBACK result for mapId=" + mapId);
 

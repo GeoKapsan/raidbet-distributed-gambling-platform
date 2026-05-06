@@ -6,6 +6,8 @@ import shared.Request;
 
 import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 import org.json.simple.JSONObject ;
@@ -106,6 +108,15 @@ public class ManagerConsole {
             String riskLevel = (String) jsonObject.get("RiskLevel");
             String hashKey = (String) jsonObject.get("HashKey");
 
+            byte[] logoBytes = null;
+
+            try {
+                logoBytes = Files.readAllBytes(Paths.get(logoPath));
+            } catch (Exception e) {
+                System.err.println("Fail to read logo file: " + logoPath);
+                return;
+            }
+
             // Instantiate Game object
             Game parsedGame = new Game(
                     gameName,
@@ -122,6 +133,7 @@ public class ManagerConsole {
             // Request build
             Request request = new Request(Request.Type.ADD_GAME);
             request.put("game", parsedGame);
+            request.put("image",logoBytes);
 
             // Send to Master
             System.out.println("Sending ADD_GAME request for : " + gameName);
@@ -332,7 +344,7 @@ public class ManagerConsole {
         Request response = sendToMaster(request);
 
         // Receive response
-        ArrayList<String> result = (ArrayList<String>) response.get("result");
+        ArrayList<Object> result = (ArrayList<Object>) response.get("result");
 
         if (result == null) {
             System.out.println("[FAIL] No result from Master.");
@@ -344,8 +356,8 @@ public class ManagerConsole {
             return;
         }
 
-        for (int i = 0; i < result.size() - 1; i++) {
-            System.out.println(result.get(i));
+        for (Object profit : result) {
+            System.out.println(profit);
         }
 
         System.out.println("Total: " + result.getLast() + " FUN");
@@ -360,7 +372,7 @@ public class ManagerConsole {
 
         // Send Request to Master
         Request response = sendToMaster(request);
-        ArrayList<String> result = (ArrayList<String>) response.get("result");
+        ArrayList<Object> result = (ArrayList<Object>) response.get("result");
 
         if (result == null || result.isEmpty()) {
             System.out.println("[FAIL] No result from Master.");

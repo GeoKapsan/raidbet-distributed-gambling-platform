@@ -14,7 +14,7 @@ import java .util.*;
  */
 public class SavedMasterState {
 
-    private ArrayList<String> result;
+    private ArrayList<Object> result;
     private boolean ready = false;
 
     /**
@@ -22,7 +22,7 @@ public class SavedMasterState {
      * and stops the suspension of previous ClientHandler thread.
      * @param result Reducer result
      */
-    public synchronized void setResult(ArrayList<String> result) {
+    public synchronized void setResult(ArrayList<Object> result) {
         this.result = result;
         ready = true;
         notify(); // wake thread waiting on thread
@@ -35,7 +35,7 @@ public class SavedMasterState {
      * @return games after Reducer returns result or null if timeout passes
      * @throws InterruptedException
      */
-    public synchronized ArrayList<String> waitForResult(long timeout)
+    public synchronized ArrayList<Object> waitForResult(long timeout)
             throws InterruptedException {
 
         long deadline = System.currentTimeMillis() + timeout;
