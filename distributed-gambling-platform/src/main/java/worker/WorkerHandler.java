@@ -327,7 +327,7 @@ public class WorkerHandler implements Runnable {
 
             if (number % 100 == 0) {
 
-                response.put("winStatus", "JACKPOT!!!");
+                response.put("winStatus", "JACKPOT");
                 amountWon = bettingAmount * playedGame.getJackpot();
 
             } else {
@@ -353,8 +353,13 @@ public class WorkerHandler implements Runnable {
                         break;
                 }
 
-                response.put("winStatus", "NOT JACKPOT");
                 amountWon = bettingAmount * A[number % 10];
+
+                if (amountWon == 0.0) {
+                    response.put("winStatus", "LOSS");
+                } else {
+                    response.put("winStatus", "NOT_JACKPOT");
+                }
             }
 
             response.put("amountWon", amountWon);
