@@ -1,10 +1,13 @@
 package worker;
 
 import game.Game;
+import shared.GameSearch;
 import shared.Request;
 
 import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.security.MessageDigest;
 
@@ -63,9 +66,10 @@ public class WorkerHandler implements Runnable {
 
     private Request handleAddGame(Request request) {
         Game game = (Game) request.get("game");
+        byte[] image = (byte[]) request.get("image");
         Request response = new Request(Request.Type.RESPONSE);
 
-        boolean addedGame = worker.addGame(game);
+        boolean addedGame = worker.addGame(game, image);
         if (!addedGame) {
             response.put("status", "ERROR");
             response.put("message", "Game" + game.getGameName() + " already exists.");
@@ -199,13 +203,12 @@ public class WorkerHandler implements Runnable {
     private Request handleMapTask(Request request) {
 
         // Saves results from map
-        ArrayList<String> results = getResults(worker.getAllGames(), request);
+        ArrayList<Object> results = getResults(worker.getAllGames(), request);
 
         // build Request for reducer according
-        Request.Type type = request.getType();
         int mapId = (int) request.get("mapId");
 
-        Request requestToReducer = type == Request.Type.SEARCH ? new Request(Request.Type.SEARCH) : type == Request.Type.PLAYER_PROFIT ?  new Request(Request.Type.PLAYER_PROFIT) : new Request(Request.Type.PROVIDER_PROFIT);
+        Request requestToReducer = new Request(request.getType());
         requestToReducer.put("mapId", mapId);
         requestToReducer.put("map_result", results);
 
@@ -223,14 +226,28 @@ public class WorkerHandler implements Runnable {
      * @param request SEARCH/PROVIDER_PROFIT/PLAYER_PROFIT Request
      * @return results
      */
-    private ArrayList<String> getResults(ArrayList<Game> games, Request request) {
-        ArrayList<String> result = new ArrayList<>();
+    private ArrayList<Object> getResults(ArrayList<Game> games, Request request) {
+        ArrayList<Object> result = new ArrayList<>();
 
         switch (request.getType()) {
             case SEARCH:
                 for (Game game : games) {
                     if (game.satisfiesFilters(request)) {
-                        result.add(game.getGameName() + ":" +  game.getMinBet() + ":" + game.getMaxBet() + ":" + game.getRiskLevel() + ":" + game.getBettingCategory() + ":" + game.getStars() + ":" + game.getJackpot());
+
+                        String safeName = game.getGameName().replaceAll("[^a-zA-Z0-9]", "_");
+                        String logoPath = "images/" + safeName + ".png";
+
+                        byte[] logoBytes = null;
+                        try {
+                            logoBytes = Files.readAllBytes(Paths.get(logoPath));
+                        } catch (Exception e) {
+                            System.err.println("Fail to read logo file: " + logoPath);
+                        }
+
+                        GameSearch gameSearch = new GameSearch(game.getGameName(), logoBytes,game.getMinBet(),game.getMaxBet(),game.getRiskLevel(),game.getBettingCategory(),game.getStars(),game.getJackpot());
+
+                        result.add(gameSearch);
+
                     }
                 }
 

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+<<<<<<< Updated upstream
+    <list default="true" id="51c1f384-282c-4b10-b92c-b83171f0c8df" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/shared/GameSearch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/shared/GameSearch.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/worker/WorkerHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/worker/WorkerHandler.java" afterDir="false" />
+    </list>
+=======
+    <list default="true" id="51c1f384-282c-4b10-b92c-b83171f0c8df" name="Changes" comment="" />
+>>>>>>> Stashed changes
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Giorgos-Raptis&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/GeoKapsan/distributed-gambling-platform.git&quot;,
+    &quot;accountId&quot;: &quot;a7e930c2-664a-44ed-9443-36f892092941&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3DMZJpxH8X5myFmY53xk50nMA4Q" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.ManagerConsole.executor": "Run",
+    "Application.Master.executor": "Run",
+    "Application.Player.executor": "Debug",
+    "Application.Reducer.executor": "Run",
+    "Application.Srg.executor": "Run",
+    "Application.Worker (2).executor": "Run",
+    "Application.Worker 1.executor": "Run",
+    "Application.Worker 2.executor": "Run",
+    "Application.Worker 3.executor": "Run",
+    "Application.Worker.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "rap",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/rapti/OneDrive/Desktop/tsontesTsiax/distributed-gambling-platform/distributed-gambling-platform/pom.xml",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "to.speed.mode.migration.done": "true"
+  }
+}]]></component>
+  <component name="RunManager" selected="Application.ManagerConsole">
+    <configuration name="ManagerConsole" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="manager.ManagerConsole" />
+      <module name="distributed-gambling-platform" />
+      <option name="PROGRAM_PARAMETERS" value="6001 6002 6003" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="manager.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Master" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="master.Master" />
+      <module name="distributed-gambling-platform" />
+      <option name="PROGRAM_PARAMETERS" value="6001 6002 6003" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Player" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="player.Player" />
+      <module name="distributed-gambling-platform" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="player.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Reducer" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="reducer.Reducer" />
+      <module name="distributed-gambling-platform" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Srg" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="srg.Srg" />
+      <module name="distributed-gambling-platform" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="srg.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Worker 1" type="Application" factoryName="Application" temporary="true">
+      <option name="MAIN_CLASS_NAME" value="worker.Worker" />
+      <module name="distributed-gambling-platform" />
+      <option name="PROGRAM_PARAMETERS" value="6001" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="worker.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Worker 2" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="worker.Worker" />
+      <module name="distributed-gambling-platform" />
+      <option name="PROGRAM_PARAMETERS" value="6002" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="worker.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Worker 3" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="worker.Worker" />
+      <module name="distributed-gambling-platform" />
+      <option name="PROGRAM_PARAMETERS" value="6003" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="worker.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.Worker 3" />
+      <item itemvalue="Application.Worker 2" />
+      <item itemvalue="Application.Master" />
+      <item itemvalue="Application.Reducer" />
+      <item itemvalue="Application.Player" />
+      <item itemvalue="Application.ManagerConsole" />
+      <item itemvalue="Application.Srg" />
+      <item itemvalue="Application.Worker 1" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.ManagerConsole" />
+        <item itemvalue="Application.Player" />
+        <item itemvalue="Application.Worker 1" />
+        <item itemvalue="Application.Srg" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="51c1f384-282c-4b10-b92c-b83171f0c8df" name="Changes" comment="" />
+      <created>1778093832763</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1778093832763</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

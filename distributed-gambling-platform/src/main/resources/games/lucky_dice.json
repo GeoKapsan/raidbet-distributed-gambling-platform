@@ -3,7 +3,7 @@
   "ProviderName": "ProviderA",
   "Stars": 3,
   "NoOfVotes": 95,
-  "GameLogo": "/usr/bin/images/lucky_dice.png",
+  "GameLogo": "src/main/resources/images/default.png",
   "MinBet": 0.5,
   "MaxBet": 5.0,
   "RiskLevel": "low",

@@ -18,7 +18,7 @@ public class Reducer {
     private final HashMap<Integer, Integer> receivedCounts = new HashMap<>();
 
     // Accumulated game lists from Workers
-    private final HashMap<Integer, ArrayList<String>> collectedResults = new HashMap<Integer, ArrayList<String>>();
+    private final HashMap<Integer, ArrayList<Object>> collectedResults = new HashMap<>();
 
     public Reducer(int port, String masterHost, int masterPort, int noOfWorkers) {
         this.port = port;
@@ -56,10 +56,10 @@ public class Reducer {
 
     public synchronized void registerMapReduce(int mapId) {
         receivedCounts.put(mapId, 0);
-        collectedResults.put(mapId, new ArrayList<String>());
+        collectedResults.put(mapId, new ArrayList<>());
     }
 
-    public synchronized boolean collect(int mapId, ArrayList<String> results) {
+    public synchronized boolean collect(int mapId, ArrayList<Object> results) {
         receivedCounts.put(mapId, receivedCounts.get(mapId) + 1);
 
         collectedResults.get(mapId).addAll(results);
@@ -67,7 +67,7 @@ public class Reducer {
         return noOfWorkers == receivedCounts.get(mapId);
     }
 
-    public synchronized ArrayList<String> getCollectedResults(int mapId) {
+    public synchronized ArrayList<Object> getCollectedResults(int mapId) {
         return collectedResults.get(mapId);
     }
 
