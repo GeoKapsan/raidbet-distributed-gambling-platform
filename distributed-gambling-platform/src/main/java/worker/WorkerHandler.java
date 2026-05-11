@@ -14,9 +14,9 @@ public class WorkerHandler implements Runnable {
     private final Socket clientSocket;
     private final Worker worker;
 
-    private static final double[] LOW    = {0.0, 0.0, 0.0, 0.1, 0.5, 1.0, 1.1, 1.3, 2.0, 2.5};
-    private static final double[] MEDIUM = {0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.5, 2.5, 3.5};
-    private static final double[] HIGH   = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 6.5};
+    private static final float[] LOW    = {0f, 0f, 0f, 0.1f, 0.5f, 1f, 1.1f, 1.3f, 2f, 2.5f};
+    private static final float[] MEDIUM = {0f, 0f, 0f, 0f, 0f, 0.5f, 1f, 1.5f, 2.5f, 3.5f};
+    private static final float[] HIGH   = {0f, 0f, 0f, 0f, 0f, 0f, 0f, 1f, 2f, 6.5f};
 
     public WorkerHandler(Socket clientSocket, Worker worker) {
         this.clientSocket = clientSocket;
@@ -122,10 +122,10 @@ public class WorkerHandler implements Runnable {
         }
 
         if (request.containsKey("minBet")) {
-            double newMin = (Double) request.get("minBet");
+            float newMin = (float) request.get("minBet");
 
             // Guard: minBet must be less than current (or new) maxBet
-            double effectiveMax = request.containsKey("maxBet") ? (Double) request.get("maxBet") : game.getMaxBet();
+            float effectiveMax = request.containsKey("maxBet") ? (float) request.get("maxBet") : game.getMaxBet();
 
             if (newMin >= effectiveMax) {
                 response.put("status", "ERROR");
@@ -142,7 +142,7 @@ public class WorkerHandler implements Runnable {
         }
 
         if (request.containsKey("maxBet")) {
-            double newMax = (Double) request.get("maxBet");
+            float newMax = (float) request.get("maxBet");
 
             // Guard: maxBet must be greater than current minBet (minBet may already have been updated above)
             if (newMax <= game.getMinBet()) {
@@ -230,24 +230,24 @@ public class WorkerHandler implements Runnable {
             case SEARCH:
                 for (Game game : games) {
                     if (game.satisfiesFilters(request)) {
-                        result.add(game.getGameName());
+                        result.add(game.getGameName() + ":" +  game.getMinBet() + ":" + game.getMaxBet() + ":" + game.getRiskLevel() + ":" + game.getBettingCategory() + ":" + game.getStars() + ":" + game.getJackpot());
                     }
                 }
 
                 break;
 
             case PLAYER_PROFIT:
-                double resultProfit = worker.getPlayerProfit((String) request.get("playerName"));
-                if (!Double.isNaN(resultProfit))
+                float resultProfit = worker.getPlayerProfit((String) request.get("playerName"));
+                if (!Float.isNaN(resultProfit))
                     result.add(String.valueOf(resultProfit));
 
                 break;
 
             case PROVIDER_PROFIT:
-               double profit;
+               float profit;
                 for (Game game : games) {
                     profit = worker.getGameProfit(game.getGameName());
-                    if (game.getProviderName().equals(request.get("providerName")) && !Double.isNaN(profit))
+                    if (game.getProviderName().equals(request.get("providerName")) && !Float.isNaN(profit))
                         result.add(game.getGameName() + ":" + profit);
                 }
 
@@ -294,7 +294,7 @@ public class WorkerHandler implements Runnable {
             return response;
         }
 
-        double bettingAmount = (double) request.get("bettingAmount");
+        float bettingAmount = (float) request.get("bettingAmount");
 
         // Check betting amount validity
         if (bettingAmount > playedGame.getMaxBet()){
@@ -323,7 +323,7 @@ public class WorkerHandler implements Runnable {
 
         if (hashedNumber.equals(sha256(number + (String) playedGame.getHashKey()))) {
 
-            double amountWon;
+            float amountWon;
 
             if (number % 100 == 0) {
 
@@ -331,7 +331,7 @@ public class WorkerHandler implements Runnable {
                 amountWon = bettingAmount * playedGame.getJackpot();
 
             } else {
-                double[] A = new double[10];
+                float[] A = new float[10];
 
                 switch (playedGame.getRiskLevel()) {
                     case "low":
@@ -355,10 +355,10 @@ public class WorkerHandler implements Runnable {
 
                 amountWon = bettingAmount * A[number % 10];
 
-                if (amountWon == 0.0) {
+                if (amountWon == 0f) {
                     response.put("winStatus", "LOSS");
                 } else {
-                    response.put("winStatus", "NOT_JACKPOT");
+                    response.put("winStatus", "WIN");
                 }
             }
 

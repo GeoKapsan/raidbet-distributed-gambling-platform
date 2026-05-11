@@ -75,16 +75,16 @@ public class ReducerHandler implements Runnable {
             case PROVIDER_PROFIT:
 
                 String[] parts;
-                double providerProfit = 0.0;
+                float providerProfit = 0f;
 
                 for (String profitPerGame : results) {
                     parts = profitPerGame.split(":");
-                    providerProfit += Double.parseDouble(parts[1]);
+                    providerProfit += Float.parseFloat(parts[1]);
                 }
 
-                String providerProfitStr = Double.toString(providerProfit);
+                String providerProfitStr = Float.toString(providerProfit);
 
-                if (providerProfit > 0.0)
+                if (providerProfit > 0f)
                     providerProfitStr = "+"  + providerProfitStr;
 
                 results.add(providerProfitStr);
@@ -93,18 +93,18 @@ public class ReducerHandler implements Runnable {
 
             case PLAYER_PROFIT:
 
-                double profit = 0.0;
+                float profit = 0f;
 
                 for (String profitPerGame : results) {
-                    profit += Double.parseDouble(profitPerGame);
+                    profit += Float.parseFloat(profitPerGame);
                 }
 
                 // Remove all elements
                 results.clear();
 
-                String profitStr = Double.toString(profit);
+                String profitStr = Float.toString(profit);
 
-                if (profit > 0.0)
+                if (profit > 0f)
                     profitStr = "+" + profitStr;
 
                 results.add(profitStr);

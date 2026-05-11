@@ -101,8 +101,8 @@ public class ManagerConsole {
             double stars = ((Number) jsonObject.get("Stars")).doubleValue();
             int noOfVotes = ((Number) jsonObject.get("NoOfVotes")).intValue();
             String logoPath = (String) jsonObject.get("GameLogo");
-            double minBet = ((Number) jsonObject.get("MinBet")).doubleValue();
-            double maxBet = ((Number) jsonObject.get("MaxBet")).doubleValue();
+            float minBet = ((Number) jsonObject.get("MinBet")).floatValue();
+            float maxBet = ((Number) jsonObject.get("MaxBet")).floatValue();
             String riskLevel = (String) jsonObject.get("RiskLevel");
             String hashKey = (String) jsonObject.get("HashKey");
 
@@ -234,13 +234,13 @@ public class ManagerConsole {
         }
 
         // Validate numeric inputs
-        Double newMinBet = null;
-        Double newMaxBet = null;
+        Float newMinBet = null;
+        Float newMaxBet = null;
 
         if (!minBetStr.isEmpty()) {
             try {
-                newMinBet = Double.parseDouble(minBetStr);
-                if (newMinBet <= 0) {
+                newMinBet = Float.parseFloat(minBetStr);
+                if (newMinBet <= 0f) {
                     System.out.println("[FAIL] Min bet must be positive.");
                     return;
                 }
@@ -252,8 +252,8 @@ public class ManagerConsole {
 
         if (!maxBetStr.isEmpty()) {
             try {
-                newMaxBet = Double.parseDouble(maxBetStr);
-                if (newMaxBet <= 0) {
+                newMaxBet = Float.parseFloat(maxBetStr);
+                if (newMaxBet <= 0f) {
                     System.out.println("[FAIL] Max bet must be positive.");
                     return;
                 }
@@ -314,8 +314,11 @@ public class ManagerConsole {
         }
 
         System.out.println("\n── All Available games ──────────────────────────");
+        String gameName;
         for (String g : gameNames) {
-            System.out.println("\t" + g);
+            gameName = g.split(":")[0];
+
+            System.out.println("\t" + gameName);
             System.out.println("\t-----------------------------------");
         }
         System.out.println("────────────────────────────────────────");
