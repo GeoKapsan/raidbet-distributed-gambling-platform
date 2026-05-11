@@ -12,8 +12,8 @@ public class Worker {
     private final String reducerHost;
     private final int reducerPort;
     private final HashMap<String, Game> games = new HashMap<>();
-    private final HashMap<String, Double> gamesProfit = new HashMap<>();
-    private final HashMap<String, Double> playersProfit = new HashMap<>();
+    private final HashMap<String, Float> gamesProfit = new HashMap<>();
+    private final HashMap<String, Float> playersProfit = new HashMap<>();
     private final String srgHost;
     private final int srgPort;
     private final File imageDirectory;
@@ -86,10 +86,10 @@ public class Worker {
      * @param gameName
      * @param newProfit
      */
-    public synchronized void updateGameProfit(String gameName, double newProfit) {
+    public synchronized void updateGameProfit(String gameName, float newProfit) {
 
         if (gamesProfit.containsKey(gameName)) {
-            Double oldProfit = gamesProfit.get(gameName);
+            float oldProfit = gamesProfit.get(gameName);
             gamesProfit.put(gameName, oldProfit + newProfit);
         } else {
             gamesProfit.put(gameName, newProfit);
@@ -101,23 +101,23 @@ public class Worker {
      * @param playerID
      * @param newProfit
      */
-    public synchronized void updatePlayerProfit(String playerID, double newProfit) {
+    public synchronized void updatePlayerProfit(String playerID, float newProfit) {
         if (playersProfit.containsKey(playerID)) {
-            double oldProfit = getPlayerProfit(playerID);
+            float oldProfit = getPlayerProfit(playerID);
             playersProfit.put(playerID, oldProfit + newProfit);
         } else {
             playersProfit.put(playerID, newProfit);
         }
     }
 
-    public synchronized double getPlayerProfit(String playerID) {
+    public synchronized float getPlayerProfit(String playerID) {
         if (playersProfit.containsKey(playerID)) return playersProfit.get(playerID);
-        return Double.NaN;
+        return Float.NaN;
     }
 
-    public synchronized double getGameProfit(String gameName) {
+    public synchronized float getGameProfit(String gameName) {
         if (gamesProfit.containsKey(gameName)) return gamesProfit.get(gameName);
-        return Double.NaN;
+        return Float.NaN;
     }
 
     /**
