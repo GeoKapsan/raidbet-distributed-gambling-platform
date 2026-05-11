@@ -244,7 +244,7 @@ public class WorkerHandler implements Runnable {
                             System.err.println("Fail to read logo file: " + logoPath);
                         }
 
-                        GameSearch gameSearch = new GameSearch(game.getGameName(), logoBytes);
+                        GameSearch gameSearch = new GameSearch(game.getGameName(), logoBytes,game.getMinBet(),game.getMaxBet(),game.getRiskLevel(),game.getBettingCategory(),game.getStars(),game.getJackpot());
 
                         result.add(gameSearch);
 

@@ -4,9 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+<<<<<<< Updated upstream
     <list default="true" id="51c1f384-282c-4b10-b92c-b83171f0c8df" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/shared/GameSearch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/shared/GameSearch.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/worker/WorkerHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/worker/WorkerHandler.java" afterDir="false" />
     </list>
+=======
+    <list default="true" id="51c1f384-282c-4b10-b92c-b83171f0c8df" name="Changes" comment="" />
+>>>>>>> Stashed changes
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -54,7 +60,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "#60 on rap",
+    "git-widget-placeholder": "rap",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/rapti/OneDrive/Desktop/tsontesTsiax/distributed-gambling-platform/distributed-gambling-platform/pom.xml",
