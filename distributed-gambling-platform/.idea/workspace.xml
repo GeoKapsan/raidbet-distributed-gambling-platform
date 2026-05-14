@@ -6,6 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="51c1f384-282c-4b10-b92c-b83171f0c8df" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/games/neon_roulette.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/games/neon_roulette.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/games/poker_kings.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/games/poker_kings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/games/shadow_blackjack.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/games/shadow_blackjack.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/games/thunder_baccarat.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/games/thunder_baccarat.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,6 +31,10 @@
     &quot;accountId&quot;: &quot;a7e930c2-664a-44ed-9443-36f892092941&quot;
   }
 }</component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 7,
   &quot;fromUser&quot;: false
@@ -55,6 +63,7 @@
     "Application.Worker 3.executor": "Run",
     "Application.Worker.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
