@@ -3,7 +3,7 @@
   "ProviderName": "ProviderA",
   "Stars": 4,
   "NoOfVotes": 230,
-  "GameLogo": "src/main/resources/images/default.png",
+  "GameLogo": "src/main/resources/images/dragon_slots_logo.png",
   "MinBet": 0.1,
   "MaxBet": 10.0,
   "RiskLevel": "low",

@@ -3,7 +3,7 @@
   "ProviderName": "ProviderC",
   "Stars": 3,
   "NoOfVotes": 150,
-  "GameLogo": "src/main/resources/images/default.png",
+  "GameLogo": "src/main/resources/images/golden_wheel_logo.png",
   "MinBet": 0.1,
   "MaxBet": 20.0,
   "RiskLevel": "medium",

@@ -3,7 +3,7 @@
   "ProviderName": "ProviderA",
   "Stars": 2,
   "NoOfVotes": 60,
-  "GameLogo": "src/main/resources/images/default.png",
+  "GameLogo": "src/main/resources/images/cosmic_crash_logo.png",
   "MinBet": 5.0,
   "MaxBet": 500.0,
   "RiskLevel": "high",
