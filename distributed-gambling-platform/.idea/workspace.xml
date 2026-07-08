@@ -6,37 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="51c1f384-282c-4b10-b92c-b83171f0c8df" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/game/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/game/Game.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/manager/ManagerConsole.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/manager/ManagerConsole.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/master/ClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/master/ClientHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/master/Master.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/master/Master.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/master/SavedMasterState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/master/SavedMasterState.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/player/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/player/Player.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/reducer/Reducer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/reducer/Reducer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/reducer/ReducerHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/reducer/ReducerHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/shared/GameSearch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/shared/GameSearch.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/shared/Request.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/shared/Request.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/srg/Buffer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/srg/Buffer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/srg/Srg.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/srg/Srg.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/srg/SrgHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/srg/SrgHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/worker/Worker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/worker/Worker.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/worker/WorkerHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/worker/WorkerHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/config/config.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/config/config.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/games/cosmic_crash.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/games/cosmic_crash.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/games/dragon_slots.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/games/dragon_slots.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/games/golden_wheel.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/games/golden_wheel.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/games/lucky_dice.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/games/lucky_dice.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/games/neon_roulette.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/games/neon_roulette.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/games/poker_kings.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/games/poker_kings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/games/shadow_blackjack.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/games/shadow_blackjack.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/games/thunder_baccarat.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/games/thunder_baccarat.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -163,7 +132,7 @@
       <workItem from="1779037885692" duration="979000" />
       <workItem from="1779373376342" duration="2993000" />
       <workItem from="1783530534959" duration="1484000" />
-      <workItem from="1783534188464" duration="1613000" />
+      <workItem from="1783534188464" duration="2074000" />
     </task>
     <servers />
   </component>
