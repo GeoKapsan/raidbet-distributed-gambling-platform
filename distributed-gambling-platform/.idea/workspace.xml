@@ -49,6 +49,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Application.Manager.executor": "Run",
     "Application.ManagerConsole.executor": "Run",
     "Application.Master.executor": "Run",
     "Application.Player.executor": "Debug",
@@ -61,10 +62,14 @@
     "Application.Worker 1.executor": "Run",
     "Application.Worker 2.executor": "Run",
     "Application.Worker 3.executor": "Run",
+    "Application.Worker 6001.executor": "Run",
+    "Application.Worker 6002.executor": "Run",
+    "Application.Worker 6003.executor": "Run",
     "Application.Worker.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
@@ -72,27 +77,20 @@
     "git-widget-placeholder": "main",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/rapti/OneDrive/Desktop/tsontesTsiax/distributed-gambling-platform/distributed-gambling-platform/pom.xml",
+    "last_opened_file_path": "/Users/georgioskapsanakis/Downloads/distributed-gambling-platform/distributed-gambling-platform/distributed-gambling-platform",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "to.speed.mode.migration.done": "true"
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RunManager" selected="Application.ManagerConsole">
     <configuration name="ManagerConsole" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="manager.ManagerConsole" />
       <module name="distributed-gambling-platform" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Master" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="master.Master" />
-      <module name="distributed-gambling-platform" />
-      <option name="PROGRAM_PARAMETERS" value="6001 6002 6003" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -104,52 +102,26 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Srg" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="srg.Srg" />
-      <module name="distributed-gambling-platform" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Worker (6001)" type="Application" factoryName="Application">
+    <configuration name="Worker" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="worker.Worker" />
       <module name="distributed-gambling-platform" />
-      <option name="PROGRAM_PARAMETERS" value="6001" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Worker (6002)" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="worker.Worker" />
-      <module name="distributed-gambling-platform" />
-      <option name="PROGRAM_PARAMETERS" value="6002" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Worker (6003)" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="worker.Worker" />
-      <module name="distributed-gambling-platform" />
-      <option name="PROGRAM_PARAMETERS" value="6003" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <list>
-      <item itemvalue="Application.Worker (6001)" />
-      <item itemvalue="Application.Worker (6002)" />
-      <item itemvalue="Application.Worker (6003)" />
-      <item itemvalue="Application.Master" />
-      <item itemvalue="Application.Reducer" />
-      <item itemvalue="Application.Srg" />
+      <item itemvalue="Application.Worker" />
       <item itemvalue="Application.ManagerConsole" />
+      <item itemvalue="Application.Reducer" />
     </list>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Application.ManagerConsole" />
-        <item itemvalue="Application.Srg" />
-      </list>
-    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.26222.65" />
+        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.26222.65" />
+      </set>
+    </attachedChunks>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -158,6 +130,10 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1778093832763</updated>
+      <workItem from="1779037885692" duration="979000" />
+      <workItem from="1779373376342" duration="2993000" />
+      <workItem from="1783530534959" duration="1484000" />
+      <workItem from="1783534188464" duration="2074000" />
     </task>
     <servers />
   </component>
