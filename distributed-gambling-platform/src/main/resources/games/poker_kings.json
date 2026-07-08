@@ -3,7 +3,7 @@
   "ProviderName": "ProviderB",
   "Stars": 5,
   "NoOfVotes": 512,
-  "GameLogo": "/usr/bin/images/poker_kings.png",
+  "GameLogo": "src/main/resources/images/default.png",
   "MinBet": 1.0,
   "MaxBet": 100.0,
   "RiskLevel": "medium",

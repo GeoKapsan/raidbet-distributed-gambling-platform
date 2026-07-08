@@ -3,7 +3,7 @@
   "ProviderName": "ProviderB",
   "Stars": 4,
   "NoOfVotes": 340,
-  "GameLogo": "/usr/bin/images/neon_roulette.png",
+  "GameLogo": "src/main/resources/images/default.png",
   "MinBet": 2.0,
   "MaxBet": 50.0,
   "RiskLevel": "medium",

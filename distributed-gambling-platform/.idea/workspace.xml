@@ -5,15 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="51c1f384-282c-4b10-b92c-b83171f0c8df" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/games/neon_roulette.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/games/neon_roulette.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/games/poker_kings.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/games/poker_kings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/games/shadow_blackjack.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/games/shadow_blackjack.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/games/thunder_baccarat.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/games/thunder_baccarat.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="41" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />

@@ -3,7 +3,7 @@
   "ProviderName": "ProviderB",
   "Stars": 4,
   "NoOfVotes": 410,
-  "GameLogo": "/usr/bin/images/thunder_baccarat.png",
+  "GameLogo": "src/main/resources/images/default.png",
   "MinBet": 1.0,
   "MaxBet": 75.0,
   "RiskLevel": "low",
