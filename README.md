@@ -194,7 +194,7 @@ This project was built under the following constraints, as defined by the course
 
 Built as the final project for the **Distributed Systems (3664)** course.
 
-The course is a 3rd year mandatory course for the Department of Informatics of the Athens University of Economics and Business.
+The course is a 3rd year mandatory course for the **Department of Informatics** of the **Athens University of Economics and Business**.
 
 ---
 
