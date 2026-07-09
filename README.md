@@ -1,6 +1,8 @@
-# Distributed Online Gambling Platform
+# RaidBet: A Distributed Online Gambling Platform
 
-A distributed systems project built from scratch in Java, implementing a fully functional online gambling platform on top of a custom **MapReduce framework** and a multi-node **Master/Worker architecture**. All communication between components is done exclusively through **TCP sockets**, with no external libraries or databases.
+A Distributed Systems project built from scratch in Java, implementing a fully functional online gambling platform on top of a custom **MapReduce framework** and a multi-node **Master/Worker architecture**. All communication between components is done exclusively through **TCP sockets**, with no external libraries or databases.
+
+>**Frontend:** A companion mobile/web frontend for this backend is available at https://github.com/GeoKapsan/distributed-gambling-platform-android
 
 ---
 
@@ -31,7 +33,7 @@ The system is designed to scale horizontally across an arbitrary number of machi
         \        |         /
     TCP  \    TCP|        / TCP
           ▼      ▼       ▼
-              [Reducer :7000]
+	      [Reducer :7000]
                   |
              TCP callback
                   |
@@ -40,15 +42,15 @@ The system is designed to scale horizontally across an arbitrary number of machi
 
 ### Components
 
-| Component | Role |
-|---|---|
-| **Master** | Central TCP server. Routes manager operations to the correct Worker via consistent hashing (`H(GameName) % N`). Coordinates MapReduce fan-out for player searches. Maintains a waiting room for in-flight search requests. |
-| **ClientHandler** | One thread per connected client (player, manager, or Reducer callback). Handles routing, MapReduce orchestration, and `wait`/`notify` synchronisation. |
-| **Worker** | TCP server that stores a partition of the game catalogue in memory. Runs the `map()` phase of MapReduce on its local data. Handles game management operations from the Manager. |
-| **WorkerHandler** | One thread per request received by a Worker. Executes `map()`, sends results directly to the Reducer, and ACKs the Master. |
-| **Reducer** | TCP server that collects `map()` results from all Workers, runs `reduce()` when all expected results have arrived, and sends the final result back to the Master via a callback connection. |
-| **ReducerHandler** | One thread per incoming connection to the Reducer. Handles both `REGISTER_MAP` messages from the Master and `MAP_RESULT` messages from Workers. |
-| **Secure Random Generator** | Separate multithreaded TCP server that continuously generates cryptographically secure random numbers used during bet resolution, implementing a producer-consumer buffer. |
+| Component                   | Role                                                                                                                                                                                                                                  |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Master**                  | Central TCP server. Routes operations to the correct Worker via consistent hashing (`H(GameName) % N`). Coordinates MapReduce fan-out for player searches. Maintains a waiting room for in-flight search requests (SavedMasterState). |
+| **ClientHandler**           | One thread per connected client (Player, Manager, or Reducer callback). Handles routing, MapReduce orchestration, and `wait`/`notify` synchronisation.                                                                                |
+| **Worker**                  | TCP server that stores a partition of the game catalogue in memory. Runs the `map()` phase of MapReduce on its local data. Handles game management operations from the Manager.                                                       |
+| **WorkerHandler**           | One thread per request received by a Worker. Executes `map()`, sends results directly to the Reducer, and ACKs the Master.                                                                                                            |
+| **Reducer**                 | TCP server that collects `map()` results from all Workers, runs `reduce()` when all expected results have arrived, and sends the final result back to the Master via a callback connection.                                           |
+| **ReducerHandler**          | One thread per incoming connection to the Reducer. Handles both `REGISTER_MAP` messages (message that initiates MapReduce operation) from the Master and `MAP_RESULT` messages from Workers.                                          |
+| **Secure Random Generator** | Separate multithreaded TCP server that continuously generates cryptographically secure random numbers used during bet resolution, implementing a producer-consumer buffer. One Random Number Generator per Game.                      |
 
 ---
 
@@ -59,7 +61,7 @@ When a player searches for games using filters (risk level, betting category, mi
 ```
 1. Master generates a unique mapId
 2. Master registers (mapId, workerCount) with Reducer
-3. Master fans out MAP_TASK to all Workers in parallel (one thread per Worker)
+3. Master fans out MAP_TASK to all Workers in parallel (one thread per Worker) and freezes another thread waiting for Reducer's callback
 4. Each Worker runs map() — emits (mapId, Game) for every game matching the filters
 5. Each Worker sends MAP_RESULT directly to Reducer, then ACKs Master
 6. Reducer accumulates results; when received == expected, triggers reduce()
@@ -70,6 +72,8 @@ When a player searches for games using filters (risk level, betting category, mi
 ```
 
 Multiple concurrent searches run fully independently, each identified by their `mapId`.
+
+This specific MapReduce flow happens for computing Provider and Player profit.
 
 ---
 
@@ -85,95 +89,50 @@ This ensures each game always lands on — and is always retrieved from — the 
 
 ---
 
-## Synchronisation
-
-All synchronisation is implemented manually using Java's built-in primitives, as required by the project specification. No classes from `java.util.concurrent` are used.
-
-| Scenario | Mechanism |
-|---|---|
-| Concurrent bets on the same game | `synchronized` on the `Worker` instance |
-| Concurrent map result collection in Reducer | `synchronized` on the `Reducer` instance |
-| Waiting for Reducer callback in Master | `wait()` / `notify()` on `SearchResult` |
-| Secure RNG buffer (producer-consumer) | `wait()` / `notify()` on the shared queue |
-| Shared mapId counter on Master | `synchronized` method |
-| Waiting room map on Master | `synchronized` methods |
-
----
-
 ## Game Data Format
 
 Games are registered via JSON files:
 
 ```json
-{
-  "GameName": "DragonSlots",
-  "ProviderName": "ProviderA",
-  "Stars": 4,
-  "NoOfVotes": 230,
-  "GameLogo": "/usr/bin/images/dragon_slots.png",
-  "MinBet": 0.1,
-  "MaxBet": 10.0,
-  "RiskLevel": "low",
-  "HashKey": "dragonkey123"
+{  
+  "GameName": "CosmicCrash",  
+  "ProviderName": "ProviderA",  
+  "Stars": 2,  
+  "NoOfVotes": 60,  
+  "GameLogo": "src/main/resources/images/cosmic_crash_logo.png",  
+  "MinBet": 5.0,  
+  "MaxBet": 500.0,  
+  "RiskLevel": "high",  
+  "HashKey": "cosmickey111"  
 }
 ```
 
 `BettingCategory` and `Jackpot` are computed by the system and are not part of the file.
 
 ---
-
-## Project Structure
-
-```
-distributed-gambling-platform/
-├── src/
-│   ├── shared/
-│   │   └── Request.java            # Serializable message envelope (all TCP comms)
-│   ├── model/
-│   │   └── Game.java               # Game data model
-│   ├── master/
-│   │   ├── Master.java             # TCP server, shared state, routing
-│   │   ├── ClientHandler.java      # Per-client thread, MapReduce orchestration
-│   │   └── SearchResult.java       # wait/notify lock object for search results
-│   ├── worker/
-│   │   ├── Worker.java             # TCP server, in-memory game store
-│   │   └── WorkerHandler.java      # Per-request thread, map() execution
-│   ├── reducer/
-│   │   ├── Reducer.java            # TCP server, shared state, reduce logic
-│   │   └── ReducerHandler.java     # Per-connection thread, result collection
-│   ├── manager/
-│   │   └── ManagerConsole.java     # CLI for game management
-│   ├── player/
-│   │   └── PlayerApp.java          # CLI for player interactions
-│   └── randomgenerator/
-│       └── RandomGenerator.java    # Secure RNG TCP server
-└── resources/
-    ├── config.properties           # Ports and addresses for all components
-    └── games/                      # Sample game JSON files
-```
-
----
-
 ## Configuration
 
 All components are configured via `resources/config.properties`. Set the following properties before running:
 
 ```properties
 # Master configuration
-master.port=5000
-master.host=localhost
+master.host=localhost  
+master.port=5001  
+
+# Worker configuration
+worker.count=3  
+worker.0.host=localhost  
+worker.1.host=localhost  
+worker.2.host=localhost  
+worker.port=6001  
 
 # Reducer configuration
-reducer.port=7000
-reducer.host=localhost
+reducer.host=localhost  
+reducer.port=7001  
 
-# Worker configuration (one per node)
-worker.port=6000
-worker.host=localhost
-
-# Random Generator configuration
-randomgen.port=8000
-randomgen.host=localhost
+# Secure Random Generator configuration
+srg.host=localhost  
+srg.port=8001
 ```
 
 ---
@@ -182,41 +141,11 @@ randomgen.host=localhost
 
 Each component is an independent Java process and can run on a separate machine. Before starting, make sure all addresses and ports are correctly set in `resources/config.properties`.
 
-Start the components in the following order so that each server is ready before the next one tries to connect to it:
+There is no specific order to run the components but all the components need to be active so the system works properly.
 
-1. **Reducer** — must be up first, as Workers send their map results directly to it
-   ```bash
-   java -cp bin src.reducer.Reducer
-   ```
+To run the project in a single machine, run **run.sh** script.
 
-2. **Secure Random Generator** — required for bet resolution
-   ```bash
-   java -cp bin src.randomgenerator.RandomGenerator
-   ```
-
-3. **Workers** — one process per node, each listening on its own port
-   ```bash
-   java -cp bin src.worker.Worker 1  # Worker 1
-   java -cp bin src.worker.Worker 2  # Worker 2
-   # ... add more Workers as needed
-   ```
-
-4. **Master** — connects to Workers and Reducer on startup
-   ```bash
-   java -cp bin src.master.Master <number_of_workers>
-   ```
-
-5. **Manager Console** — connects to the Master to register games
-   ```bash
-   java -cp bin src.manager.ManagerConsole
-   ```
-
-6. **Player App** — connects to the Master to search and play games
-   ```bash
-   java -cp bin src.player.PlayerApp
-   ```
-
-The number of Workers is arbitrary and configured at startup — no code changes are needed to add more nodes.
+The number of Workers is arbitrary and configured at startup through the configuration file so no code changes are needed to add more nodes.
 
 ---
 
@@ -250,7 +179,6 @@ This project was built under the following constraints, as defined by the course
 - Modify game properties (odds, limits, ratings)
 - View profit/loss statistics per game
 - View player-level statistics
-- Monitor system health
 
 ### System Features
 - Horizontal scaling across arbitrary number of nodes
@@ -264,15 +192,9 @@ This project was built under the following constraints, as defined by the course
 
 ## Course Context
 
-Built as the final project for the **Distributed Systems** course. The project covers:
+Built as the final project for the **Distributed Systems (3664)** course.
 
-- Distributed system design and component decomposition
-- The MapReduce programming model (parallel map, shuffle, reduce)
-- Multithreaded Java server design
-- TCP socket programming
-- Manual synchronisation with Java monitors
-- Consistent hashing for data partitioning
-- Producer-consumer concurrency pattern (Secure RNG)
+The course is a 3rd year mandatory course for the Department of Informatics of the Athens University of Economics and Business.
 
 ---
 
