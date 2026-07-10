@@ -2,7 +2,7 @@
 
 A Distributed Systems project built from scratch in Java, implementing a fully functional online gambling platform on top of a custom **MapReduce framework** and a multi-node **Master/Worker architecture**. All communication between components is done exclusively through **TCP sockets**, with no external libraries or databases.
 
->**Frontend:** A companion mobile/web frontend for this backend is available at https://github.com/GeoKapsan/distributed-gambling-platform-android
+>**Frontend:** A companion mobile/web frontend for this backend is available at [https://github.com/GeoKapsan/raidbet-distributed-gambling-platform-android](https://github.com/GeoKapsan/raidbet-distributed-gambling-platform-android)
 
 ---
 
